@@ -8,13 +8,6 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-#define getECX(p) _asm {mov p, ECX}
-#define setECX(p) _asm {mov ECX, p}
-#define getEBX(p) _asm {mov p, EBX}
-#define setEBX(p) _asm {mov EBX, p}
-
-#define MB(a) MessageBoxA(NULL, #a, #a, NULL)
-
 bool gbAttached = false;
 HANDLE ghThread;
 
@@ -597,9 +590,6 @@ int __fastcall itemPickup(Player* pPlayer, int relatedID, int itemID, int charge
 	return ret;
 }
 
-
-
-
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
 	/* init curl */
@@ -617,7 +607,6 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 		"\x00\x00\x33\xC4\x50\x8D\x84\x24\x88\x00\x00\x00\x64\xA3\x00\x00\x00\x00\x8B\x75"
 		"\x08\x8B\xD9\x89\x5C\x24\x1C\x89\x74\x24\x24\x81\xFE",
 		"xxxxxxxxx????xx????xxxxx????xxxxxxxxxx????xxxxxxxxxx????xxxxxxxxxxxx");
-
 
 	if (dwItemPickup)
 	{
