@@ -1,28 +1,32 @@
 ul.consumable-list {
     float: left;
+    font-size: 11px;
+    font-weight: bold;
     list-style: none;
     padding: 5px;
     width: 45px;
 }
 
-li span.coins, li span.bombs, li span.keys {
+ul.consumable-list li:before {
+    content: "";
     display: inline-block;
     height: 16px;
     left: -2px;
     position: relative;
-    top: 2px;
+    top: 4px;
     width: 16px;
 }
 
-li span.coins {
-   background: url(/gfx/ui/hudpickups.png) 0px 0px;
-}
-li span.bombs {
-   background: url(/gfx/ui/hudpickups.png) 0px 16px;
+ul.consumable-list li.coins:before {
+    background: url(/gfx/ui/hudpickups.png) 0px 0px;
 }
 
-li span.keys {
-   background: url(/gfx/ui/hudpickups.png) -16px 0px;
+ul.consumable-list li.bombs:before {
+    background: url(/gfx/ui/hudpickups.png) 0px 16px;
+}
+
+ul.consumable-list li.keys:before {
+    background: url(/gfx/ui/hudpickups.png) -16px 0px;
 }
 
 ul.item-list {

@@ -2,12 +2,14 @@
 var View = require('../libs/views'),
     urls = require('../libs/urls'),
     tracker = require('../libs/tracker'),
-    item = require('../libs/item');
+    items = require('../libs/items'),
+    trinkets = require('../libs/trinkets'),
+    pockets = require('../libs/pockets');
 
 /*
     Home page view
  */
- var indexView = new View('indexView');
+var indexView = new View('indexView');
 indexView.template = 'index',
 indexView.asView = function(req, res) {
     if ((req.query && req.query.reKey) && (req.session.user && req.session.user.display_name))
@@ -34,7 +36,9 @@ trackerView.asView = function(req, res) {
 trackerView.formatData = function(data) {
     return {
         display_name: data.display_name,
-        items: item.list(data.items),
+        items: items.list(data.items),
+        trinkets: trinkets.list(data.trinkets),
+        pockets: pockets.list(data.pockets),
         coins: data.coins,
         bombs: data.bombs,
         keys: data.keys,

@@ -1,10 +1,10 @@
 'use strict';
 
-var resources = require('../libs/resources')
+var itemlist = require('../libs/resources').items;
 
 module.exports.list = function(items) {
     var list = [];
     for (var i = 0, len = items.length; i < len; i++)
-        list.push(resources[items[i]]);
+        list.push(itemlist[items[i]]);
     return list;
 };

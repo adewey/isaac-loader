@@ -11,14 +11,14 @@
 
 {<content}
     <ul class="consumable-list">
-        <li>
-            <span class="coins"></span>{coins}
+        <li class="coins">
+            {coins}
         </li>
-        <li>
-            <span class="bombs"></span>{bombs}
+        <li class="bombs">
+            {bombs}
         </li>
-        <li>
-            <span class="keys"></span>{keys}
+        <li class="keys">
+            {keys}
         </li>
     </ul>
     <ul class="item-list">
@@ -39,5 +39,31 @@
                 </div>
             </li>
         {/items}
+    </ul>
+    <ul class="trinket-list">
+        {#trinkets}
+            <li>
+                <img src="/gfx/items/trinkets/{gfx}" />
+                <div class="hidden name">
+                    {name}
+                </div>
+                <div class="hidden description">
+                    {description}
+                </div>
+                <div class="hidden id">
+                    {id}
+                </div>
+            </li>
+        {/trinkets}
+    </ul>
+    <!-- this doesn't work yet -->
+    <ul class="pocket-list hidden">
+        {#pockets}
+            <li>
+                <div class="hidden id">
+                    {id}
+                </div>
+            </li>
+        {/pockets}
     </ul>
 {/content}

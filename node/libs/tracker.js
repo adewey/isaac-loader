@@ -31,6 +31,8 @@ var trackerSchema = new Schema({
     coins: Number,
     bombs: Number,
     keys: Number,
+    trinkets: [Number],
+    pockets: [Schema.Types.Mixed],
     items: [Number],
 })
 mongoose.model('Tracker', trackerSchema);
@@ -159,6 +161,10 @@ module.exports.pickupItem = function(stream_key, data, callback) {
             user.keys = data.keys;
             user.items = data.items;
             user.markModified('items');
+            user.trinkets = data.trinkets;
+            user.markModified('trinkets');
+            user.pockets = data.pockets;
+            user.markModified('pockets');
             return user.save(function(err, res) {
                 return callback(err, formatUserData(user));
             });

@@ -3,45 +3,61 @@
 var parser = require('xml2json'),
     fs = require('fs');
 
-var parsedFile = parser.toJson(fs.readFileSync('resources/items.xml', 'utf-8'), {object: true});
+var itemFile = parser.toJson(fs.readFileSync('resources/items.xml', 'utf-8'), {object: true});
+var pocketFile = parser.toJson(fs.readFileSync('resources/pocketitems.xml', 'utf-8'), {object: true});
 
-var json = {};
+var json = {items:{},trinkets:{},cards:{},pills:{}};
 
-var passive = parsedFile.items.passive;
-for (var i = 0, len = passive.length; i < len; i++)
+var passive = itemFile.items.passive;
+for (var i = 0; i < passive.length; i++)
 {
     passive[i]['state'] = 'passive';
     if (passive[i]['gfx'])
         passive[i]['gfx'] = passive[i]['gfx'].toLowerCase()
-    json[passive[i]['id']] = passive[i];
+    json.items[passive[i]['id']] = passive[i];
 }
 
-var active = parsedFile.items.active;
-for (var i = 0, len = active.length; i < len; i++)
+var active = itemFile.items.active;
+for (var i = 0; i < active.length; i++)
 {
     active[i]['state'] = 'active';
     if (active[i]['gfx'])
         active[i]['gfx'] = active[i]['gfx'].toLowerCase()
-    json[active[i].id] = active[i];
+    json.items[active[i].id] = active[i];
 }
    
-var familiar = parsedFile.items.familiar;
-for (var i = 0, len = familiar.length; i < len; i++)
+var familiar = itemFile.items.familiar;
+for (var i = 0; i < familiar.length; i++)
 {
     familiar[i]['state'] = 'familiar';
     if (familiar[i]['gfx'])
         familiar[i]['gfx'] = familiar[i]['gfx'].toLowerCase()
-    json[familiar[i].id] = familiar[i];
+    json.items[familiar[i].id] = familiar[i];
 }
 
-
-/*
-var trinket = parsedFile.items.trinket;
-for (var i in trinket)
+var trinket = itemFile.items.trinket;
+for (var i = 0; i < trinket.length; i++)
 {
-    trinket[i]['state'] = 'trinket';
-    json.trinket[trinket[i].id] = trinket[i];
+    json.trinkets[trinket[i].id] = trinket[i];
 }
-*/
+
+var card = pocketFile.pocketitems.card;
+for (var i = 0; i < card.length; i++)
+{
+    json.cards[card[i].id] = card[i];
+}
+
+var rune = pocketFile.pocketitems.rune;
+for (var i = 0; i < rune.length; i++)
+{
+    json.cards[rune[i].id] = rune[i];
+}
+
+var pilleffect = pocketFile.pocketitems.pilleffect;
+for (var i = 0; i < pilleffect.length; i++)
+{
+    json.pills[pilleffect[i].id] = pilleffect[i];
+}
+
 
 module.exports = json;
