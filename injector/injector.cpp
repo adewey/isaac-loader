@@ -39,7 +39,6 @@ bool bInjectDLL(DWORD dwPid)
 	szTempPath = strrchr(szPath, '\\');
 	szTempPath[0] = '\0';
 	strcat(szPath, "\\loader\\Debug\\loader.dll");
-	printf(szPath);
 	HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPid);
 	if (!process) {
 		printf("could not OpenProcess %d\n", dwPid);
@@ -69,7 +68,6 @@ bool bInjectDLL(DWORD dwPid)
 		return false;
 	}
 	CloseHandle(process);
-	printf("injected!\n");
 	return true;
 }
 
