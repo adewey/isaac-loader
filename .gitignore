@@ -31,6 +31,9 @@ node_modules/
 .*
 .*/
 start.sh
+# dont include any of the isaac resource files..
+*.xml
+*.png
 
 # c++ specific
 *.opensdf
