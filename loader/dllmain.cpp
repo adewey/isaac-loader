@@ -121,17 +121,12 @@ struct Entity
 /*0x000C*/	int _id;
 /*0x0010*/	unsigned int _variant;
 /*0x0014*/	int _subtype;
-/*0x0018*/	char _unk0018[0x10];
-/*0x0028*/	void* Paralysis;
-/*0x002C*/	char _unk002C[0x48];
+/*0x0018*/	char _unk0018[0x5C];
 /*0x0074*/	int _tearType;
 /*0x0078*/	char _unk0078[0x23C];
 /*0x02B4*/	float _scaleX;
 /*0x02B8*/	float _scaleY;
-/*0x02BC*/	char _unk02BC[0x88];
-/*0x0344*/	float dmg;  // no
-/*0x0348*/	float dmg2; // no
-/*0x034C*/	char _unk034C[0xC8];
+/*0x02BC*/	char _unk02BC[0x158];
 /*0x0414*/	float x;
 /*0x0418*/	float y;
 /*0x041C*/	char _unk041C[0x350];
@@ -163,9 +158,15 @@ struct Player : Entity
 /*0x0CB4*/	char _unk0CC4[0x18];
 /*0x0CCC*/	int _charges;
 /*0x0CD0*/	char _unk0CD0[0x94];
-/*0x0D64*/	int _trinketID;
-/*0x0D68*/	char _unk0D68[0x8];
-/*0x0D74*/	BOOL _items[0x15A];
+/*0x0D64*/	int _trinket1ID;
+/*0x0D68*/	int _trinket2ID;
+/*0x0D6C*/	char _unk0D6C[0x4];
+/*0x0D70*/	BOOL _items[0x15A];
+/*0x12D8*/	char _unk12D8[0x1CBC];
+/*0x2F94*/	int _pocket1ID;
+/*0x2F98*/	BOOL _pocket1isCard;
+/*0x2F9C*/	int _pocket2ID;
+/*0x2FA0*/	BOOL _pocket2isCard;
 }; 
 
 DWORD WINAPI updateServer(void* pThreadArgument)
