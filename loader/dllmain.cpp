@@ -4,9 +4,6 @@
 #include <windows.h>
 #include <tlhelp32.h>
 #include "detours.h"
-#include <iostream>
-
-using namespace std;
 
 bool gbAttached = false;
 HANDLE ghThread;
@@ -114,7 +111,7 @@ DWORD dwFindPattern(DWORD dwAddress, DWORD dwLen, BYTE *bMask, char * szMask)
 bool(__cdecl* original_checkForGoldenKey)();
 bool checkForGoldenKey()
 {
-	cout << "checkForGoldenKey() Called";
+	printf("checkForGoldenKey() Called");
 	return true;
 }
 
@@ -223,7 +220,7 @@ Player* gpPlayer = NULL;
 int(__fastcall *original_addCollectible)(Player* pPlayer, int relatedID, int itemID, int charges, int arg5);
 int __fastcall addCollectible(Player* pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
-	cout << "pPlayer [0x" << pPlayer << "]";
+	printf("pPlayer [0x%X]", pPlayer);
 	//store our player pointer if we dont have it
 	if (gpPlayer != pPlayer)
 		gpPlayer = pPlayer;
@@ -236,15 +233,16 @@ int __fastcall addCollectible(Player* pPlayer, int relatedID, int itemID, int ch
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
 	/* attach our console to our injector's console */
-	cout << "console: " << AttachConsole(GetProcessId(L"injector.exe"));
+	AttachConsole(GetProcessId(L"injector.exe"));
 	freopen("CONOUT$", "w", stdout);
+	printf("DLL Attached!\n");
 	/* init curl */
 	curl_global_init(CURL_GLOBAL_ALL);
 	/* scan for functions */
 	unsigned long dwPid = GetProcessId(L"isaac-ng.exe");
 	unsigned long dwSize = 0;
 	unsigned long dwBase = GetModuleBase(dwPid, L"isaac-ng.exe", &dwSize);
-	cout << "dwBase [0x" << (void *)dwBase << "]";
+	printf("dwBase [0x%X]", dwBase);
 	//DWORD dwCheckForGoldenKey = dwFindPattern(dwBase, dwSize, (BYTE*)"\x80\xB9\x68\x0B\x00\x00\x00\x75\x11\x8B\x81\x64\x0B\x00\x00\x85\xC0\x7E\x0A\x48\x89\x81\x64\x0B\x00\x00\xB0\x01\xC3\x32\xC0\xC3", "xx????xxxxx????xxxxxxx????xxxxxx");
 
 	DWORD dwAddCollectible = dwFindPattern(dwBase, dwSize,
@@ -256,16 +254,14 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 
 	if (dwAddCollectible)
 	{
-		char buffer[256] = { 0 };
-		sprintf_s(buffer, 256, "0x%X", dwAddCollectible - dwBase);
-		cout << "dwItemPickup found [" << buffer << "]";
+		printf("dwItemPickup found [0x%X]", dwAddCollectible - dwBase);
 		original_addCollectible = (int(__fastcall *)(Player*, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
 	}
 
 	/* wait to be detached */
 	while (gbAttached){ Sleep(100); }
+	printf("DLL Detached!");
 	/* un-detour functions */
-
 	DetourRemove((PBYTE)original_addCollectible, (PBYTE)addCollectible);
 	return 0;
 }
@@ -279,14 +275,12 @@ INT APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved)
 		/* use a global attached variable and a thread to make sure we don't crash if isaac is unloaded from under us */
 		if (!gbAttached)
 		{
-			cout << "DLL Attached!";
 			gbAttached = true;
 			//everything should be done in a thread instead of as part of the process attach call 
 			ghThread = CreateThread(NULL, 0, DllThread, NULL, 0L, NULL);
 		}
 		break;
 	case DLL_PROCESS_DETACH:
-		cout << "DLL Detached!";
 		gbAttached = false;
 		break;
 	case DLL_THREAD_ATTACH:
