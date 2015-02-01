@@ -175,8 +175,10 @@ DWORD WINAPI updateServer(void* pThreadArgument)
 	{
 		Player* pPlayer = ((Player *)pThreadArgument);
 		/* craft our json object to send to the server */
-		char buffer1[1024] = { 0 };
-		strcat_s(buffer1, 512, "[");
+
+		/* craft our item array */
+		char itembuffer[1024] = { 0 };
+		strcat_s(itembuffer, 512, "[");
 		char itemidbuffer[0x8];
 		for (int i = 0; i < 0x15A; i++)
 		{
@@ -184,13 +186,40 @@ DWORD WINAPI updateServer(void* pThreadArgument)
 			if (pPlayer->_items[i])
 			{
 				sprintf_s(itemidbuffer, 0x8, "%d,", i + 1);
-				strcat_s(buffer1, 1024, itemidbuffer);
+				strcat_s(itembuffer, 1024, itemidbuffer);
 			}
 		}
 		/* replace our trailing comma with a closing bracket */
-		buffer1[strlen(buffer1) - 1] = ']';
+		itembuffer[strlen(itembuffer) - 1] = ']';
+
+		/* craft our trinket array */
+		char trinketbuffer[1024] = { 0 };
+		strcat_s(trinketbuffer, 512, "[");
+		char trinketidbuffer[0x8];
+		ZeroMemory(trinketidbuffer, 0x8);
+		sprintf_s(trinketidbuffer, 0x8, "%d,", pPlayer->_trinket1ID);
+		strcat_s(trinketbuffer, 1024, trinketidbuffer);
+		ZeroMemory(trinketidbuffer, 0x8);
+		sprintf_s(trinketidbuffer, 0x8, "%d,", pPlayer->_trinket2ID);
+		strcat_s(trinketbuffer, 1024, trinketidbuffer);
+		/* replace our trailing comma with a closing bracket */
+		trinketbuffer[strlen(trinketbuffer) - 1] = ']';
+
+		/* craft our pocket array */
+		char pocketbuffer[1024] = { 0 };
+		strcat_s(pocketbuffer, 512, "[");
+		char pocketidbuffer[0x32];
+		ZeroMemory(pocketidbuffer, 0x32);
+		sprintf_s(pocketidbuffer, 0x32, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket1ID, pPlayer->_pocket1isCard);
+		strcat_s(pocketbuffer, 1024, pocketidbuffer);
+		ZeroMemory(pocketidbuffer, 0x32);
+		sprintf_s(pocketidbuffer, 0x32, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket2ID, pPlayer->_pocket2isCard);
+		strcat_s(pocketbuffer, 1024, pocketidbuffer);
+		/* replace our trailing comma with a closing bracket */
+		pocketbuffer[strlen(pocketbuffer) - 1] = ']';
+
 		char buffer2[2048] = { 0 };
-		sprintf_s(buffer2, 2048, "{\"coins\": %d, \"bombs\": %d, \"keys\": %d, \"items\": %s}", pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, buffer1);
+		sprintf_s(buffer2, 2048, "{\"coins\": %d, \"bombs\": %d, \"keys\": %d, \"items\": %s, \"trinkets\": %s, \"pockets\": %s}", pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
 
 		CURL *curl;
 		char finalUrl[256] = { 0 };
