@@ -115,55 +115,58 @@ bool checkForGoldenKey()
 	return true;
 }
 
-#pragma pack(1)
 struct Entity
 {
-/*0x000*/	char _unk0000[0xC];
-	int _id;
-	unsigned int _variant;
-	int _subtype;
-	char _unk0018[0x10];
-	void* Paralysis;
-	char _unk0021[0x48];
-	int _tearType;
-	char _unk0020[0x23C];
-	float _scaleX;
-	float _scaleY;
-	char _unk000D[0x88];
-	float dmg;  // no
-	float dmg2; // no
-	char _unk000C[0xC8];
-	float x;
-	float y;
-	char _unk0[0x350];
-};
+/*0x0000*/	char _unk0000[0xC];
+/*0x000C*/	int _id;
+/*0x0010*/	unsigned int _variant;
+/*0x0014*/	int _subtype;
+/*0x0018*/	char _unk0018[0x10];
+/*0x0028*/	void* Paralysis;
+/*0x002C*/	char _unk002C[0x48];
+/*0x0074*/	int _tearType;
+/*0x0078*/	char _unk0078[0x23C];
+/*0x02B4*/	float _scaleX;
+/*0x02B8*/	float _scaleY;
+/*0x02BC*/	char _unk02BC[0x88];
+/*0x0344*/	float dmg;  // no
+/*0x0348*/	float dmg2; // no
+/*0x034C*/	char _unk034C[0xC8];
+/*0x0414*/	float x;
+/*0x0418*/	float y;
+/*0x041C*/	char _unk041C[0x350];
+}; /*0x076C*/
 
-#pragma pack(1)
 struct Player : Entity
 {
-	char _unk76C[0x3E4];
-	int _maxHearts;
-	int _hearts;
-	int _eternalHearts;
-	int _soulHearts;
-	int _blackHeartMask;
-	int _jarHearts;
-	int _numKeys;
-	int _hasGoldenKey;
-	int _numBombs;
-	int _numCoins;
-	char _unk900[0x6C];
-	float _shotspeed;
-	char _unkA00[0x08];
-	float _damage;
-	float _range;
-	char _unkB00[0xBC];
-	float _speed;
-	float _luck;
-	char _unkC00[0xB4];
-	BOOL _items[0x15A];
-	char _unkB78[0x1D88];
-};
+/*0x076C*/	char _unk76C[0x3E4];
+/*0x0B50*/	int _maxHearts;
+/*0x0B54*/	int _hearts;
+/*0x0B58*/	int _eternalHearts;
+/*0x0B5C*/	int _soulHearts;
+/*0x0B60*/	int _blackHeartMask;
+/*0x0B64*/	int _jarHearts;
+/*0x0B68*/	int _numKeys;
+/*0x0B6C*/	int _hasGoldenKey;
+/*0x0B70*/	int _numBombs;
+/*0x0B74*/	int _numCoins;
+/*0x0B78*/	char _unk0B78[0x24];
+/*0x0B9C*/	char* _characterName;
+/*0x0BA0*/	char _unk0BA0[0x3C];
+/*0x0BDC*/	float _shotspeed;
+/*0x0BE0*/	char _unk0BEO[0x08];
+/*0x0BE8*/	float _damage;
+/*0x0BEC*/	float _range;
+/*0x0BF0*/	char _unk0BF0[0xBC];
+/*0x0CAC*/	float _speed;
+/*0x0CB0*/	float _luck;
+/*0x0CB4*/	char _unk0CC4[0x18];
+/*0x0CCC*/	int _charges;
+/*0x0CD0*/	char _unk0CD0[0x94];
+/*0x0D64*/	int _trinketID;
+/*0x0D68*/	char _unk0D68[0x8];
+/*0x0D74*/	BOOL _items[0x15A];
+}; 
 
 DWORD WINAPI updateServer(void* pThreadArgument)
 {
