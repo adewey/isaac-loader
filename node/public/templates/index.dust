@@ -1,0 +1,29 @@
+{>"base" /}
+
+{<title}
+	Isaac Tracker
+{/title}
+
+{<content}
+    {#user}
+        <span class="key">
+            {stream_key}
+        </span>
+        <br />
+        <a href="/?reKey=true">
+            regenerate key?
+        </a>
+        <br />
+        <a href="/{display_name}/">
+            {display_name}
+        </a>
+        &nbsp;
+        <a href="/twitch/logout/">
+            logout?
+        </a>
+    {:else}
+        <a href="/twitch/redirect">
+            <img src="//ttv-api.s3.amazonaws.com/assets/connect_dark.png" />
+        </a>
+    {/user}
+{/content}

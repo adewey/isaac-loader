@@ -1,0 +1,43 @@
+{>"base" /}
+
+{<title}
+	Isaac Tracker - {display_name}
+{/title}
+
+{<extra_head}
+<meta http-equiv="refresh" content="30" />   
+{/extra_head}
+
+
+{<content}
+    <ul class="consumable-list">
+        <li class="coins">
+            {coins}
+        </li>
+        <li class="bombs">
+            {bombs}
+        </li>
+        <li class="keys">
+            {keys}
+        </li>
+    </ul>
+    <ul class="item-list">
+        {#items}
+            <li>
+                <img src="/gfx/items/collectibles/{gfx}" />
+                <div class="hidden name">
+                    {name}
+                </div>
+                <div class="hidden description">
+                    {description}
+                </div>
+                <div class="hidden state">
+                    {state}
+                </div>
+                <div class="hidden id">
+                    {id}
+                </div>
+            </li>
+        {/items}
+    </ul>
+{/content}
