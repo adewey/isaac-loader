@@ -20,9 +20,21 @@
 *.lai
 *.la
 *.a
-*.lib
 
 # Executables
 *.exe
 *.out
 *.app
+
+# nodejs specific
+node_modules/
+.*
+.*/
+start.sh
+
+# c++ specific
+*.opensdf
+*.sdf
+*.suo
+Debug/
+ipch/
