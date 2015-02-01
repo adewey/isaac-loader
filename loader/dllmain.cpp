@@ -111,7 +111,7 @@ DWORD dwFindPattern(DWORD dwAddress, DWORD dwLen, BYTE *bMask, char * szMask)
 bool(__cdecl* original_checkForGoldenKey)();
 bool checkForGoldenKey()
 {
-	printf("checkForGoldenKey() Called");
+	printf("checkForGoldenKey() Called\n");
 	return true;
 }
 
@@ -220,7 +220,7 @@ Player* gpPlayer = NULL;
 int(__fastcall *original_addCollectible)(Player* pPlayer, int relatedID, int itemID, int charges, int arg5);
 int __fastcall addCollectible(Player* pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
-	printf("pPlayer [0x%X]", pPlayer);
+	printf("pPlayer [0x%X]\n", pPlayer);
 	//store our player pointer if we dont have it
 	if (gpPlayer != pPlayer)
 		gpPlayer = pPlayer;
@@ -242,7 +242,7 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	unsigned long dwPid = GetProcessId(L"isaac-ng.exe");
 	unsigned long dwSize = 0;
 	unsigned long dwBase = GetModuleBase(dwPid, L"isaac-ng.exe", &dwSize);
-	printf("dwBase [0x%X]", dwBase);
+	printf("dwBase [0x%X]\n", dwBase);
 	//DWORD dwCheckForGoldenKey = dwFindPattern(dwBase, dwSize, (BYTE*)"\x80\xB9\x68\x0B\x00\x00\x00\x75\x11\x8B\x81\x64\x0B\x00\x00\x85\xC0\x7E\x0A\x48\x89\x81\x64\x0B\x00\x00\xB0\x01\xC3\x32\xC0\xC3", "xx????xxxxx????xxxxxxx????xxxxxx");
 
 	DWORD dwAddCollectible = dwFindPattern(dwBase, dwSize,
@@ -254,13 +254,13 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 
 	if (dwAddCollectible)
 	{
-		printf("dwItemPickup found [0x%X]", dwAddCollectible - dwBase);
+		printf("dwItemPickup found [0x%X]\n", dwAddCollectible - dwBase);
 		original_addCollectible = (int(__fastcall *)(Player*, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
 	}
 
 	/* wait to be detached */
 	while (gbAttached){ Sleep(100); }
-	printf("DLL Detached!");
+	printf("DLL Detached!\n");
 	/* un-detour functions */
 	DetourRemove((PBYTE)original_addCollectible, (PBYTE)addCollectible);
 	return 0;
