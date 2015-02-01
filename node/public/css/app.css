@@ -1,0 +1,45 @@
+ul.consumable-list {
+    float: left;
+    list-style: none;
+    padding: 5px;
+    width: 45px;
+}
+
+li span.coins, li span.bombs, li span.keys {
+    display: inline-block;
+    height: 16px;
+    left: -2px;
+    position: relative;
+    top: 2px;
+    width: 16px;
+}
+
+li span.coins {
+   background: url(/gfx/ui/hudpickups.png) 0px 0px;
+}
+li span.bombs {
+   background: url(/gfx/ui/hudpickups.png) 0px 16px;
+}
+
+li span.keys {
+   background: url(/gfx/ui/hudpickups.png) -16px 0px;
+}
+
+ul.item-list {
+    float: left;
+    list-style: none;
+    overflow: hidden;
+    padding: 5px;
+    width: 25%;
+}
+
+ul.item-list li {
+    display: inline-block;
+    float: left;
+    border: 1px solid transparent;
+}
+
+ul.item-list li.active {
+    border: 1px solid red;
+    border-radius: 3px;
+}

@@ -11,19 +11,19 @@
 
 {<content}
     <ul class="consumable-list">
-        <li class="coins">
-            {coins}
+        <li>
+            <span class="coins"></span>{coins}
         </li>
-        <li class="bombs">
-            {bombs}
+        <li>
+            <span class="bombs"></span>{bombs}
         </li>
-        <li class="keys">
-            {keys}
+        <li>
+            <span class="keys"></span>{keys}
         </li>
     </ul>
     <ul class="item-list">
         {#items}
-            <li>
+            <li class="{state}">
                 <img src="/gfx/items/collectibles/{gfx}" />
                 <div class="hidden name">
                     {name}

@@ -32,8 +32,7 @@ trackerView.asView = function(req, res) {
 };
 
 trackerView.formatData = function(data) {
-    console.log(data);
-    var ret = {
+    return {
         display_name: data.display_name,
         items: item.list(data.items),
         coins: data.coins,
@@ -41,8 +40,6 @@ trackerView.formatData = function(data) {
         keys: data.keys,
         updated_at: data.updated_at,
     };
-    console.log(ret);
-    return ret;
 };
     
 var actionView = new View('actionView');
@@ -70,6 +67,7 @@ actionView.asView = function(req, res) {
             return;
         case 'pickup':
             //this is the only one we use currently
+            console.log(req.body);
             tracker.pickupItem(stream_key, req.body, function() {
                 res.status(200).send();
             });
