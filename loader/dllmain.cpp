@@ -1,3 +1,4 @@
+#include "utilities.h"
 #include "commands.h"
 #include "events.h"
 #include "hooks.h"

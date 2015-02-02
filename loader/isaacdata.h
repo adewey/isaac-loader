@@ -1,6 +1,5 @@
 #ifndef ISAACDATA_H
 #define ISAACDATA_H
-#include "utilities.h"
 
 struct Entity
 {
@@ -48,12 +47,12 @@ struct Player : Entity
 	/*0x0D64*/	int _trinket1ID;
 	/*0x0D68*/	int _trinket2ID;
 	/*0x0D6C*/	char _unk0D6C[0x4];
-	/*0x0D70*/	BOOL _items[0x15A];
+	/*0x0D70*/	int _items[0x15A];
 	/*0x12D8*/	char _unk12D8[0x1CBC];
 	/*0x2F94*/	int _pocket1ID;
-	/*0x2F98*/	BOOL _pocket1isCard;
+	/*0x2F98*/	int _pocket1isCard;
 	/*0x2F9C*/	int _pocket2ID;
-	/*0x2FA0*/	BOOL _pocket2isCard;
+	/*0x2FA0*/	int _pocket2isCard;
 };
 
 

@@ -1,4 +1,5 @@
 #include "hooks.h"
+#include "utilities.h"
 
 //TODO(dither): move this updateserver into its own plugin
 char* gIsaacUrl = "http://www.isaactracker.com";

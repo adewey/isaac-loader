@@ -1,4 +1,5 @@
 #include "commands.h"
+#include "utilities.h"
 
 void InputCommand(int argc, char *argv[])
 {
