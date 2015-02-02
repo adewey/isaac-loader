@@ -90,9 +90,7 @@
     <ClCompile Include="commands.cpp" />
     <ClCompile Include="events.cpp" />
     <ClCompile Include="hooks.cpp" />
-    <ClCompile Include="utilities.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="commands.h" />
