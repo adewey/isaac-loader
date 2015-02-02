@@ -17,6 +17,19 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 		/* monitor for commands */
 		char buffer[MAX_PATH] = { 0 };
 		cin >> buffer;
+		if (strstr(buffer, "setkey ") != NULL){
+			cout << "Command Recognized. \n";
+			char * keyLoc = strstr(buffer, "setkey ") + 7; // 7 is length of 'setkey '
+			char *newline;
+			if ((newline = strchr(keyLoc, '\n')) != NULL){
+				*newline = '\0';
+			}
+			SetTrackerID(keyLoc);
+			cout << "Tracker ID set to: '" << GetTrackerID() << "';" << endl;
+		}
+		else{
+			cout << "Not a command. \n";
+		}
 		cout << "dll[" << buffer << "]\n";
 	}
 
