@@ -2,6 +2,7 @@
 #include "commands.h"
 #include "events.h"
 #include "hooks.h"
+#include <iostream>
 using namespace std;
 
 bool gbAttached = false;
@@ -16,9 +17,9 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	/* wait to be detached */
 	while (gbAttached){ 
 		/* monitor for commands */
-		char buffer[MAX_PATH];
+		char buffer[MAX_PATH] = { 0 };
 		fgets(buffer, MAX_PATH, stdin);
-		
+		printf("dll[%s]", buffer);
 	}
 	RemoveConsole();
 	RemoveHooks();
