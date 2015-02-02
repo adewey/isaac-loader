@@ -10,7 +10,7 @@
 
 
 {<content}
-    <ul class="consumable-list">
+    <ul class="consumable-list col-lg-4">
         <li class="coins">
             {coins}
         </li>
@@ -21,6 +21,20 @@
             {keys}
         </li>
     </ul>
+	<div class="col-lg-1">
+		<div id="slider1_container" style="display: none; position: relative; margin: 0 auto;overflow: hidden; width:100%;height:100%;">
+			<div u="slides" style="cursor: move; position: relative; left: 0px; top: 0px; overflow: hidden; width:100%; height:100%;">
+
+				{#items}
+					<div>
+						<a href="http://bindingofisaacrebirth.gamepedia.com/{name}" target="_blank"><img src="/gfx/items/collectibles/{gfx}" class="itemImage" data-name="{name}" data-description="{description}" style="width:100%"></img></a>
+					</div>
+				{/items}
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="/js/jssor.slider.mini.js"></script>
+	<script type="text/javascript" src="/js/initjssor.js"></script>
     <ul class="item-list">
         {#items}
             <li class="{state}">
