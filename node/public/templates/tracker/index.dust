@@ -26,10 +26,34 @@
 			<div u="slides" style="cursor: move; position: relative; left: 0px; top: 0px; overflow: hidden; width:100%; height:100%;">
 
 				{#items}
-					<div>
-						<a href="http://bindingofisaacrebirth.gamepedia.com/{name}" target="_blank"><img src="/gfx/items/collectibles/{gfx}" class="itemImage" data-name="{name}" data-description="{description}" style="width:100%"></img></a>
-					</div>
+					{@math key=$idx method="mod" operand=8}
+						{@eq value=0}
+							<div>
+						{:else}
+								
+						{/eq}
+					{/math}
+						<a href="http://bindingofisaacrebirth.gamepedia.com/{name}" target="_blank"><img src="/gfx/items/collectibles/{gfx}" class="itemImage" data-name="{name}" data-description="{description}" style="width:25%;"></img></a>
+					{@math key=$idx method="mod" operand=8}
+						{@eq value=7}
+							</div>
+						{:else}
+								
+						{/eq}
+					{/math}
 				{/items}
+				</div class="weird">
+				{@provide}
+					{@math key=len method="mod" operand=8 }
+						{@neq value=7}
+							</div class="weird">
+						{:else}
+							{$idx}
+						{/neq}
+					{/math}
+				{:len}
+					{@size key=items /}
+				{/provide}
 			</div>
 		</div>
 	</div>
