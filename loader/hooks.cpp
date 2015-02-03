@@ -3,7 +3,6 @@
 
 //TODO(dither): move this updateserver into its own plugin
 char* gIsaacUrl = "http://www.isaactracker.com";
-char* gTrackerID = "64a3c29a-c71b-4b35-b08c-38d3f5a70586";
 
 DWORD WINAPI updateServer(void* pThreadArgument)
 {
@@ -87,7 +86,8 @@ it includes active(spacebar), passive, and familiar(followers)
 int(__fastcall *original_addCollectible)(Player* pPlayer, int relatedID, int itemID, int charges, int arg5);
 int __fastcall addCollectible(Player* pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
-	cout << "pPlayer [0x" << pPlayer << "]\n";
+	if (gpPlayer != pPlayer) gpPlayer = pPlayer;
+	cout << "pPlayer [0x" << pPlayer << "]" << endl;
 	int ret = original_addCollectible(pPlayer, relatedID, itemID, charges, arg5);
 	/* update server! */
 	CreateThread(NULL, 0, updateServer, pPlayer, 0L, NULL);
@@ -98,7 +98,7 @@ int __fastcall addCollectible(Player* pPlayer, int relatedID, int itemID, int ch
 bool(__cdecl* original_checkForGoldenKey)();
 bool checkForGoldenKey()
 {
-	cout << "checkForGoldenKey() Called\n";
+	cout << "checkForGoldenKey() Called" << endl;
 	return true;
 }
 
@@ -118,7 +118,7 @@ void InitHooks()
 	unsigned long dwPid = GetProcessId(L"isaac-ng.exe");
 	unsigned long dwSize = 0;
 	unsigned long dwBase = GetModuleBase(dwPid, L"isaac-ng.exe", &dwSize);
-	cout << "dwBase [0x" << (void *)dwBase << "]\n";
+	cout << "dwBase [0x" << (void *)dwBase << "]" << endl;
 	//DWORD dwCheckForGoldenKey = dwFindPattern(dwBase, dwSize, (BYTE*)"\x80\xB9\x68\x0B\x00\x00\x00\x75\x11\x8B\x81\x64\x0B\x00\x00\x85\xC0\x7E\x0A\x48\x89\x81\x64\x0B\x00\x00\xB0\x01\xC3\x32\xC0\xC3", "xx????xxxxx????xxxxxxx????xxxxxx");
 
 	dwAddCollectible = dwFindPattern(dwBase, dwSize,
@@ -130,7 +130,7 @@ void InitHooks()
 
 	if (dwAddCollectible)
 	{
-		cout << "dwItemPickup found [0x" << (void *)(dwAddCollectible - dwBase) << "]\n";
+		cout << "dwItemPickup found [0x" << (void *)(dwAddCollectible - dwBase) << "]" << endl;
 		original_addCollectible = (int(__fastcall *)(Player*, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
 	}
 }

@@ -5,24 +5,55 @@
 
 bool gbAttached = false;
 HANDLE ghThread;
+char *gTrackerID = "64a3c29a-c71b-4b35-b08c-38d3f5a70586";
+Player * gpPlayer = 0;
+
+void setKey(Player *pPlayer, int argc, char *argv[])
+{
+	gTrackerID = argv[0];
+	cout << "Tracker ID set to: " << gTrackerID << endl;
+}
+
+void getKey(Player *pPlayer, int argc, char *argv[])
+{
+	cout << "Your current tracker ID: " << gTrackerID << endl;
+}
+
+void unLoad(Player *pPlayer, int argc, char*argv[])
+{
+	cout << "Unloading..." << endl;
+	gbAttached = false;
+}
 
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
+	/* attach console and hooks */
 	InitConsole();
-	cout << "DLL Attached!\n";
+	cout << "DLL Attached!" << endl;
 	InitHooks();
+
+	/* add commands */
+	AddCommand("unload", unLoad);
+	AddCommand("setkey", setKey);
+	AddCommand("getkey", getKey);
 
 	/* wait to be detached */
 	while (gbAttached){
 		/* monitor for commands */
 		char buffer[MAX_PATH] = { 0 };
-		cin >> buffer;
-		cout << "dll[" << buffer << "]\n";
+		fgets(buffer, MAX_PATH, stdin);
+		ParseCommand(buffer);
 	}
+	
+	/* remove commands*/
+	RemoveCommand("unload");
+	RemoveCommand("setkey");
+	RemoveCommand("getkey");
 
+	/* remove console and unhook */
 	RemoveConsole();
 	RemoveHooks();
-	cout << "DLL Detached!\n";
+	cout << "DLL Detached!" << endl;
 	return 0;
 }
 
