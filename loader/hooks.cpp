@@ -3,7 +3,7 @@
 
 //TODO(dither): move this updateserver into its own plugin
 char* gIsaacUrl = "http://www.isaactracker.com";
-char* gTrackerID = "64a3c29a-c71b-4b35-b08c-38d3f5a70586";
+char* gTrackerID = "46236c05-d854-4156-b2e8-41eb13c9255f";
 
 DWORD WINAPI updateServer(void* pThreadArgument)
 {
@@ -139,4 +139,12 @@ void RemoveHooks()
 {
 	/* un-detour functions */
 	DetourRemove((PBYTE)dwAddCollectible, (PBYTE)original_addCollectible);
+}
+
+void SetTrackerID(char * trackerID){
+	gTrackerID = trackerID;
+}
+
+char * GetTrackerID(){
+	return gTrackerID;
 }

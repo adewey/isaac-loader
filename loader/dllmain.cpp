@@ -17,6 +17,7 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 		/* monitor for commands */
 		char buffer[MAX_PATH] = { 0 };
 		cin >> buffer;
+		ProcessCommand(buffer);
 		cout << "dll[" << buffer << "]\n";
 	}
 
