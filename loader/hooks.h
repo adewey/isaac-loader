@@ -7,5 +7,6 @@ void InitHooks();
 void RemoveHooks();
 void SetTrackerID(char *);
 char * GetTrackerID();
+void ProcessCommand(char *);
 
 #endif
