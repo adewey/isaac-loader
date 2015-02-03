@@ -7,6 +7,8 @@
 #include <curl.h>
 #include <tlhelp32.h>
 #include "detours.h"
+#include <iostream>
+using namespace std;
 
 unsigned long GetModuleSize(unsigned long dwPID, wchar_t* pszModuleName, unsigned long* pdwSize);
 unsigned long GetModuleBase(unsigned long dwPID, wchar_t* pszModuleName, unsigned long* pdwSize);

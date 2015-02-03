@@ -1,4 +1,4 @@
-ul.consumable-list {
+ul.consumable-list, ul.trinket-list, ul.pocket-list {
     float: left;
     font-size: 11px;
     font-weight: bold;

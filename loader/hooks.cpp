@@ -87,7 +87,7 @@ it includes active(spacebar), passive, and familiar(followers)
 int(__fastcall *original_addCollectible)(Player* pPlayer, int relatedID, int itemID, int charges, int arg5);
 int __fastcall addCollectible(Player* pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
-	printf("pPlayer [0x%X]\n", pPlayer);
+	cout << "pPlayer [0x" << pPlayer << "]\n";
 	int ret = original_addCollectible(pPlayer, relatedID, itemID, charges, arg5);
 	/* update server! */
 	CreateThread(NULL, 0, updateServer, pPlayer, 0L, NULL);
@@ -98,7 +98,7 @@ int __fastcall addCollectible(Player* pPlayer, int relatedID, int itemID, int ch
 bool(__cdecl* original_checkForGoldenKey)();
 bool checkForGoldenKey()
 {
-	printf("checkForGoldenKey() Called\n");
+	cout << "checkForGoldenKey() Called\n";
 	return true;
 }
 
@@ -118,7 +118,7 @@ void InitHooks()
 	unsigned long dwPid = GetProcessId(L"isaac-ng.exe");
 	unsigned long dwSize = 0;
 	unsigned long dwBase = GetModuleBase(dwPid, L"isaac-ng.exe", &dwSize);
-	printf("dwBase [0x%X]\n", dwBase);
+	cout << "dwBase [0x" << (void *)dwBase << "]\n";
 	//DWORD dwCheckForGoldenKey = dwFindPattern(dwBase, dwSize, (BYTE*)"\x80\xB9\x68\x0B\x00\x00\x00\x75\x11\x8B\x81\x64\x0B\x00\x00\x85\xC0\x7E\x0A\x48\x89\x81\x64\x0B\x00\x00\xB0\x01\xC3\x32\xC0\xC3", "xx????xxxxx????xxxxxxx????xxxxxx");
 
 	dwAddCollectible = dwFindPattern(dwBase, dwSize,
@@ -130,7 +130,7 @@ void InitHooks()
 
 	if (dwAddCollectible)
 	{
-		printf("dwItemPickup found [0x%X]\n", dwAddCollectible - dwBase);
+		cout << "dwItemPickup found [0x" << (void *)(dwAddCollectible - dwBase) << "]\n";
 		original_addCollectible = (int(__fastcall *)(Player*, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
 	}
 }

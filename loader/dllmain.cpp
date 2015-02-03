@@ -2,8 +2,6 @@
 #include "commands.h"
 #include "events.h"
 #include "hooks.h"
-#include <iostream>
-using namespace std;
 
 bool gbAttached = false;
 HANDLE ghThread;
@@ -11,19 +9,20 @@ HANDLE ghThread;
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
 	InitConsole();
-	printf("DLL Attached!\n");
+	cout << "DLL Attached!\n";
 	InitHooks();
 
 	/* wait to be detached */
-	while (gbAttached){ 
+	while (gbAttached){
 		/* monitor for commands */
 		char buffer[MAX_PATH] = { 0 };
-		fgets(buffer, MAX_PATH, stdin);
-		printf("dll[%s]", buffer);
+		cin >> buffer;
+		cout << "dll[" << buffer << "]\n";
 	}
+
 	RemoveConsole();
 	RemoveHooks();
-	printf("DLL Detached!\n");
+	cout << "DLL Detached!\n";
 	return 0;
 }
 
