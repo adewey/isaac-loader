@@ -1,5 +1,6 @@
 #ifndef ISAACDATA_H
 #define ISAACDATA_H
+#include "utilities.h"
 
 struct Entity
 {
@@ -59,7 +60,8 @@ struct Player : Entity
 };
 
 
-
-
+GLOBAL char* gTrackerID;
+GLOBAL Player * gpPlayer;
+GLOBAL bool gbAttached;
 
 #endif
