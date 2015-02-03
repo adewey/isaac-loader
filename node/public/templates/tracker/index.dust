@@ -29,31 +29,18 @@
 					{@math key=$idx method="mod" operand=8}
 						{@eq value=0}
 							<div>
-						{:else}
-								
 						{/eq}
 					{/math}
 						<a href="http://bindingofisaacrebirth.gamepedia.com/{name}" target="_blank"><img src="/gfx/items/collectibles/{gfx}" class="itemImage" data-name="{name}" data-description="{description}" style="width:25%;"></img></a>
 					{@math key=$idx method="mod" operand=8}
 						{@eq value=7}
-							</div>
-						{:else}
-								
+							</div>	
 						{/eq}
 					{/math}
+					{@if cond="{$idx} == ({$len} - 1) && ({$idx} % 8 !== 7)"}
+						</div>
+					{/if}
 				{/items}
-				</div class="weird">
-				{@provide}
-					{@math key=len method="mod" operand=8 }
-						{@neq value=7}
-							</div class="weird">
-						{:else}
-							{$idx}
-						{/neq}
-					{/math}
-				{:len}
-					{@size key=items /}
-				{/provide}
 			</div>
 		</div>
 	</div>
