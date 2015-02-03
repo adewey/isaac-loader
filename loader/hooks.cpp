@@ -102,10 +102,6 @@ bool checkForGoldenKey()
 	return true;
 }
 
-
-
-
-
 /* add other global hooks here, and expose them for our events to catch */
 DWORD dwAddCollectible = 0;
 
