@@ -2,22 +2,11 @@
 #include "commands.h"
 #include "events.h"
 #include "hooks.h"
+#include "plugins.h"
 
 bool gbAttached = false;
 HANDLE ghThread;
-char *gTrackerID = "64a3c29a-c71b-4b35-b08c-38d3f5a70586";
 Player * gpPlayer = 0;
-
-void setKey(Player *pPlayer, int argc, char *argv[])
-{
-	gTrackerID = argv[0];
-	cout << "Tracker ID set to: " << gTrackerID << endl;
-}
-
-void getKey(Player *pPlayer, int argc, char *argv[])
-{
-	cout << "Your current tracker ID: " << gTrackerID << endl;
-}
 
 void unLoad(Player *pPlayer, int argc, char*argv[])
 {
@@ -27,6 +16,8 @@ void unLoad(Player *pPlayer, int argc, char*argv[])
 
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
+	/* set our plugin path to the directory our main dll was loaded from */
+	strcpy(gszPluginPath, (char *)pThreadArgument);
 	/* attach console and hooks */
 	InitConsole();
 	cout << "DLL Attached!" << endl;
@@ -34,8 +25,6 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 
 	/* add commands */
 	AddCommand("unload", unLoad);
-	AddCommand("setkey", setKey);
-	AddCommand("getkey", getKey);
 
 	/* wait to be detached */
 	while (gbAttached){
@@ -45,10 +34,11 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 		ParseCommand(buffer);
 	}
 	
+	/* unload our plugins */
+	UnloadPlugins();
+
 	/* remove commands*/
 	RemoveCommand("unload");
-	RemoveCommand("setkey");
-	RemoveCommand("getkey");
 
 	/* remove console and unhook */
 	RemoveConsole();
@@ -58,7 +48,7 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 }
 
 
-INT APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved)
+int APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved)
 {
 	switch (Reason)
 	{
@@ -66,9 +56,16 @@ INT APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved)
 		/* use a global attached variable and a thread to make sure we don't crash if isaac is unloaded from under us */
 		if (!gbAttached)
 		{
+			/* get the directory we were loaded from, so that we can load other things */
+			char szPath[MAX_PATH] = { 0 };
+			char * szTempPath;
+			GetModuleFileNameA(hDLL, szPath, MAX_STRING);
+			szTempPath = strrchr(szPath, '\\');
+			szTempPath[1] = '\0';
+
+			/* everything should be done in a thread instead of as part of the process attach call */
 			gbAttached = true;
-			//everything should be done in a thread instead of as part of the process attach call 
-			ghThread = CreateThread(NULL, 0, DllThread, NULL, 0L, NULL);
+			ghThread = CreateThread(NULL, 0, DllThread, strdup(szPath), 0L, NULL);
 		}
 		break;
 	case DLL_PROCESS_DETACH:

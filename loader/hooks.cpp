@@ -1,80 +1,6 @@
 #include "hooks.h"
 #include "utilities.h"
 
-//TODO(dither): move this updateserver into its own plugin
-char* gIsaacUrl = "http://www.isaactracker.com";
-
-DWORD WINAPI updateServer(void* pThreadArgument)
-{
-	try
-	{
-		Player* pPlayer = ((Player *)pThreadArgument);
-		/* craft our json object to send to the server */
-
-		/* craft our item array */
-		char itembuffer[1024] = { 0 };
-		strcat_s(itembuffer, 512, "[");
-		char itemidbuffer[0x8];
-		for (int i = 0; i < 0x15A; i++)
-		{
-			ZeroMemory(itemidbuffer, 0x8);
-			if (pPlayer->_items[i])
-			{
-				sprintf_s(itemidbuffer, 0x8, "%d,", i + 1);
-				strcat_s(itembuffer, 1024, itemidbuffer);
-			}
-		}
-		/* replace our trailing comma with a closing bracket */
-		itembuffer[strlen(itembuffer) - 1] = ']';
-
-		/* craft our trinket array */
-		char trinketbuffer[1024] = { 0 };
-		strcat_s(trinketbuffer, 512, "[");
-		char trinketidbuffer[0x8];
-		ZeroMemory(trinketidbuffer, 0x8);
-		sprintf_s(trinketidbuffer, 0x8, "%d,", pPlayer->_trinket1ID);
-		strcat_s(trinketbuffer, 1024, trinketidbuffer);
-		ZeroMemory(trinketidbuffer, 0x8);
-		sprintf_s(trinketidbuffer, 0x8, "%d,", pPlayer->_trinket2ID);
-		strcat_s(trinketbuffer, 1024, trinketidbuffer);
-		/* replace our trailing comma with a closing bracket */
-		trinketbuffer[strlen(trinketbuffer) - 1] = ']';
-
-		/* craft our pocket array */
-		char pocketbuffer[1024] = { 0 };
-		strcat_s(pocketbuffer, 512, "[");
-		char pocketidbuffer[0x32];
-		ZeroMemory(pocketidbuffer, 0x32);
-		sprintf_s(pocketidbuffer, 0x32, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket1ID, pPlayer->_pocket1isCard);
-		strcat_s(pocketbuffer, 1024, pocketidbuffer);
-		ZeroMemory(pocketidbuffer, 0x32);
-		sprintf_s(pocketidbuffer, 0x32, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket2ID, pPlayer->_pocket2isCard);
-		strcat_s(pocketbuffer, 1024, pocketidbuffer);
-		/* replace our trailing comma with a closing bracket */
-		pocketbuffer[strlen(pocketbuffer) - 1] = ']';
-
-		char buffer2[2048] = { 0 };
-		sprintf_s(buffer2, 2048, "{\"coins\": %d, \"bombs\": %d, \"keys\": %d, \"items\": %s, \"trinkets\": %s, \"pockets\": %s}", pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
-
-		CURL *curl;
-		char finalUrl[256] = { 0 };
-		sprintf_s(finalUrl, 256, "%s/api/%s/pickup/", gIsaacUrl, gTrackerID);
-		curl = curl_easy_init();
-		if (curl) {
-			struct curl_slist *headers = NULL;
-			headers = curl_slist_append(headers, "Accept: application/json");
-			headers = curl_slist_append(headers, "Content-Type: application/json");
-			curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-			curl_easy_setopt(curl, CURLOPT_POSTFIELDS, buffer2);
-			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-			curl_easy_setopt(curl, CURLOPT_URL, finalUrl);
-			curl_easy_perform(curl);
-			curl_easy_cleanup(curl);
-		}
-	}
-	catch (int){}
-	return 0;
-}
 /*
 addCollectible is called when you pick up a pedestal, shop, market, or devil/angel item
 it includes active(spacebar), passive, and familiar(followers)
@@ -90,9 +16,29 @@ int __fastcall addCollectible(Player* pPlayer, int relatedID, int itemID, int ch
 	cout << "pPlayer [0x" << pPlayer << "]" << endl;
 	int ret = original_addCollectible(pPlayer, relatedID, itemID, charges, arg5);
 	/* update server! */
-	CreateThread(NULL, 0, updateServer, pPlayer, 0L, NULL);
 	return ret;
 }
+
+#define printarg(i, arg) cout << "Arg" << i << ":\t" << (void *)arg << "\t" << (float)arg << endl;
+
+/*Clueless, mindlessly copied code.*/
+int(__stdcall *original_spawnEntity)(int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9);
+int __stdcall spawnEntity(int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9) {
+	cout << "Args:\tHEX\t\tFLOAT" << endl;
+	printarg(1, arg1);
+	printarg(2, arg2);
+	printarg(3, arg3);
+	printarg(4, arg4);
+	printarg(5, arg5);
+	printarg(6, arg6);
+	printarg(7, arg7);
+	printarg(8, arg8);
+	printarg(9, arg9);
+	int ret = original_spawnEntity(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+	cout << "Ret:\t" << (void *)ret << endl;
+	return ret;
+}
+
 
 /* currently unused */
 bool(__cdecl* original_checkForGoldenKey)();
@@ -104,7 +50,8 @@ bool checkForGoldenKey()
 
 /* add other global hooks here, and expose them for our events to catch */
 DWORD dwAddCollectible = 0;
-
+DWORD dwSpawnEntity = 0;
+DWORD dwPlayerManager = 0;
 void InitHooks()
 {
 	/* todo move this somewhere else? init curl */
@@ -124,10 +71,29 @@ void InitHooks()
 		"\x08\x8B\xD9\x89\x5C\x24\x1C\x89\x74\x24\x24\x81\xFE",
 		"xxxxxxxxx????xx????xxxxx????xxxxxxxxxx????xxxxxxxxxx????xxxxxxxxxxxx");
 
-	if (dwAddCollectible)
-	{
+	if (dwAddCollectible){
 		cout << "dwItemPickup found [0x" << (void *)(dwAddCollectible - dwBase) << "]" << endl;
 		original_addCollectible = (int(__fastcall *)(Player*, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
+	}
+
+	dwSpawnEntity = dwFindPattern(dwBase, dwSize,
+		(BYTE*)"\x55\x8b\xec\x51\x8b\x4d\x08\x8b\x89\xa4\xe2\x12\x00\x56\x57\x8b\xf8\x8b\x45\x0c"
+		"\xe8\x00\x00\x00\x00\x8b\xf0\xff\x15\x00\x00\x00\x00\x8b\x4d\x18\x8b\x16\x8b\x52"
+		"\x04\x89\x45\xfc\x8b\x45\x1c\x50\x8b\x45\x10\x51\x8b\x4d\x0c\x50\x51\x8b\xce\xff"
+		"\xd2",
+		"xxxxxxxxxxxxxxxxxxxxx????xxxx????xxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+
+	if (dwSpawnEntity){
+		cout << "dwSpawnEntity found [0x" << (void *)(dwSpawnEntity - dwBase) << "]" << endl;
+		//original_spawnEntity = (int(__stdcall *)(int, int, int, int, int, int, int, int, int))DetourFunction((PBYTE)dwSpawnEntity, (PBYTE)spawnEntity);
+	}
+
+	dwPlayerManager = dwFindPattern(dwBase, dwSize,
+		(BYTE*)"\x8b\x0d\x00\x00\x00\x00\x8b\x81\x9c\x94\x00\x00\x2b\x81\x98\x94\x00\x00\xc1\xf8\x02\xc3",
+		"xx????xxxxxxxxxxxxxxxx");
+
+	if (dwPlayerManager){
+		cout << "dwPlayerManager found [0x" << (void *)(dwPlayerManager) << "]" << endl;
 	}
 }
 
