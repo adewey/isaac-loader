@@ -3,10 +3,10 @@
 #include "events.h"
 #include "hooks.h"
 #include "plugins.h"
+#include "statics.h"
 
 bool gbAttached = false;
 HANDLE ghThread;
-Player * gpPlayer = 0;
 
 void detatch(int argc, char *argv[])
 {
@@ -28,6 +28,11 @@ void PluginUnload(int argc, char *argv[])
 	UnloadPlugin(argv[0]);
 }
 
+void setCurse(int argc, char *argv[])
+{
+	GetPlayerManager()->_curses = atoi(argv[0]);
+}
+
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
 	/* set our plugin path to the directory our main dll was loaded from */
@@ -42,6 +47,7 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	AddCommand("load", PluginLoad);
 	AddCommand("unload", PluginUnload);
 	AddCommand("detatch", detatch);
+	AddCommand("setcurse", setCurse);
 
 	/* wait to be detached */
 	while (gbAttached){
@@ -56,11 +62,12 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 
 	/* remove commands*/
 	RemoveCommand("unload");
+	RemoveCommand("setcurse");
 
 	/* remove console and unhook */
+	cout << "DLL Detached!" << endl;
 	RemoveConsole();
 	RemoveHooks();
-	cout << "DLL Detached!" << endl;
 	return 0;
 }
 

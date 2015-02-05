@@ -1,7 +1,7 @@
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
-#include "isaacdata.h"
+#include "utilities.h"
 #include "commands.h"
 #include "plugins.h"
 

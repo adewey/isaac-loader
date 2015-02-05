@@ -47,6 +47,7 @@ bool LoadPlugin(const char *fn)
 	pPlugin->InitPlugin = (fInitPlugin)GetProcAddress(hmod, "InitPlugin");
 	pPlugin->UnInitPlugin = (fUnInitPlugin)GetProcAddress(hmod, "UnInitPlugin");
 	pPlugin->OnAddCollectible = (fOnAddCollectible)GetProcAddress(hmod, "OnAddCollectible");
+	pPlugin->OnGameUpdate = (fOnGameUpdate)GetProcAddress(hmod, "OnGameUpdate");
 
 	if (pPlugin->InitPlugin)
 		pPlugin->InitPlugin();
@@ -102,12 +103,24 @@ void UnloadPlugins()
 	}
 }
 
-void AddCollectible(Player* pPlayer, int relatedID, int itemID, int charges, int arg5)
+void AddCollectible(PPLAYER pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 	PPLUGIN pPlugin = pPluginList;
 	while (pPlugin)
 	{
-		pPlugin->OnAddCollectible(pPlayer, relatedID, itemID, charges, arg5);
+		if (pPlugin->OnAddCollectible)
+			pPlugin->OnAddCollectible(pPlayer, relatedID, itemID, charges, arg5);
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+void OnGameUpdate()
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->OnGameUpdate)
+			pPlugin->OnGameUpdate();
 		pPlugin = pPlugin->pNext;
 	}
 }

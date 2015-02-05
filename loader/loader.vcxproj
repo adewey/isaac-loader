@@ -94,15 +94,16 @@
     <ClCompile Include="events.cpp" />
     <ClCompile Include="hooks.cpp" />
     <ClCompile Include="plugins.cpp" />
+    <ClCompile Include="statics.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="commands.h" />
     <ClInclude Include="events.h" />
     <ClInclude Include="hooks.h" />
-    <ClInclude Include="isaacdata.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="plugins.h" />
+    <ClInclude Include="statics.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

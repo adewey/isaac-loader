@@ -1,7 +1,7 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-#include "isaacdata.h"
+#include "utilities.h"
 
 typedef void (__cdecl *fCommand)(int argc, char *argv[]);
 
