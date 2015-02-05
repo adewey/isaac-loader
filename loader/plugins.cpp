@@ -1,28 +1,30 @@
 #include "plugins.h"
 #include "utilities.h"
 
-DWORD LoadPlugin(const char *fn)
+char gszPluginPath[MAX_PATH] = { 0 };
+PPLUGIN pPluginList = 0;
+
+bool LoadPlugin(const char *fn)
 {
 	char Filename[MAX_PATH] = { 0 };
 
-	strcpy(Filename, fn);
+	strcpy_s(Filename, MAX_PATH, fn);
 	strlwr(Filename);
 	char *Temp = strstr(Filename, ".dll");
 	if (Temp)
 		Temp[0] = 0;
 
 	char TheFilename[MAX_STRING] = { 0 };
-	sprintf(TheFilename, "%s.dll", Filename);
-
+	sprintf_s(TheFilename, MAX_STRING, "%s.dll", Filename);
 
 	char FullFilename[MAX_STRING] = { 0 };
-//	sprintf(FullFilename, "%s\\%s.dll", gszINIPath, Filename);
+	sprintf_s(FullFilename, MAX_STRING, "%s\\%s.dll", gszPluginPath, Filename);
 
 	HMODULE hmod = LoadLibraryA(FullFilename);
 	if (!hmod)
 	{
 		/* plugin failed to load */
-		return 0;
+		return false;
 	}
 
 	PPLUGIN pPlugin = pPluginList;
@@ -32,7 +34,7 @@ DWORD LoadPlugin(const char *fn)
 		{
 			/* plugin already loaded*/
 			FreeLibrary(hmod);
-			return 2;
+			return true;
 		}
 		pPlugin = pPlugin->pNext;
 	}
@@ -40,7 +42,7 @@ DWORD LoadPlugin(const char *fn)
 	pPlugin = new PLUGIN;
 	memset(pPlugin, 0, sizeof(PLUGIN));
 	pPlugin->hModule = hmod;
-	strcpy(pPlugin->szFilename, Filename);
+	strcpy_s(pPlugin->szPluginName, MAX_PATH, Filename);
 
 	pPlugin->InitPlugin = (fInitPlugin)GetProcAddress(hmod, "InitPlugin");
 	pPlugin->UnInitPlugin = (fUnInitPlugin)GetProcAddress(hmod, "UnInitPlugin");
@@ -54,13 +56,13 @@ DWORD LoadPlugin(const char *fn)
 	if (pPluginList)
 		pPluginList->pLast = pPlugin;
 	pPluginList = pPlugin;
-	return 1;
+	return true;
 }
 
 bool UnloadPlugin(const char *fn)
 {
 	char Filename[MAX_PATH] = { 0 };
-	strcpy(Filename, fn);
+	strcpy_s(Filename, MAX_PATH, fn);
 	strlwr(Filename);
 	char *Temp = strstr(Filename, ".dll");
 	if (Temp)
@@ -69,7 +71,7 @@ bool UnloadPlugin(const char *fn)
 	PPLUGIN pPlugin = pPluginList;
 	while (pPlugin)
 	{
-		if (!stricmp(Filename, pPlugin->szFilename))
+		if (!stricmp(Filename, pPlugin->szPluginName))
 		{
 			if (pPlugin->pLast)
 				pPlugin->pLast->pNext = pPlugin->pNext;
@@ -83,20 +85,29 @@ bool UnloadPlugin(const char *fn)
 
 			FreeLibrary(pPlugin->hModule);
 			delete pPlugin;
-			return 1;
+			return true;
 		}
 		pPlugin = pPlugin->pNext;
 	}
 
-	return 0;
+	return false;
 }
 
-void PluginsOnEventExample()
+void UnloadPlugins()
 {
 	PPLUGIN pPlugin = pPluginList;
 	while (pPlugin)
 	{
-		pPlugin->OnEventExample();
+		UnloadPlugin(pPlugin->szPluginName);
+	}
+}
+
+void AddCollectible(Player* pPlayer, int relatedID, int itemID, int charges, int arg5)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		pPlugin->OnAddCollectible(pPlayer, relatedID, itemID, charges, arg5);
 		pPlugin = pPlugin->pNext;
 	}
 }

@@ -1,4 +1,5 @@
-#include "../loader/plugin.h"
+#include "..\loader\plugin.h"
+#include "curl.h"
 
 char *gTrackerID = "64a3c29a-c71b-4b35-b08c-38d3f5a70586";
 char* gIsaacUrl = "http://www.isaactracker.com";
@@ -75,13 +76,13 @@ DWORD WINAPI updateServer(void* pThreadArgument)
 	return 0;
 }
 
-void setKey(Player *pPlayer, int argc, char *argv[])
+void setKey(int argc, char *argv[])
 {
 	gTrackerID = argv[0];
 	cout << "Tracker ID set to: " << gTrackerID << endl;
 }
 
-void getKey(Player *pPlayer, int argc, char *argv[])
+void getKey(int argc, char *argv[])
 {
 	cout << "Your current tracker ID: " << gTrackerID << endl;
 }
@@ -89,6 +90,8 @@ void getKey(Player *pPlayer, int argc, char *argv[])
 // called when the plugin initializes
 PAPI VOID InitPlugin()
 {
+	// todo move this somewhere else? init curl
+	curl_global_init(CURL_GLOBAL_ALL);
 	//Add commands, detours, etc
 	AddCommand("setkey", setKey);
 	AddCommand("getkey", getKey);

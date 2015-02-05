@@ -1,5 +1,6 @@
 #include "hooks.h"
 #include "utilities.h"
+#include "plugins.h"
 
 /*
 addCollectible is called when you pick up a pedestal, shop, market, or devil/angel item
@@ -9,13 +10,16 @@ it includes active(spacebar), passive, and familiar(followers)
 :params charges: number of charges on the item currently (0-6 for standard items, 0x100+ for items that recharge in room)
 :params arg5: currently unknown what this is for (maybe a boolean value? i have only seen 1 or 0
 */
-int(__fastcall *original_addCollectible)(Player* pPlayer, int relatedID, int itemID, int charges, int arg5);
+int (__fastcall *original_addCollectible)(Player* pPlayer, int relatedID, int itemID, int charges, int arg5);
 int __fastcall addCollectible(Player* pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 	if (gpPlayer != pPlayer) gpPlayer = pPlayer;
 	cout << "pPlayer [0x" << pPlayer << "]" << endl;
 	int ret = original_addCollectible(pPlayer, relatedID, itemID, charges, arg5);
-	/* update server! */
+	
+	//tell our plugins we added a collectible and give the entity id
+	AddCollectible(pPlayer, relatedID, itemID, charges, arg5);
+
 	return ret;
 }
 
@@ -54,9 +58,6 @@ DWORD dwSpawnEntity = 0;
 DWORD dwPlayerManager = 0;
 void InitHooks()
 {
-	/* todo move this somewhere else? init curl */
-	curl_global_init(CURL_GLOBAL_ALL);
-
 	/* scan for functions */
 	unsigned long dwPid = GetProcessId(L"isaac-ng.exe");
 	unsigned long dwSize = 0;

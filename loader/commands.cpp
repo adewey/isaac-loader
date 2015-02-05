@@ -104,7 +104,7 @@ void HandleCommand(char *Command, int argc, char *argv[])
 	while (pCommand)
 	{
 		if (_stricmp(Command, pCommand->Command) == 0)
-			return pCommand->Function(gpPlayer, argc, argv);
+			return pCommand->Function(argc, argv);
 		pCommand = pCommand->pNext;
 	}
 }

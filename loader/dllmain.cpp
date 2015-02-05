@@ -8,23 +8,40 @@ bool gbAttached = false;
 HANDLE ghThread;
 Player * gpPlayer = 0;
 
-void unLoad(Player *pPlayer, int argc, char*argv[])
+void detatch(int argc, char *argv[])
 {
-	cout << "Unloading..." << endl;
+	cout << "detatching..." << endl;
 	gbAttached = false;
+}
+
+void PluginLoad(int argc, char *argv[])
+{
+	if (!argc) return;
+	cout << "loading plugin " << argv[0] << endl;
+	LoadPlugin(argv[0]);
+}
+
+void PluginUnload(int argc, char *argv[])
+{
+	if (!argc) return;
+	cout << "unloading plugin " << argv[0] << endl;
+	UnloadPlugin(argv[0]);
 }
 
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
 	/* set our plugin path to the directory our main dll was loaded from */
-	strcpy(gszPluginPath, (char *)pThreadArgument);
 	/* attach console and hooks */
 	InitConsole();
 	cout << "DLL Attached!" << endl;
 	InitHooks();
 
+	strcpy_s(gszPluginPath, MAX_PATH, (char *)pThreadArgument);
+
 	/* add commands */
-	AddCommand("unload", unLoad);
+	AddCommand("load", PluginLoad);
+	AddCommand("unload", PluginUnload);
+	AddCommand("detatch", detatch);
 
 	/* wait to be detached */
 	while (gbAttached){

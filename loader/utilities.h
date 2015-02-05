@@ -4,7 +4,6 @@
 #define WIN32_LEAN_AND_MEAN
 #define MAX_STRING 1024
 #include <windows.h>
-#include <curl.h>
 #include <tlhelp32.h>
 #include "detours.h"
 #include <iostream>

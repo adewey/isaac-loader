@@ -3,7 +3,7 @@
 
 #include "isaacdata.h"
 
-typedef void (__cdecl *fCommand)(Player *pPlayer, int argc, char *argv[]);
+typedef void (__cdecl *fCommand)(int argc, char *argv[]);
 
 typedef struct _COMMAND {
 	char Command[64];
@@ -17,7 +17,7 @@ void ParseCommand(char *);
 void HandleCommand(char *, int, char *[]);
 void InitConsole();
 void RemoveConsole();
-void AddCommand(char *, fCommand);
-bool RemoveCommand(char *);
+GLOBAL void AddCommand(char *, fCommand);
+GLOBAL bool RemoveCommand(char *);
 
 #endif
