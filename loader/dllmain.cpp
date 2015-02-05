@@ -35,12 +35,12 @@ void setCurse(int argc, char *argv[])
 
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
-	/* set our plugin path to the directory our main dll was loaded from */
 	/* attach console and hooks */
 	InitConsole();
 	cout << "DLL Attached!" << endl;
 	InitHooks();
 
+	/* set our plugin path to the directory our main dll was loaded from */
 	strcpy_s(gszPluginPath, MAX_PATH, (char *)pThreadArgument);
 
 	/* add commands */

@@ -92,7 +92,6 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="commands.cpp" />
-    <ClCompile Include="events.cpp" />
     <ClCompile Include="hooks.cpp" />
     <ClCompile Include="plugins.cpp" />
     <ClCompile Include="statics.cpp" />
@@ -100,7 +99,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="commands.h" />
-    <ClInclude Include="events.h" />
     <ClInclude Include="hooks.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="plugins.h" />

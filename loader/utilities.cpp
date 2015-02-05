@@ -1,92 +1,38 @@
 #include "utilities.h"
-#include <tlhelp32.h>
+#include <Psapi.h>
+#include <TlHelp32.h>
 #include "detours.h"
 
 using namespace std;
 
-unsigned long GetModuleSize(unsigned long dwPID, wchar_t* pszModuleName, unsigned long* pdwSize)
+DWORD dwGetPidByName(TCHAR *wExeName)
 {
-	unsigned long dwResult;
-	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, dwPID);
-	if (hSnapshot)
+	DWORD res = 0;
+	PROCESSENTRY32 entry;
+	entry.dwSize = sizeof(PROCESSENTRY32);
+	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+	if (Process32First(snapshot, &entry) == TRUE)
 	{
-		MODULEENTRY32 moduleEntry = { sizeof(MODULEENTRY32) };
-		if (Module32First(hSnapshot, &moduleEntry))
+		while (Process32Next(snapshot, &entry) == TRUE)
 		{
-			do
+			if (wcscmp(entry.szExeFile, wExeName) == 0)
 			{
-				if (wcscmp(moduleEntry.szModule, pszModuleName) == 0)
-				{
-					dwResult = (unsigned long)moduleEntry.modBaseSize;
-					if (pdwSize)
-						*pdwSize = moduleEntry.modBaseSize;
-					break;
-				}
-			} while (Module32Next(hSnapshot, &moduleEntry));
-		}
-		if (hSnapshot)
-		{
-			CloseHandle(hSnapshot);
-			hSnapshot = NULL;
+				res = entry.th32ProcessID;
+				break;
+			}
 		}
 	}
-	return dwResult;
+	CloseHandle(snapshot);
+	return res;
 }
 
-unsigned long GetModuleBase(unsigned long dwPID, wchar_t* pszModuleName, unsigned long* pdwSize)
+DWORD dwGetModuleSize(char *szModule)
 {
-	unsigned long dwResult;
-	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, dwPID);
-	if (hSnapshot)
-	{
-		MODULEENTRY32 moduleEntry = { sizeof(MODULEENTRY32) };
-		if (Module32First(hSnapshot, &moduleEntry))
-		{
-			do
-			{
-				if (wcscmp(moduleEntry.szModule, pszModuleName) == 0)
-				{
-					dwResult = (unsigned long)moduleEntry.modBaseAddr;
-					if (pdwSize)
-						*pdwSize = moduleEntry.modBaseSize;
-					break;
-				}
-			} while (Module32Next(hSnapshot, &moduleEntry));
-		}
-		if (hSnapshot)
-		{
-			CloseHandle(hSnapshot);
-			hSnapshot = NULL;
-		}
-	}
-	return dwResult;
-}
-
-unsigned long GetProcessId(wchar_t* pszProcessName)
-{
-	unsigned long dwResult = 0;
-	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-	if (hSnapshot)
-	{
-		PROCESSENTRY32 processEntry = { sizeof(PROCESSENTRY32) };
-		if (Process32First(hSnapshot, &processEntry))
-		{
-			do
-			{
-				if (wcscmp(processEntry.szExeFile, pszProcessName) == 0)
-				{
-					dwResult = processEntry.th32ProcessID;
-					break;
-				}
-			} while (Process32Next(hSnapshot, &processEntry));
-		}
-		if (hSnapshot)
-		{
-			CloseHandle(hSnapshot);
-			hSnapshot = NULL;
-		}
-	}
-	return dwResult;
+	MODULEINFO modinfo = { 0 };
+	HMODULE hModule = GetModuleHandleA(szModule);
+	if (hModule == 0) return 0;
+	GetModuleInformation(GetCurrentProcess(), hModule, &modinfo, sizeof(MODULEINFO));
+	return modinfo.SizeOfImage;
 }
 
 bool bDataCompare(const BYTE* pData, const BYTE* bMask, const char* szMask)

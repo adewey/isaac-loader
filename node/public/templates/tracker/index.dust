@@ -8,96 +8,66 @@
 <meta http-equiv="refresh" content="30" />   
 {/extra_head}
 
+{<extra_js}
+<script>
+    $(function() {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
+{/extra_js}
+
 
 {<content}
-    <ul class="consumable-list col-lg-4">
-        <li class="coins">
-            {coins}
-        </li>
-        <li class="bombs">
-            {bombs}
-        </li>
-        <li class="keys">
-            {keys}
-        </li>
-    </ul>
-	<div class="col-lg-3">
-		{#items}
-			{@eq key="{state}" value="active"}
-				<a href="http://bindingofisaacrebirth.gamepedia.com/{name}" target="_blank">
-					<img src="/gfx/items/collectibles/{gfx}" class="active itemImage" data-name="{name}" data-description="{description}" style="width:100%;"></img>
-				</a>
-			{/eq}
-		{/items}
-	</div>
-	<div class="col-lg-3">
-		<div id="slider1_container" style="display: none; position: relative; margin: 0 auto;overflow: hidden; width:100%;height:100%;">
-			<div u="slides" style="cursor: move; position: relative; left: 0px; top: 0px; overflow: hidden; width:100%; height:100%;">
-
-				{#items}
-					{@math key=$idx method="mod" operand=8}
-						{@eq value=0}
-							<div>
-						{/eq}
-					{/math}
-						<a href="http://bindingofisaacrebirth.gamepedia.com/{name}" target="_blank"><img src="/gfx/items/collectibles/{gfx}" class="itemImage  {@eq key="{state}" value="active"}active{/eq}" data-name="{name}" data-description="{description}" style="width:25%;"></img></a>
-					{@math key=$idx method="mod" operand=8}
-						{@eq value=7}
-							</div>	
-						{/eq}
-					{/math}
-					{@if cond="{$idx} == ({$len} - 1) && ({$idx} % 8 !== 7)"}
-						</div>
-					{/if}
-				{/items}
-			</div>
-		</div>
-	</div>
-	<script type="text/javascript" src="/js/jssor.slider.mini.js"></script>
-	<script type="text/javascript" src="/js/initjssor.js"></script>
-    <ul class="item-list">
-        {#items}
-            <li class="{state}">
-                <img src="/gfx/items/collectibles/{gfx}" />
-                <div class="hidden name">
-                    {name}
-                </div>
-                <div class="hidden description">
-                    {description}
-                </div>
-                <div class="hidden state">
-                    {state}
-                </div>
-                <div class="hidden id">
-                    {id}
-                </div>
-            </li>
-        {/items}
-    </ul>
-    <ul class="trinket-list">
-        {#trinkets}
-            <li>
-                <img src="/gfx/items/trinkets/{gfx}" />
-                <div class="hidden name">
-                    {name}
-                </div>
-                <div class="hidden description">
-                    {description}
-                </div>
-                <div class="hidden id">
-                    {id}
-                </div>
-            </li>
-        {/trinkets}
-    </ul>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-1">
+            <ul class="consumable-list">
+                <li class="coins">
+                    {coins}
+                </li>
+                <li class="bombs">
+                    {bombs}
+                </li>
+                <li class="keys">
+                    {keys}
+                </li>
+            </ul>
+            <ul class="trinket-list col-lg-1">
+            {#trinkets}
+                <li>
+                    <img src="/gfx/items/trinkets/{gfx}" />
+                    <div class="hidden name">
+                        {name}
+                    </div>
+                    <div class="hidden description">
+                        {description}
+                    </div>
+                    <div class="hidden id">
+                        {id}
+                    </div>
+                </li>
+            {/trinkets}
+            </ul>
+        </div>
+        <div class="col-lg-3">
+            <ul class="item-list">
+            {#items}
+                <li class="{state}">
+                    <img src="/gfx/items/collectibles/{gfx}" data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4>{name} (<i class='text-danger'>{id}</i>) [<i class='text-info'>{state}</i>]</h4><h5>{description}</h5>" />
+                </li>
+            {/items}
+            </ul>
+        </div>
+    </div>
     <!-- this doesn't work yet -->
     <ul class="pocket-list hidden">
-        {#pockets}
-            <li>
-                <div class="hidden id">
-                    {id}
-                </div>
-            </li>
-        {/pockets}
+    {#pockets}
+        <li>
+            <div class="hidden id">
+                {id}
+            </div>
+        </li>
+    {/pockets}
     </ul>
+</div>
 {/content}
