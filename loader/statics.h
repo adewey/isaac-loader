@@ -78,7 +78,6 @@ typedef struct _PlayerManager
 	// f23920 = current seed
 } PLAYERMANAGER, *PPLAYERMANAGER;
 
-GLOBAL char* gTrackerID;
 GLOBAL bool gbAttached;
 
 GLOBAL PPLAYER gpPlayer;

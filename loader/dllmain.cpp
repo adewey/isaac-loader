@@ -5,8 +5,8 @@
 #include "plugins.h"
 #include "statics.h"
 
-bool gbAttached = false;
 HANDLE ghThread;
+bool gbAttached = false;
 
 void detatch(int argc, char *argv[])
 {
@@ -17,15 +17,15 @@ void detatch(int argc, char *argv[])
 void PluginLoad(int argc, char *argv[])
 {
 	if (!argc) return;
-	cout << "loading plugin " << argv[0] << endl;
-	LoadPlugin(argv[0]);
+	char *loaded = (LoadPlugin(argv[0])) ? "success" : "failed";
+	cout << "loading plugin " << argv[0] << "... " << loaded << endl;
 }
 
 void PluginUnload(int argc, char *argv[])
 {
 	if (!argc) return;
-	cout << "unloading plugin " << argv[0] << endl;
-	UnloadPlugin(argv[0]);
+	char *unloaded = (UnloadPlugin(argv[0])) ? "success" : "failed";
+	cout << "unloading plugin " << argv[0] << "... " << unloaded << endl;
 }
 
 void setCurse(int argc, char *argv[])
