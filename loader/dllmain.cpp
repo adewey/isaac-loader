@@ -2,6 +2,7 @@
 #include "commands.h"
 #include "events.h"
 #include "hooks.h"
+#include "statics.h"
 
 bool gbAttached = false;
 HANDLE ghThread;
@@ -25,6 +26,9 @@ void unLoad(Player *pPlayer, int argc, char*argv[])
 	gbAttached = false;
 }
 
+void setCurse(Player *pPlayer, int argc, char *argv[]){
+	GetPlayerManager()->_curses = atoi(argv[0]);
+}
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
 	/* attach console and hooks */
@@ -36,7 +40,7 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	AddCommand("unload", unLoad);
 	AddCommand("setkey", setKey);
 	AddCommand("getkey", getKey);
-
+	AddCommand("setcurse", setCurse);
 	/* wait to be detached */
 	while (gbAttached){
 		/* monitor for commands */
@@ -49,11 +53,12 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	RemoveCommand("unload");
 	RemoveCommand("setkey");
 	RemoveCommand("getkey");
+	RemoveCommand("setcurse");
 
 	/* remove console and unhook */
+	cout << "DLL Detached!" << endl;
 	RemoveConsole();
 	RemoveHooks();
-	cout << "DLL Detached!" << endl;
 	return 0;
 }
 

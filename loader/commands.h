@@ -19,5 +19,4 @@ void InitConsole();
 void RemoveConsole();
 void AddCommand(char *, fCommand);
 bool RemoveCommand(char *);
-
 #endif
