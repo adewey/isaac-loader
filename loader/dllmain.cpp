@@ -2,45 +2,53 @@
 #include "commands.h"
 #include "events.h"
 #include "hooks.h"
+#include "plugins.h"
 #include "statics.h"
 
-bool gbAttached = false;
 HANDLE ghThread;
-char *gTrackerID = "64a3c29a-c71b-4b35-b08c-38d3f5a70586";
-Player * gpPlayer = 0;
+bool gbAttached = false;
 
-void setKey(Player *pPlayer, int argc, char *argv[])
+void detatch(int argc, char *argv[])
 {
-	gTrackerID = argv[0];
-	cout << "Tracker ID set to: " << gTrackerID << endl;
-}
-
-void getKey(Player *pPlayer, int argc, char *argv[])
-{
-	cout << "Your current tracker ID: " << gTrackerID << endl;
-}
-
-void unLoad(Player *pPlayer, int argc, char*argv[])
-{
-	cout << "Unloading..." << endl;
+	cout << "detatching..." << endl;
 	gbAttached = false;
 }
 
-void setCurse(Player *pPlayer, int argc, char *argv[]){
+void PluginLoad(int argc, char *argv[])
+{
+	if (!argc) return;
+	char *loaded = (LoadPlugin(argv[0])) ? "success" : "failed";
+	cout << "loading plugin " << argv[0] << "... " << loaded << endl;
+}
+
+void PluginUnload(int argc, char *argv[])
+{
+	if (!argc) return;
+	char *unloaded = (UnloadPlugin(argv[0])) ? "success" : "failed";
+	cout << "unloading plugin " << argv[0] << "... " << unloaded << endl;
+}
+
+void setCurse(int argc, char *argv[])
+{
 	GetPlayerManager()->_curses = atoi(argv[0]);
 }
+
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
+	/* set our plugin path to the directory our main dll was loaded from */
 	/* attach console and hooks */
 	InitConsole();
 	cout << "DLL Attached!" << endl;
 	InitHooks();
 
+	strcpy_s(gszPluginPath, MAX_PATH, (char *)pThreadArgument);
+
 	/* add commands */
-	AddCommand("unload", unLoad);
-	AddCommand("setkey", setKey);
-	AddCommand("getkey", getKey);
+	AddCommand("load", PluginLoad);
+	AddCommand("unload", PluginUnload);
+	AddCommand("detatch", detatch);
 	AddCommand("setcurse", setCurse);
+
 	/* wait to be detached */
 	while (gbAttached){
 		/* monitor for commands */
@@ -49,10 +57,11 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 		ParseCommand(buffer);
 	}
 	
+	/* unload our plugins */
+	UnloadPlugins();
+
 	/* remove commands*/
 	RemoveCommand("unload");
-	RemoveCommand("setkey");
-	RemoveCommand("getkey");
 	RemoveCommand("setcurse");
 
 	/* remove console and unhook */
@@ -63,7 +72,7 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 }
 
 
-INT APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved)
+int APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved)
 {
 	switch (Reason)
 	{
@@ -71,9 +80,16 @@ INT APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved)
 		/* use a global attached variable and a thread to make sure we don't crash if isaac is unloaded from under us */
 		if (!gbAttached)
 		{
+			/* get the directory we were loaded from, so that we can load other things */
+			char szPath[MAX_PATH] = { 0 };
+			char * szTempPath;
+			GetModuleFileNameA(hDLL, szPath, MAX_STRING);
+			szTempPath = strrchr(szPath, '\\');
+			szTempPath[1] = '\0';
+
+			/* everything should be done in a thread instead of as part of the process attach call */
 			gbAttached = true;
-			//everything should be done in a thread instead of as part of the process attach call 
-			ghThread = CreateThread(NULL, 0, DllThread, NULL, 0L, NULL);
+			ghThread = CreateThread(NULL, 0, DllThread, strdup(szPath), 0L, NULL);
 		}
 		break;
 	case DLL_PROCESS_DETACH:

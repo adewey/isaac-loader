@@ -1,4 +1,3 @@
-#include <curl.h>
 #include "utilities.h"
 #include <tlhelp32.h>
 #include "detours.h"

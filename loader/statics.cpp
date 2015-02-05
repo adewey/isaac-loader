@@ -1,13 +1,14 @@
-#include "isaacdata.h"
+#include "statics.h"
 
-PlayerManager *pPlayerManager;
-Player* pPlayer;
+PPLAYERMANAGER gpPlayerManager = 0;
+PPLAYER gpPlayer = 0;
 
-PlayerManager *GetPlayerManager(){
-	return pPlayerManager;
+PPLAYERMANAGER GetPlayerManager()
+{
+	return gpPlayerManager;
 }
 
-void SetPlayerManager(PlayerManager* pPlayerMgr){
-	pPlayerManager = pPlayerMgr;
+PPLAYER GetPlayer()
+{
+	return gpPlayer;
 }
-

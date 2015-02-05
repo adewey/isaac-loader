@@ -35,10 +35,10 @@ bool bInjectDLL(DWORD dwPid)
 	/* we are assuming you compiled the files in debug mode the same as they are on github. this WILL change once we ship the product */
 	PCHAR szTempPath;
 	CHAR szPath[MAX_PATH];
-	GetCurrentDirectoryA(MAX_PATH, szPath);
+	GetModuleFileNameA(NULL, szPath, MAX_PATH);
 	szTempPath = strrchr(szPath, '\\');
-	szTempPath[0] = '\0';
-	strcat(szPath, "\\loader\\Debug\\loader.dll");
+	szTempPath[1] = '\0';
+	strcat(szPath, "loader.dll");
 	HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPid);
 	if (!process) {
 		printf("could not OpenProcess %d\n", dwPid);
@@ -81,14 +81,14 @@ int _tmain(int argc, _TCHAR* argv[])
 		if (dwPid && !injected)
 		{
 			/* let the game load a little before trying to inject */
-			Sleep(3000);
+			Sleep(1000);
 			injected = bInjectDLL(dwPid);
 		}
 		else if (!dwPid && injected)
 		{
 			injected = !injected;
 		}
-		Sleep(5000);
+		Sleep(500);
 	}
 	return 0;
 }
