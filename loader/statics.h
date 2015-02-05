@@ -20,6 +20,11 @@ typedef struct _Entity
 	/*0x041C*/	char _unk041C[0x350];
 } ENTITY, PENTITY; /*0x076C*/
 
+
+/*
+0x2FB4 i_nGuppyItems
+0x2FB8 i_nFlyItems
+*/
 typedef struct _Player : _Entity
 {
 	/*0x076C*/	char _unk76C[0x3E4];

@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "loader", "loader.vcxproj", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tracker", "..\tracker\tracker.vcxproj", "{E544B443-7ECD-46A7-9270-04A3A1860533}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "template", "..\template\template.vcxproj", "{18978212-6C33-4C04-AF94-CFEECC191C20}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,6 +23,10 @@ Global
 		{E544B443-7ECD-46A7-9270-04A3A1860533}.Debug|Win32.Build.0 = Debug|Win32
 		{E544B443-7ECD-46A7-9270-04A3A1860533}.Release|Win32.ActiveCfg = Release|Win32
 		{E544B443-7ECD-46A7-9270-04A3A1860533}.Release|Win32.Build.0 = Release|Win32
+		{18978212-6C33-4C04-AF94-CFEECC191C20}.Debug|Win32.ActiveCfg = Debug|Win32
+		{18978212-6C33-4C04-AF94-CFEECC191C20}.Debug|Win32.Build.0 = Debug|Win32
+		{18978212-6C33-4C04-AF94-CFEECC191C20}.Release|Win32.ActiveCfg = Release|Win32
+		{18978212-6C33-4C04-AF94-CFEECC191C20}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
