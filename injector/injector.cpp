@@ -39,34 +39,44 @@ bool bInjectDLL(DWORD dwPid)
 	szTempPath = strrchr(szPath, '\\');
 	szTempPath[1] = '\0';
 	strcat(szPath, "loader.dll");
+
 	HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPid);
-	if (!process) {
+	if (!process)
+	{
 		printf("could not OpenProcess %d\n", dwPid);
 		return false;
 	}
+
 	LPVOID loadlibrarya = (LPVOID)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryA");
-	if (!loadlibrarya) {
+	if (!loadlibrarya)
+	{
 		CloseHandle(process);
 		printf("cound not find LoadLibraryA\n");
 		return false;
 	}
+
 	LPVOID allocatedmemory = (LPVOID)VirtualAllocEx(process, NULL, strlen(szPath), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-	if (!allocatedmemory) {
+	if (!allocatedmemory)
+	{
 		printf("cound not VirtualAllocEx\n");
 		CloseHandle(process);
 		return false;
 	}
-	if (!WriteProcessMemory(process, allocatedmemory, szPath, strlen(szPath), NULL)) {
+
+	if (!WriteProcessMemory(process, allocatedmemory, szPath, strlen(szPath), NULL))
+	{
 		CloseHandle(process);
 		printf("cound not WriteProcessMemory\n");
 		return false;
 	}
-	HANDLE threadID = CreateRemoteThread(process, NULL, 0, (LPTHREAD_START_ROUTINE)loadlibrarya, allocatedmemory, NULL, NULL);
-	if (!threadID) {
+
+	if (!CreateRemoteThread(process, NULL, 0, (LPTHREAD_START_ROUTINE)loadlibrarya, allocatedmemory, NULL, NULL))
+	{
 		CloseHandle(process);
 		printf("cound not CreateRemoteThread\n");
 		return false;
 	}
+
 	CloseHandle(process);
 	return true;
 }
