@@ -1,10 +1,8 @@
 ul.consumable-list, ul.trinket-list, ul.pocket-list {
-    float: left;
     font-size: 11px;
     font-weight: bold;
     list-style: none;
     padding: 5px;
-    width: 45px;
 }
 
 ul.consumable-list li:before {
@@ -30,11 +28,9 @@ ul.consumable-list li.keys:before {
 }
 
 ul.item-list {
-    float: left;
     list-style: none;
     overflow: hidden;
     padding: 5px;
-    width: 25%;
 }
 
 ul.item-list li {
@@ -46,4 +42,17 @@ ul.item-list li {
 ul.item-list li.active {
     border: 1px solid red;
     border-radius: 3px;
+}
+
+.tooltip-inner {
+    max-width: 350px;
+    width: 350px;
+}
+
+.tooltip-inner h4 {
+    font-weight: bold;
+}
+
+i {
+    font-style: normal;
 }

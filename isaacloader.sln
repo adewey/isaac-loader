@@ -16,6 +16,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "template", "template\templa
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "injector", "injector\injector.vcxproj", "{53BA4F3E-E5A3-41FB-82B7-0B87D62FBD40}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B6F82396-7F7D-4E63-B47C-C82BB13E5950} = {B6F82396-7F7D-4E63-B47C-C82BB13E5950}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

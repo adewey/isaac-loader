@@ -2,6 +2,10 @@
 #include "utilities.h"
 #include "plugins.h"
 #include "statics.h"
+
+DWORD gdwBaseAddress = (DWORD)GetModuleHandle(NULL);
+DWORD gdwBaseSize = (DWORD)dwGetModuleSize("isaac-ng.exe");
+
 /*
 addCollectible is called when you pick up a pedestal, shop, market, or devil/angel item
 it includes active(spacebar), passive, and familiar(followers)
@@ -71,14 +75,11 @@ DWORD **dwPlayerManager = 0;
 
 void InitHooks()
 {
+	cout << "gdwBaseAddress [0x" << (void *)gdwBaseAddress << "]" << endl;
 	/* scan for functions */
-	unsigned long dwPid = GetProcessId(L"isaac-ng.exe");
-	unsigned long dwSize = 0;
-	unsigned long dwBase = GetModuleBase(dwPid, L"isaac-ng.exe", &dwSize);
-	cout << "dwBase [0x" << (void *)dwBase << "]" << endl;
 	//DWORD dwCheckForGoldenKey = dwFindPattern(dwBase, dwSize, (BYTE*)"\x80\xB9\x68\x0B\x00\x00\x00\x75\x11\x8B\x81\x64\x0B\x00\x00\x85\xC0\x7E\x0A\x48\x89\x81\x64\x0B\x00\x00\xB0\x01\xC3\x32\xC0\xC3", "xx????xxxxx????xxxxxxx????xxxxxx");
 
-	dwGameUpdate = dwFindPattern(dwBase, dwSize,
+	dwGameUpdate = dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(BYTE*)"\x55\x8b\xec\x83\xec\x0c\x53\x8b\x1d\x00"
 		"\x00\x00\x00\x56\x57\x8d\x83\x10\xb0\x02\x00\x50"
 		"\x89\x5d\xf8\xe8\x00\x00\x00\x00\x8b\x83\x68\xe2"
@@ -87,11 +88,11 @@ void InitHooks()
 
 	if (dwGameUpdate)
 	{
-		cout << "Found dwGameUpdate: [0x" << (void *)(dwGameUpdate - dwBase) << "]" << endl;
+		cout << "Found dwGameUpdate: [0x" << (void *)(dwGameUpdate - gdwBaseAddress) << "]" << endl;
 		original_gameUpdate = (void(__cdecl *)())DetourFunction((PBYTE)dwGameUpdate, (PBYTE)GameUpdate);
 	}
 
-	dwAddCollectible = dwFindPattern(dwBase, dwSize,
+	dwAddCollectible = dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(BYTE*)"\x55\x8B\xEC\x83\xE4\xF8\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x00\x00\x00\x00\x50"
 		"\x83\xEC\x78\xA1\x00\x00\x00\x00\x33\xC4\x89\x44\x24\x70\x53\x56\x57\xA1\x00\x00"
 		"\x00\x00\x33\xC4\x50\x8D\x84\x24\x88\x00\x00\x00\x64\xA3\x00\x00\x00\x00\x8B\x75"
@@ -100,11 +101,11 @@ void InitHooks()
 
 	if (dwAddCollectible)
 	{
-		cout << "dwItemPickup found [0x" << (void *)(dwAddCollectible - dwBase) << "]" << endl;
+		cout << "dwItemPickup found [0x" << (void *)(dwAddCollectible - gdwBaseAddress) << "]" << endl;
 		original_addCollectible = (int(__fastcall *)(PPLAYER, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
 	}
 
-	dwPlayerManager = (DWORD **)dwFindPattern(dwBase, dwSize, 
+	dwPlayerManager = (DWORD **)dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(BYTE*)"\x8b\x0d\x00\x00\x00\x00\x8b\x81\x9c\x94"
 		"\x00\x00\x2b\x81\x98\x94\x00\x00\xc1\xf8\x02\xc3",
 		"xx????xxxxxxxxxxxxxxxx") + 2;
@@ -112,7 +113,7 @@ void InitHooks()
 	if (dwPlayerManager)
 	{
 		gpPlayerManager = (PPLAYERMANAGER)dwPlayerManager;
-		cout << "pPlayerManager found [0x" << (int *)(dwPlayerManager - dwBase) << "]" << endl;
+		cout << "pPlayerManager found [0x" << (int *)(dwPlayerManager - gdwBaseAddress) << "]" << endl;
 	}
 }
 

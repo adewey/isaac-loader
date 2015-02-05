@@ -2,10 +2,10 @@
 #include <tchar.h>
 #include <windows.h>
 #include <tlhelp32.h>
+
 /*
 TODO(dither):
 - Log errors so that we can debug if injection is failing
-- Set our stream_key remotely
 - Make this just something in the systray
 */
 
