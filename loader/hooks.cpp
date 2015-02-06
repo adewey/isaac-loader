@@ -105,15 +105,20 @@ void InitHooks()
 		original_addCollectible = (int(__fastcall *)(PPLAYER, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
 	}
 
-	dwPlayerManager = (DWORD **)dwFindPattern(gdwBaseAddress, gdwBaseSize,
+	DWORD PlayerManager = dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(BYTE*)"\x8b\x0d\x00\x00\x00\x00\x8b\x81\x9c\x94"
 		"\x00\x00\x2b\x81\x98\x94\x00\x00\xc1\xf8\x02\xc3",
 		"xx????xxxxxxxxxxxxxxxx") + 2;
+	cout << "PlayerManager found [0x" << (int *)(PlayerManager - gdwBaseAddress) << "]" << endl;
+	dwPlayerManager = (DWORD **)PlayerManager;
 
 	if (dwPlayerManager)
 	{
 		gpPlayerManager = (PPLAYERMANAGER)dwPlayerManager;
 		cout << "pPlayerManager found [0x" << (int *)(dwPlayerManager - gdwBaseAddress) << "]" << endl;
+		DWORD dwPM = *(DWORD*)gdwBaseAddress + 0x61D214 - 0x400000;
+		gpPlayerManager = (PPLAYERMANAGER)dwPlayerManager;
+		cout << "**pPlayerManager found [0x" << (int *)(dwPlayerManager - gdwBaseAddress) << "]" << endl;
 	}
 }
 

@@ -87,6 +87,7 @@ PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc)
 
 void ParseCommand(char *cpLine)
 {
+	if (cpLine[0] == '\n') return;
 	PCHAR *szArglist;
 	int nArgs;
 	szArglist = CommandLineToArgvA(cpLine, &nArgs);

@@ -26,7 +26,7 @@ DWORD dwGetPidByName(TCHAR *wExeName)
 	return res;
 }
 
-DWORD dwGetModuleSize(char *szModule)
+GLOBAL DWORD dwGetModuleSize(char *szModule)
 {
 	MODULEINFO modinfo = { 0 };
 	HMODULE hModule = GetModuleHandleA(szModule);
@@ -43,7 +43,7 @@ bool bDataCompare(const BYTE* pData, const BYTE* bMask, const char* szMask)
 	return (*szMask) == NULL;
 }
 
-DWORD dwFindPattern(DWORD dwAddress, DWORD dwLen, BYTE *bMask, char * szMask)
+GLOBAL DWORD dwFindPattern(DWORD dwAddress, DWORD dwLen, BYTE *bMask, char * szMask)
 {
 	for (DWORD i = 0; i < dwLen; i++)
 		if (bDataCompare((BYTE*)(dwAddress + i), bMask, szMask))
