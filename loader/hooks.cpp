@@ -6,6 +6,8 @@
 DWORD gdwBaseAddress = (DWORD)GetModuleHandle(NULL);
 DWORD gdwBaseSize = (DWORD)dwGetModuleSize("isaac-ng.exe");
 
+#define printarg(i, arg) cout << "Arg" << i << ":\t" << (void *)arg << "\t" << (float)arg << endl;
+
 /*
 addCollectible is called when you pick up a pedestal, shop, market, or devil/angel item
 it includes active(spacebar), passive, and familiar(followers)
@@ -24,43 +26,63 @@ int __fastcall addCollectible(PPLAYER pPlayer, int relatedID, int itemID, int ch
 	int ret = original_addCollectible(pPlayer, relatedID, itemID, charges, arg5);
 	
 	//tell our plugins we added a collectible and give the entity id
-	AddCollectible(pPlayer, relatedID, itemID, charges, arg5);
+	OnAddCollectible(pPlayer, relatedID, itemID, charges, arg5);
 
 	return ret;
 }
 
-#define printarg(i, arg) cout << "Arg" << i << ":\t" << (void *)arg << "\t" << (float)arg << endl;
 
-/*Clueless, mindlessly copied code.*/
-int(__stdcall *original_spawnEntity)(int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9);
-int __stdcall spawnEntity(int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9) 
+/* SpawnEntity functions */
+/* TODO(Aaron): figure out a better way to handle this so we can detour properly */
+DWORD dwSpawnEntity = 0;
+void* SpawnEntityEvent_Original;
+void __cdecl SpawnEntityEvent_Payload(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, ENTITY *parent, int subtype, unsigned int seed)
 {
-	cout << "Args:\tHEX\t\tFLOAT" << endl;
-	printarg(1, arg1);
-	printarg(2, arg2);
-	printarg(3, arg3);
-	printarg(4, arg4);
-	printarg(5, arg5);
-	printarg(6, arg6);
-	printarg(7, arg7);
-	printarg(8, arg8);
-	printarg(9, arg9);
-	int ret = original_spawnEntity(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-	cout << "Ret:\t" << (void *)ret << endl;
-	return ret;
+	//do things with spawn entity
+	//OnSpawnEntity();
 }
-
+__declspec(naked) char SpawnEntityEvent_Hook()
+{
+	_asm
+	{
+		push ebp
+			mov ebp, esp
+			push eax
+			push ebx
+			push dword ptr[ebp + 0x1C]
+			push dword ptr[ebp + 0x18]
+			push dword ptr[ebp + 0x14]
+			push dword ptr[ebp + 0x10]
+			push dword ptr[ebp + 0x0C]
+			push dword ptr[ebp + 0x08]
+			push ebx
+			push eax
+			call SpawnEntityEvent_Payload
+			add esp, 32
+			pop ebx
+			pop eax
+			pop ebp
+			jmp SpawnEntityEvent_Original
+	}
+}
 
 /* currently unused */
 bool(__cdecl* original_checkForGoldenKey)();
 bool checkForGoldenKey()
 {
 	cout << "checkForGoldenKey() Called" << endl;
-	return true;
+	return original_checkForGoldenKey();
 }
 
+/* isaac random function used in many things */
+DWORD dwIsaacRandom = 0;
+int(__cdecl* original_IsaacRandom)();
+int IsaacRandom()
+{
+	return original_IsaacRandom();
+}
 
-/*GameUpdate Function*/
+/* GameUpdate Function */
 DWORD dwGameUpdate = 0;
 void(__cdecl *original_gameUpdate)();
 void __cdecl GameUpdate()
@@ -68,10 +90,9 @@ void __cdecl GameUpdate()
 	original_gameUpdate();
 	OnGameUpdate();
 }
-/*GameUpdate Function End*/
 
 /* add other global hooks here, and expose them for our events to catch */
-DWORD **dwPlayerManager = 0;
+DWORD gdwPlayerManager = 0;
 
 void InitHooks()
 {
@@ -105,20 +126,43 @@ void InitHooks()
 		original_addCollectible = (int(__fastcall *)(PPLAYER, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
 	}
 
-	DWORD PlayerManager = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+	gdwPlayerManager = *(DWORD*)(dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(BYTE*)"\x8b\x0d\x00\x00\x00\x00\x8b\x81\x9c\x94"
 		"\x00\x00\x2b\x81\x98\x94\x00\x00\xc1\xf8\x02\xc3",
-		"xx????xxxxxxxxxxxxxxxx") + 2;
-	cout << "PlayerManager found [0x" << (int *)(PlayerManager - gdwBaseAddress) << "]" << endl;
-	dwPlayerManager = (DWORD **)PlayerManager;
+		"xx????xxxxxxxxxxxxxxxx") + 2);
 
-	if (dwPlayerManager)
+	if (gdwPlayerManager)
 	{
-		gpPlayerManager = (PPLAYERMANAGER)dwPlayerManager;
-		cout << "pPlayerManager found [0x" << (int *)(dwPlayerManager - gdwBaseAddress) << "]" << endl;
-		DWORD dwPM = *(DWORD*)gdwBaseAddress + 0x61D214 - 0x400000;
-		gpPlayerManager = (PPLAYERMANAGER)dwPlayerManager;
-		cout << "**pPlayerManager found [0x" << (int *)(dwPlayerManager - gdwBaseAddress) << "]" << endl;
+		cout << "gdwPlayerManager found [0x" << (void *)(gdwPlayerManager - gdwBaseAddress) << "] (holds pointer for PlayerManager)" << endl;
+	}
+
+	dwIsaacRandom = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(BYTE*)	"\xa1\x00\x00\x00\x00\x3d\x00\x00\x00\x00\x0f\x8c\x00\x00\x00\x00\x3d\x00\x00\x00\x00\x75"
+		"\x00\xb8\x00\x00\x00\x00\xe8\x00\x00\x00\x00\x33\xc9\xeb\x00\x8d\xa4\x24\x00\x00\x00\x00"
+		"\x8d\x64\x24\x00\x8b\x04\x8d\x00\x00\x00\x00\x33\x04\x8d\x00\x00\x00\x00\x41\x25\x00\x00"
+		"\x00\x00\x33\x04\x8d\x00\x00\x00\x00\x8b\xd0\xd1\xe8\x83\xe2\x01\x33\x04\x95\x00\x00\x00"
+		"\x00\x33\x04\x8d\x00\x00\x00\x00\x89\x04\x8d\x00\x00\x00\x00\x81\xf9\x00\x00\x00\x00\x7c"
+		"\x00\x81\xf9\x00\x00\x00\x00\x7d\x00\x8d\x0c\x8d\x00\x00\x00\x00\x8b\xff",
+		"x????x????xx????x????x?x????x????xxx?xxxxxxxxxxxxxx????xxx????xx????xxx????xxxxxxxxxx???"
+		"?xxx????xxx????xx????x?xx????x?xxx????xx");
+
+	if (dwIsaacRandom)
+	{
+		cout << "Found dwIsaacRandom: [0x" << (void *)(dwIsaacRandom - gdwBaseAddress) << "]" << endl;
+		original_IsaacRandom = (int(__cdecl *)())DetourFunction((PBYTE)dwIsaacRandom, (PBYTE)IsaacRandom);
+	}
+
+	dwSpawnEntity = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(BYTE*)"\x55\x8b\xec\x51\x8b\x4d\x08\x8b\x89\xa4\xe2\x12\x00\x56\x57\x8b\xf8\x8b\x45\x0c"
+		"\xe8\x00\x00\x00\x00\x8b\xf0\xff\x15\x00\x00\x00\x00\x8b\x4d\x18\x8b\x16\x8b\x52"
+		"\x04\x89\x45\xfc\x8b\x45\x1c\x50\x8b\x45\x10\x51\x8b\x4d\x0c\x50\x51\x8b\xce\xff"
+		"\xd2",
+		"xxxxxxxxxxxxxxxxxxxxx????xxxx????xxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+
+	if (dwSpawnEntity)
+	{
+		cout << "Found dwSpawnEntity: [0x" << (void *)(dwSpawnEntity - gdwBaseAddress) << "]" << endl;
+		SpawnEntityEvent_Original = (void *)DetourFunction((PBYTE)dwSpawnEntity, (PBYTE)SpawnEntityEvent_Hook);
 	}
 }
 
@@ -127,4 +171,5 @@ void RemoveHooks()
 	/* un-detour functions */
 	DetourRemove((PBYTE)dwAddCollectible, (PBYTE)original_addCollectible);
 	DetourRemove((PBYTE)dwGameUpdate, (PBYTE)original_gameUpdate);
+	DetourRemove((PBYTE)dwIsaacRandom, (PBYTE)original_IsaacRandom);
 }

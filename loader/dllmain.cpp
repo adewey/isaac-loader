@@ -30,7 +30,9 @@ void PluginUnload(int argc, char *argv[])
 
 void setCurse(int argc, char *argv[])
 {
-	GetPlayerManager()->_curses = atoi(argv[0]);
+	PPLAYERMANAGER pPlayerManager = GetPlayerManager();
+	cout << "pPlayerManager [0x" << (void *)pPlayerManager << "]" << endl;
+	pPlayerManager->i_curses = atoi(argv[0]);
 }
 
 DWORD WINAPI DllThread(void* pThreadArgument)
@@ -89,7 +91,7 @@ int APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved)
 
 			/* everything should be done in a thread instead of as part of the process attach call */
 			gbAttached = true;
-			ghThread = CreateThread(NULL, 0, DllThread, strdup(szPath), 0L, NULL);
+			ghThread = CreateThread(NULL, 0, DllThread, _strdup(szPath), 0L, NULL);
 		}
 		break;
 	case DLL_PROCESS_DETACH:
