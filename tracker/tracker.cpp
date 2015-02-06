@@ -1,8 +1,8 @@
 #include "..\loader\plugin.h"
 #include "curl.h"
 
-char *gTrackerID = "64a3c29a-c71b-4b35-b08c-38d3f5a70586";
-char* gIsaacUrl = "http://www.isaactracker.com";
+char gTrackerID[MAX_STRING] = { 0 };
+char *gIsaacUrl = "http://www.isaactracker.com";
 
 bool bAttached = false;
 bool bUpdateRequired = false;
@@ -86,7 +86,8 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 
 void setKey(int argc, char *argv[])
 {
-	gTrackerID = argv[0];
+	strncpy_s(gTrackerID, argv[0], MAX_STRING);
+	IniWriteString("tracker", "key", gTrackerID);
 	cout << "Tracker ID set to: " << gTrackerID << endl;
 }
 
@@ -102,6 +103,8 @@ PAPI VOID InitPlugin()
 	//Add commands, detours, etc
 	AddCommand("setkey", setKey);
 	AddCommand("getkey", getKey);
+
+	IniReadString("tracker", "key", gTrackerID);
 
 	CreateThread(NULL, 0, updateServer, NULL, 0L, NULL);
 }
