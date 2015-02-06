@@ -3,7 +3,7 @@
 
 #include "utilities.h"
 
-typedef struct _Entity
+typedef struct Entity
 {
 	/*0x0000*/	char _unk0000[0xC];
 	/*0x000C*/	int _id;
@@ -25,7 +25,7 @@ typedef struct _Entity
 0x2FB4 i_nGuppyItems
 0x2FB8 i_nFlyItems
 */
-typedef struct _Player : _Entity
+typedef struct Player : Entity
 {
 	/*0x076C*/	char _unk76C[0x3E4];
 	/*0x0B50*/	int _maxHearts;
@@ -65,12 +65,12 @@ typedef struct _Player : _Entity
 	/*0x2FA0*/	int _pocket2isCard;
 } PLAYER, *PPLAYER;
 
-typedef struct _PlayerManager
+typedef struct PlayerManager
 {
-	int _floorNo;
-	bool _alternateFloor;
-	char unknown1[0x03];
-	int _curses;
+	/*0x0000*/	int _floorNo;
+	/*0x0004*/	bool _alternateFloor;
+	/*0x0005*/	char unknown0x0005[0x03];
+	/*0x0008*/	int _curses;
 	char unknown2[0x01];
 	bool _seeForever;
 	char unknown3[0x0A];
