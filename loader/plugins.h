@@ -30,7 +30,7 @@ GLOBAL bool LoadPlugin(const char *);
 GLOBAL bool UnloadPlugin(const char *);
 GLOBAL void UnloadPlugins();
 
-GLOBAL void AddCollectible(PPLAYER, int, int, int, int);
+GLOBAL void OnAddCollectible(PPLAYER, int, int, int, int);
 GLOBAL void OnGameUpdate();
 
 #endif

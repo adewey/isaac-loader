@@ -5,6 +5,7 @@
 
 GLOBAL DWORD gdwBaseAddress;
 GLOBAL DWORD gdwBaseSize;
+GLOBAL DWORD gdwPlayerManager;
 
 void InitHooks();
 void RemoveHooks();

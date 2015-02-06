@@ -1,11 +1,11 @@
 #include "statics.h"
+#include "hooks.h"
 
-PPLAYERMANAGER gpPlayerManager = 0;
 PPLAYER gpPlayer = 0;
 
 PPLAYERMANAGER GetPlayerManager()
 {
-	return gpPlayerManager;
+	return (PPLAYERMANAGER)*(DWORD*)gdwPlayerManager;
 }
 
 PPLAYER GetPlayer()

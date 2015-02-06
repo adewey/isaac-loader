@@ -9,7 +9,7 @@ bool LoadPlugin(const char *fn)
 	char Filename[MAX_PATH] = { 0 };
 
 	strcpy_s(Filename, MAX_PATH, fn);
-	strlwr(Filename);
+	_strlwr_s(Filename, MAX_PATH);
 	char *Temp = strstr(Filename, ".dll");
 	if (Temp)
 		Temp[0] = 0;
@@ -64,7 +64,7 @@ bool UnloadPlugin(const char *fn)
 {
 	char Filename[MAX_PATH] = { 0 };
 	strcpy_s(Filename, MAX_PATH, fn);
-	strlwr(Filename);
+	_strlwr_s(Filename, MAX_PATH);
 	char *Temp = strstr(Filename, ".dll");
 	if (Temp)
 		Temp[0] = 0;
@@ -72,7 +72,7 @@ bool UnloadPlugin(const char *fn)
 	PPLUGIN pPlugin = pPluginList;
 	while (pPlugin)
 	{
-		if (!stricmp(Filename, pPlugin->szPluginName))
+		if (!_stricmp(Filename, pPlugin->szPluginName))
 		{
 			if (pPlugin->pLast)
 				pPlugin->pLast->pNext = pPlugin->pNext;
@@ -103,7 +103,7 @@ void UnloadPlugins()
 	}
 }
 
-void AddCollectible(PPLAYER pPlayer, int relatedID, int itemID, int charges, int arg5)
+void OnAddCollectible(PPLAYER pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 	PPLUGIN pPlugin = pPluginList;
 	while (pPlugin)

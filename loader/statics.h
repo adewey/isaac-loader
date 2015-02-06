@@ -3,6 +3,11 @@
 
 #include "utilities.h"
 
+struct PointF {
+	float x;
+	float y;
+};
+
 typedef struct Entity
 {
 	/*0x0000*/	char _unk0000[0xC];
@@ -21,10 +26,6 @@ typedef struct Entity
 } ENTITY, PENTITY; /*0x076C*/
 
 
-/*
-0x2FB4 i_nGuppyItems
-0x2FB8 i_nFlyItems
-*/
 typedef struct Player : Entity
 {
 	/*0x076C*/	char _unk76C[0x3E4];
@@ -63,18 +64,37 @@ typedef struct Player : Entity
 	/*0x2F98*/	int _pocket1isCard;
 	/*0x2F9C*/	int _pocket2ID;
 	/*0x2FA0*/	int _pocket2isCard;
+	/*0x2FA4*/	char _unk2FA4[0x10];
+	/*0x2FB4*/	int _nGuppyItems;
+	/*0x2FB8*/	int _nFlyItems;
 } PLAYER, *PPLAYER;
+
+
+
+enum Curses {
+	None = 0,
+	Darkness = 1,
+	Labyrinth = 2,
+	Lost = 4,
+	Unknown = 8,
+	Cursed = 16,
+	Maze = 32,
+	Blind = 64,
+};
 
 typedef struct PlayerManager
 {
 	/*0x0000*/	int _floorNo;
-	/*0x0004*/	bool _alternateFloor;
-	/*0x0005*/	char unknown0x0005[0x03];
-	/*0x0008*/	int _curses;
-	char unknown2[0x01];
-	bool _seeForever;
-	char unknown3[0x0A];
-	//Room rooms[50]; // unknown size.. 50 for now
+	/*0x0004*/	BOOL _alternateFloor;
+	/*0x0008*/	union {
+					Curses _curses;
+					int i_curses;
+				};
+	/*0x000C*/	char _unk000C;
+	/*0x000D*/	bool _seeForever;
+	/*0x000E*/	char _unk000E[0x2]; // to fix alignment
+	/*0x0010*/	char _unk0010[0x8];
+	/*0x0018*/	//Room rooms[50]; // unknown size.. 50 for now
 	char unknown4[0x3BB8];
 	int RoomCount;
 	char unknown5[0x23D1];
