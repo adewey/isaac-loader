@@ -1,11 +1,14 @@
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
+#define IMPORTS
+#pragma warning(disable:4273)
+
 #include "utilities.h"
 #include "commands.h"
 #include "plugins.h"
 
-#define PAPI extern "C" __declspec(dllexport)
+#define PAPI EXTERN_C __declspec(dllexport)
 
 int APIENTRY DllMain(HMODULE hDLL, DWORD Reason, LPVOID Reserved)
 {

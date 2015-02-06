@@ -6,8 +6,8 @@
 #include <windows.h>
 #include "detours.h"
 #include <iostream>
+#include "dllmain.h"
 using namespace std;
-#define GLOBAL extern "C" __declspec(dllexport)
 
 DWORD dwGetPidByName(TCHAR *wExeName);
 GLOBAL DWORD dwGetModuleSize(char *);

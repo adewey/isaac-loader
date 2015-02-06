@@ -1,7 +1,9 @@
 #include "plugins.h"
 #include "utilities.h"
+#include "commands.h"
 
 char gszPluginPath[MAX_PATH] = { 0 };
+char gszINIPath[MAX_PATH] = { 0 };
 PPLUGIN pPluginList = 0;
 
 bool LoadPlugin(const char *fn)
@@ -57,6 +59,7 @@ bool LoadPlugin(const char *fn)
 	if (pPluginList)
 		pPluginList->pLast = pPlugin;
 	pPluginList = pPlugin;
+	WritePrivateProfileStringA("plugins", Filename, Filename, gszINIPath);
 	return true;
 }
 
@@ -86,6 +89,8 @@ bool UnloadPlugin(const char *fn)
 
 			FreeLibrary(pPlugin->hModule);
 			delete pPlugin;
+			/* make sure it isnt loaded by default next time */
+			WritePrivateProfileStringA("plugins", Filename, NULL, gszINIPath);
 			return true;
 		}
 		pPlugin = pPlugin->pNext;
@@ -101,6 +106,28 @@ void UnloadPlugins()
 	{
 		UnloadPlugin(pPlugin->szPluginName);
 	}
+}
+
+/* NOTE(Aaron): could some or all of this function be moved to commands? i'm not 100% */
+void InitPlugins()
+{
+	char szPlugins[MAX_STRING] = { 0 };
+	/* get a null terminated string of keys in the plugin directory*/
+	DWORD dwBytes = IniReadString("plugins", NULL, szPlugins); // GetPrivateProfileStringA("plugins", NULL, NULL, szPlugins, MAX_STRING, gszINIPath);
+
+	/* convert this to something meaningful to parse */
+	for (DWORD i = 0; i < dwBytes; i++)
+		if (szPlugins[i] == '\0' && szPlugins[i + 1] != '\0')
+			szPlugins[i] = ' ';
+
+	/* get an array of plugin strings to load */
+	PCHAR *szPluginList;
+	int nPlugins;
+	szPluginList = CommandLineToArgvA(szPlugins, &nPlugins);
+	
+	/* load them */
+	for (int o = 0; o < nPlugins; o++)
+		LoadPlugin(szPluginList[o]);
 }
 
 void OnAddCollectible(PPLAYER pPlayer, int relatedID, int itemID, int charges, int arg5)

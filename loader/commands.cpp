@@ -131,7 +131,7 @@ void AddCommand(char *Command, fCommand Function)
 {
 	PCOMMAND pCommand = new COMMAND;
 	memset(pCommand, 0, sizeof(COMMAND));
-	strncpy(pCommand->Command, Command, 64 - 1);
+	strncpy_s(pCommand->Command, Command, 64 - 1);
 	pCommand->Function = Function;
 
 	// perform insertion sort
