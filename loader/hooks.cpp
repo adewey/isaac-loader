@@ -2,7 +2,6 @@
 #include "utilities.h"
 #include "plugins.h"
 #include "statics.h"
-
 DWORD gdwBaseAddress = (DWORD)GetModuleHandle(NULL);
 DWORD gdwBaseSize = (DWORD)dwGetModuleSize("isaac-ng.exe");
 

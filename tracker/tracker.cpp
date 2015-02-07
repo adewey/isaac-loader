@@ -64,6 +64,7 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 			CURL *curl;
 			char finalUrl[256] = { 0 };
 			sprintf_s(finalUrl, 256, "%s/api/%s/pickup/", gIsaacUrl, gTrackerID);
+			cout << sprintf_s(finalUrl, 256, "%s/api/%s/pickup/", gIsaacUrl, gTrackerID);
 			curl = curl_easy_init();
 			if (curl)
 			{
@@ -100,18 +101,18 @@ void getKey(int argc, char *argv[])
 PAPI VOID InitPlugin()
 {
 	bAttached = true;
+	cout << "Init Tracker;" << endl;
 	//Add commands, detours, etc
 	AddCommand("setkey", setKey);
 	AddCommand("getkey", getKey);
-
-	IniReadString("tracker", "key", gTrackerID);
-
+	setKey(1,(char**)"46236c05-d854-4156-b2e8-41eb13c9255f");
 	CreateThread(NULL, 0, updateServer, NULL, 0L, NULL);
 }
 
 // called when the plugin is removed
 PAPI VOID UnInitPlugin(VOID)
 {
+	cout << "UnInit Tracker;" << endl;
 	bAttached = false;
 	//remove commands, detours, etc
 	RemoveCommand("setkey");
