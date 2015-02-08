@@ -6,8 +6,6 @@
 DWORD gdwBaseAddress = (DWORD)GetModuleHandle(NULL);
 DWORD gdwBaseSize = (DWORD)dwGetModuleSize("isaac-ng.exe");
 
-#define printarg(i, arg) cout << "Arg" << i << ":\t" << (void *)arg << "\t" << (float)arg << endl;
-
 /*
 addCollectible is called when you pick up a pedestal, shop, market, or devil/angel item
 it includes active(spacebar), passive, and familiar(followers)
@@ -17,8 +15,8 @@ it includes active(spacebar), passive, and familiar(followers)
 :params arg5: currently unknown what this is for (maybe a boolean value? i have only seen 1 or 0
 */
 DWORD dwAddCollectible = 0;
-int (__fastcall *original_addCollectible)(PPLAYER pPlayer, int relatedID, int itemID, int charges, int arg5);
-int __fastcall addCollectible(PPLAYER pPlayer, int relatedID, int itemID, int charges, int arg5)
+int (__fastcall *original_addCollectible)(Player *pPlayer, int relatedID, int itemID, int charges, int arg5);
+int __fastcall addCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 	if (pPlayer != GetPlayer())
 		gpPlayer = pPlayer;
@@ -36,7 +34,7 @@ int __fastcall addCollectible(PPLAYER pPlayer, int relatedID, int itemID, int ch
 /* TODO(Aaron): figure out a better way to handle this so we can detour properly */
 DWORD dwSpawnEntity = 0;
 void* SpawnEntityEvent_Original;
-void __cdecl SpawnEntityEvent_Payload(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, ENTITY *parent, int subtype, unsigned int seed)
+void __cdecl SpawnEntityEvent_Payload(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, Entity *parent, int subtype, unsigned int seed)
 {
 	//do things with spawn entity
 	//OnSpawnEntity();
@@ -101,11 +99,8 @@ void InitHooks()
 	//DWORD dwCheckForGoldenKey = dwFindPattern(dwBase, dwSize, (BYTE*)"\x80\xB9\x68\x0B\x00\x00\x00\x75\x11\x8B\x81\x64\x0B\x00\x00\x85\xC0\x7E\x0A\x48\x89\x81\x64\x0B\x00\x00\xB0\x01\xC3\x32\xC0\xC3", "xx????xxxxx????xxxxxxx????xxxxxx");
 
 	dwGameUpdate = dwFindPattern(gdwBaseAddress, gdwBaseSize,
-		(BYTE*)"\x55\x8b\xec\x83\xec\x0c\x53\x8b\x1d\x00"
-		"\x00\x00\x00\x56\x57\x8d\x83\x10\xb0\x02\x00\x50"
-		"\x89\x5d\xf8\xe8\x00\x00\x00\x00\x8b\x83\x68\xe2"
-		"\x12\x00\x85\xc0\x7e\x00\x48\x89\x83\x68\xe2\x12\x00",
-		"xxxxxxxxx????xxxxxxxxxxxxx????xxxxxxxxx?xxxxxxx");
+		(BYTE*)"\x55\x8b\xec\x83\xec\x0c\x53\x8b\x1d\x00\x00\x00\x00\x56\x57\x8d\x83\xa4\xa5\x02\x00\x50\x89\x5d\xf8",
+				"xxxxxxxxx????xxxx????xxxx");
 
 	if (dwGameUpdate)
 	{
@@ -115,21 +110,20 @@ void InitHooks()
 
 	dwAddCollectible = dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(BYTE*)"\x55\x8B\xEC\x83\xE4\xF8\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x00\x00\x00\x00\x50"
-		"\x83\xEC\x78\xA1\x00\x00\x00\x00\x33\xC4\x89\x44\x24\x70\x53\x56\x57\xA1\x00\x00"
-		"\x00\x00\x33\xC4\x50\x8D\x84\x24\x88\x00\x00\x00\x64\xA3\x00\x00\x00\x00\x8B\x75"
-		"\x08\x8B\xD9\x89\x5C\x24\x1C\x89\x74\x24\x24\x81\xFE",
-		"xxxxxxxxx????xx????xxxxx????xxxxxxxxxx????xxxxxxxxxx????xxxxxxxxxxxx");
+				"\x83\xEC\x78\xA1\x00\x00\x00\x00\x33\xC4\x89\x44\x24\x70\x53\x56\x57\xA1\x00\x00"
+				"\x00\x00\x33\xC4\x50\x8D\x84\x24\x88\x00\x00\x00\x64\xA3\x00\x00\x00\x00\x8B\x75"
+				"\x08\x8B\xD9\x89\x5C\x24\x1C\x89\x74\x24\x24\x81\xFE",
+				"xxxxxxxxx????xx????xxxxx????xxxxxxxxxx????xxxxxxxxxx????xxxxxxxxxxxx");
 
 	if (dwAddCollectible)
 	{
-		cout << "dwItemPickup found [0x" << (void *)(dwAddCollectible - gdwBaseAddress) << "]" << endl;
-		original_addCollectible = (int(__fastcall *)(PPLAYER, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
+		cout << "dwAddCollectible found [0x" << (void *)(dwAddCollectible - gdwBaseAddress) << "]" << endl;
+		original_addCollectible = (int(__fastcall *)(Player *, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
 	}
 
 	gdwPlayerManager = *(DWORD*)(dwFindPattern(gdwBaseAddress, gdwBaseSize,
-		(BYTE*)"\x8b\x0d\x00\x00\x00\x00\x8b\x81\x9c\x94"
-		"\x00\x00\x2b\x81\x98\x94\x00\x00\xc1\xf8\x02\xc3",
-		"xx????xxxxxxxxxxxxxxxx") + 2);
+		(BYTE*)"\x8b\x0d\x00\x00\x00\x00\x8b\x81\x30\x8a\x00\x00\x2b\x81\x2c\x8a\x00\x00\xc1\xf8\x02\xc3",
+				"xx????xx????xx????xxxx") + 2);
 
 	if (gdwPlayerManager)
 	{
@@ -137,14 +131,14 @@ void InitHooks()
 	}
 
 	dwIsaacRandom = dwFindPattern(gdwBaseAddress, gdwBaseSize,
-		(BYTE*)	"\xa1\x00\x00\x00\x00\x3d\x00\x00\x00\x00\x0f\x8c\x00\x00\x00\x00\x3d\x00\x00\x00\x00\x75"
-		"\x00\xb8\x00\x00\x00\x00\xe8\x00\x00\x00\x00\x33\xc9\xeb\x00\x8d\xa4\x24\x00\x00\x00\x00"
-		"\x8d\x64\x24\x00\x8b\x04\x8d\x00\x00\x00\x00\x33\x04\x8d\x00\x00\x00\x00\x41\x25\x00\x00"
-		"\x00\x00\x33\x04\x8d\x00\x00\x00\x00\x8b\xd0\xd1\xe8\x83\xe2\x01\x33\x04\x95\x00\x00\x00"
-		"\x00\x33\x04\x8d\x00\x00\x00\x00\x89\x04\x8d\x00\x00\x00\x00\x81\xf9\x00\x00\x00\x00\x7c"
-		"\x00\x81\xf9\x00\x00\x00\x00\x7d\x00\x8d\x0c\x8d\x00\x00\x00\x00\x8b\xff",
-		"x????x????xx????x????x?x????x????xxx?xxxxxxxxxxxxxx????xxx????xx????xxx????xxxxxxxxxx???"
-		"?xxx????xxx????xx????x?xx????x?xxx????xx");
+		(BYTE*)"\xa1\x00\x00\x00\x00\x3d\x00\x00\x00\x00\x0f\x8c\x00\x00\x00\x00\x3d\x00\x00\x00\x00\x75"
+				"\x00\xb8\x00\x00\x00\x00\xe8\x00\x00\x00\x00\x33\xc9\xeb\x00\x8d\xa4\x24\x00\x00\x00\x00"
+				"\x8d\x64\x24\x00\x8b\x04\x8d\x00\x00\x00\x00\x33\x04\x8d\x00\x00\x00\x00\x41\x25\x00\x00"
+				"\x00\x00\x33\x04\x8d\x00\x00\x00\x00\x8b\xd0\xd1\xe8\x83\xe2\x01\x33\x04\x95\x00\x00\x00"
+				"\x00\x33\x04\x8d\x00\x00\x00\x00\x89\x04\x8d\x00\x00\x00\x00\x81\xf9\x00\x00\x00\x00\x7c"
+				"\x00\x81\xf9\x00\x00\x00\x00\x7d\x00\x8d\x0c\x8d\x00\x00\x00\x00\x8b\xff",
+				"x????x????xx????x????x?x????x????xxx?xxxxxxxxxxxxxx????xxx????xx????xxx????xxxxxxxxxx???"
+				"?xxx????xxx????xx????x?xx????x?xxx????xx");
 
 	if (dwIsaacRandom)
 	{
@@ -153,11 +147,8 @@ void InitHooks()
 	}
 
 	dwSpawnEntity = dwFindPattern(gdwBaseAddress, gdwBaseSize,
-		(BYTE*)"\x55\x8b\xec\x51\x8b\x4d\x08\x8b\x89\xa4\xe2\x12\x00\x56\x57\x8b\xf8\x8b\x45\x0c"
-		"\xe8\x00\x00\x00\x00\x8b\xf0\xff\x15\x00\x00\x00\x00\x8b\x4d\x18\x8b\x16\x8b\x52"
-		"\x04\x89\x45\xfc\x8b\x45\x1c\x50\x8b\x45\x10\x51\x8b\x4d\x0c\x50\x51\x8b\xce\xff"
-		"\xd2",
-		"xxxxxxxxxxxxxxxxxxxxx????xxxx????xxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+		(BYTE*)"\x55\x8b\xec\x51\x8b\x4d\x08\x8b\x89\xfc\xd7\x10\x00\x56\x57\x8b\xf8\x8b\x45\x0c\xe8\x00\x00\x00\x00\x8b\xf0",
+				"xxxxxxxxxxxxxxxxxxxxx????xx");
 
 	if (dwSpawnEntity)
 	{

@@ -101,6 +101,7 @@
     <ClInclude Include="commands.h" />
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="hooks.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="plugins.h" />
     <ClInclude Include="statics.h" />
