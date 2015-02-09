@@ -16,3 +16,5 @@ start.sh
 Debug/
 ipch/
 testing/
+
+!*.lib
