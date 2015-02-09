@@ -130,7 +130,7 @@ void InitPlugins()
 		LoadPlugin(szPluginList[o]);
 }
 
-void OnAddCollectible(PPLAYER pPlayer, int relatedID, int itemID, int charges, int arg5)
+void OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 	PPLUGIN pPlugin = pPluginList;
 	while (pPlugin)
