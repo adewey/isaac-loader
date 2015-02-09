@@ -19,11 +19,12 @@ DWORD dwAddCollectible = 0;
 int (__fastcall *original_addCollectible)(Player *pPlayer, int relatedID, int itemID, int charges, int arg5);
 int __fastcall addCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
-	if (pPlayer != GetPlayer())
+	if (pPlayer != GetPlayer()){
 		gpPlayer = pPlayer;
+	}
 	cout << "pPlayer [0x" << GetPlayer() << "]" << endl;
-	int ret = original_addCollectible(pPlayer, relatedID, itemID, charges, arg5);
-	
+	PreAddCollectible(pPlayer, &relatedID, &itemID, &charges, &arg5);
+	int	ret = original_addCollectible(pPlayer, relatedID, itemID, charges, arg5);
 	//tell our plugins we added a collectible and give the entity id
 	OnAddCollectible(pPlayer, relatedID, itemID, charges, arg5);
 
@@ -37,6 +38,10 @@ DWORD dwSpawnEntity = 0;
 void* SpawnEntityEvent_Original;
 void __cdecl SpawnEntityEvent_Payload(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, Entity *parent, int subtype, unsigned int seed)
 {
+	if (entityID != 1000){
+		PreSpawnEntity(velocity, position, &playerManager, &entityID, &variant, parent, &subtype, &seed);
+		OnSpawnEntity(velocity, position, playerManager, entityID, variant, parent, subtype, seed);
+	}
 	//do things with spawn entity
 	//OnSpawnEntity();
 }
@@ -86,8 +91,8 @@ DWORD dwGameUpdate = 0;
 void(__cdecl *original_gameUpdate)();
 void __cdecl GameUpdate()
 {
-	original_gameUpdate();
 	OnGameUpdate();
+	original_gameUpdate();
 }
 
 /* add other global hooks here, and expose them for our events to catch */

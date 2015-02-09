@@ -1,7 +1,6 @@
 #include "plugins.h"
 #include "utilities.h"
 #include "commands.h"
-
 char gszPluginPath[MAX_PATH] = { 0 };
 char gszINIPath[MAX_PATH] = { 0 };
 PPLUGIN pPluginList = 0;
@@ -48,7 +47,10 @@ bool LoadPlugin(const char *fn)
 
 	pPlugin->InitPlugin = (fInitPlugin)GetProcAddress(hmod, "InitPlugin");
 	pPlugin->UnInitPlugin = (fUnInitPlugin)GetProcAddress(hmod, "UnInitPlugin");
+	pPlugin->PreAddCollectible = (fPreAddCollectible)GetProcAddress(hmod, "PreAddCollectible");
 	pPlugin->OnAddCollectible = (fOnAddCollectible)GetProcAddress(hmod, "OnAddCollectible");
+	pPlugin->PreSpawnEntity = (fPreSpawnEntity)GetProcAddress(hmod, "PreSpawnEntity");
+	pPlugin->OnSpawnEntity = (fOnSpawnEntity)GetProcAddress(hmod, "OnSpawnEntity");
 	pPlugin->OnGameUpdate = (fOnGameUpdate)GetProcAddress(hmod, "OnGameUpdate");
 
 	if (pPlugin->InitPlugin)
@@ -128,6 +130,38 @@ void InitPlugins()
 	/* load them */
 	for (int o = 0; o < nPlugins; o++)
 		LoadPlugin(szPluginList[o]);
+}
+
+void PreSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER *playerManager, int *entityID, int *variant, Entity *parent, int *subtype, unsigned int *seed){
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin){
+		if (pPlugin->PreSpawnEntity){
+			pPlugin->PreSpawnEntity(velocity, position, playerManager, entityID, variant, parent, subtype, seed);
+		}
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+void OnSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, Entity *parent, int subtype, unsigned int seed){
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin){
+		if (pPlugin->OnSpawnEntity){
+			pPlugin->OnSpawnEntity(velocity, position, playerManager, entityID, variant, parent, subtype, seed);
+		}
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+void PreAddCollectible(Player *pPlayer, int *relatedID, int *itemID, int *charges, int *arg5)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->PreAddCollectible){
+			pPlugin->PreAddCollectible(pPlayer, relatedID, itemID, charges, arg5);
+		}
+		pPlugin = pPlugin->pNext;
+	}
 }
 
 void OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)

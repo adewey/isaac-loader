@@ -59,8 +59,6 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 
 			char buffer2[2048] = { 0 };
 			sprintf_s(buffer2, 2048 - 1, "{\"character\": \"%s\", \"characterid\": %d, \"coins\": %d, \"bombs\": %d, \"keys\": %d, \"items\": %s, \"trinkets\": %s, \"pockets\": %s}",pPlayer->_characterName, pPlayer->_charID, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
-			cout << buffer2 << endl;
-			cout << pPlayer->_charID << endl;
 			CURL *curl;
 			char finalUrl[256] = { 0 };
 			sprintf_s(finalUrl, 256 - 1, "%s/api/%s/pickup/", gIsaacUrl, gTrackerID);
@@ -117,12 +115,31 @@ PAPI VOID UnInitPlugin(VOID)
 	RemoveCommand("getkey");
 }
 
+PAPI VOID PreSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER *playerManager, int *entityID, int *variant, Entity *parent, int *subtype, unsigned int *seed)
+{
+	PPLAYERMANAGER PlayerManager = *playerManager;
+	cout << "New Entity: " << endl;
+
+}
+
+PAPI VOID OnSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, Entity *parent, int subtype, unsigned int seed)
+{
+
+}
+
+PAPI VOID PreAddCollectible(Player *pPlayer, int *relatedID, int *itemID, int *charges, int *arg5)
+{
+	//do stuff with the collectible's information
+	if (*itemID == 105){
+		*itemID = 235;
+	}
+}
 PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 	//do stuff with the collectible's information
-
-	//at this time in the tracker we only care about sending player data to the server
-	bUpdateRequired = true;
+	if (itemID != 235){
+		bUpdateRequired = true;
+	}
 }
 
 DWORD dwFrameCount = 0;
