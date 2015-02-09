@@ -13,20 +13,20 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 	{
 		if (bUpdateRequired && GetPlayer())
 		{
-			PPLAYER pPlayer = GetPlayer();
+			Player *pPlayer = GetPlayer();
 			/* craft our json object to send to the server */
 
 			/* craft our item array */
 			char itembuffer[1024] = { 0 };
-			strcat_s(itembuffer, 512, "[");
-			char itemidbuffer[0x8];
+			strcat_s(itembuffer, 1024 - 1, "[");
+			char itemidbuffer[0x32];
 			for (int i = 0; i < 0x15A; i++)
 			{
-				ZeroMemory(itemidbuffer, 0x8);
+				ZeroMemory(itemidbuffer, 0x32);
 				if (pPlayer->_items[i])
 				{
-					sprintf_s(itemidbuffer, 0x8, "%d,", i + 1);
-					strcat_s(itembuffer, 1024, itemidbuffer);
+					sprintf_s(itemidbuffer, 0x32, "%d,", i + 1);
+					strcat_s(itembuffer, 1024 - 1, itemidbuffer);
 				}
 			}
 			/* replace our trailing comma with a closing bracket */
@@ -35,35 +35,35 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 			/* craft our trinket array */
 			char trinketbuffer[1024] = { 0 };
 			strcat_s(trinketbuffer, 1024, "[");
-			char trinketidbuffer[0x8];
-			ZeroMemory(trinketidbuffer, 0x8);
-			sprintf_s(trinketidbuffer, 0x8, "%d,", pPlayer->_trinket1ID);
-			strcat_s(trinketbuffer, 1024, trinketidbuffer);
-			ZeroMemory(trinketidbuffer, 0x8);
-			sprintf_s(trinketidbuffer, 0x8, "%d,", pPlayer->_trinket2ID);
-			strcat_s(trinketbuffer, 1024, trinketidbuffer);
+			char trinketidbuffer[0x32];
+			ZeroMemory(trinketidbuffer, 0x32 - 1);
+			sprintf_s(trinketidbuffer, 0x32 - 1, "%d,", pPlayer->_trinket1ID);
+			strcat_s(trinketbuffer, 1024 - 1, trinketidbuffer);
+			ZeroMemory(trinketidbuffer, 0x32 - 1);
+			sprintf_s(trinketidbuffer, 0x32 - 1, "%d,", pPlayer->_trinket2ID);
+			strcat_s(trinketbuffer, 1024 - 1, trinketidbuffer);
 			/* replace our trailing comma with a closing bracket */
 			trinketbuffer[strlen(trinketbuffer) - 1] = ']';
 
 			/* craft our pocket array */
 			char pocketbuffer[1024] = { 0 };
-			strcat_s(pocketbuffer, 512, "[");
+			strcat_s(pocketbuffer, 1024 - 1, "[");
 			char pocketidbuffer[0x32];
-			ZeroMemory(pocketidbuffer, 0x32);
-			sprintf_s(pocketidbuffer, 0x32, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket1ID, pPlayer->_pocket1isCard);
-			strcat_s(pocketbuffer, 1024, pocketidbuffer);
-			ZeroMemory(pocketidbuffer, 0x32);
-			sprintf_s(pocketidbuffer, 0x32, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket2ID, pPlayer->_pocket2isCard);
-			strcat_s(pocketbuffer, 1024, pocketidbuffer);
+			ZeroMemory(pocketidbuffer, 0x32 - 1);
+			sprintf_s(pocketidbuffer, 0x32 - 1, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket1ID, pPlayer->_pocket1isCard);
+			strcat_s(pocketbuffer, 1024 - 1, pocketidbuffer);
+			ZeroMemory(pocketidbuffer, 0x32 - 1);
+			sprintf_s(pocketidbuffer, 0x32 - 1, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket2ID, pPlayer->_pocket2isCard);
+			strcat_s(pocketbuffer, 1024 - 1, pocketidbuffer);
 			/* replace our trailing comma with a closing bracket */
 			pocketbuffer[strlen(pocketbuffer) - 1] = ']';
 
 			char buffer2[2048] = { 0 };
-			sprintf_s(buffer2, 2048, "{\"coins\": %d, \"bombs\": %d, \"keys\": %d, \"items\": %s, \"trinkets\": %s, \"pockets\": %s}", pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
+			sprintf_s(buffer2, 2048 - 1, "{\"coins\": %d, \"bombs\": %d, \"keys\": %d, \"items\": %s, \"trinkets\": %s, \"pockets\": %s}", pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
 
 			CURL *curl;
 			char finalUrl[256] = { 0 };
-			sprintf_s(finalUrl, 256, "%s/api/%s/pickup/", gIsaacUrl, gTrackerID);
+			sprintf_s(finalUrl, 256 - 1, "%s/api/%s/pickup/", gIsaacUrl, gTrackerID);
 			curl = curl_easy_init();
 			if (curl)
 			{
@@ -118,7 +118,7 @@ PAPI VOID UnInitPlugin(VOID)
 	RemoveCommand("getkey");
 }
 
-PAPI VOID OnAddCollectible(PPLAYER pPlayer, int relatedID, int itemID, int charges, int arg5)
+PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 	//do stuff with the collectible's information
 

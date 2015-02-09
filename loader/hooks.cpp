@@ -17,8 +17,8 @@ it includes active(spacebar), passive, and familiar(followers)
 :params arg5: currently unknown what this is for (maybe a boolean value? i have only seen 1 or 0
 */
 DWORD dwAddCollectible = 0;
-int (__fastcall *original_addCollectible)(PPLAYER pPlayer, int relatedID, int itemID, int charges, int arg5);
-int __fastcall addCollectible(PPLAYER pPlayer, int relatedID, int itemID, int charges, int arg5)
+int (__fastcall *original_addCollectible)(Player *pPlayer, int relatedID, int itemID, int charges, int arg5);
+int __fastcall addCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 	if (pPlayer != GetPlayer())
 		gpPlayer = pPlayer;
@@ -36,7 +36,7 @@ int __fastcall addCollectible(PPLAYER pPlayer, int relatedID, int itemID, int ch
 /* TODO(Aaron): figure out a better way to handle this so we can detour properly */
 DWORD dwSpawnEntity = 0;
 void* SpawnEntityEvent_Original;
-void __cdecl SpawnEntityEvent_Payload(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, ENTITY *parent, int subtype, unsigned int seed)
+void __cdecl SpawnEntityEvent_Payload(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, Entity *parent, int subtype, unsigned int seed)
 {
 	//do things with spawn entity
 	//OnSpawnEntity();
@@ -122,7 +122,7 @@ void InitHooks()
 	if (dwAddCollectible)
 	{
 		cout << "dwItemPickup found [0x" << (void *)(dwAddCollectible - gdwBaseAddress) << "]" << endl;
-		original_addCollectible = (int(__fastcall *)(PPLAYER, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
+		original_addCollectible = (int(__fastcall *)(Player *, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
 	}
 
 	gdwPlayerManager = *(DWORD*)(dwFindPattern(gdwBaseAddress, gdwBaseSize,
