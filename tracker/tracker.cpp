@@ -15,7 +15,6 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 		{
 			Player *pPlayer = GetPlayer();
 			/* craft our json object to send to the server */
-
 			/* craft our item array */
 			char itembuffer[1024] = { 0 };
 			strcat_s(itembuffer, 1024 - 1, "[");
@@ -59,8 +58,9 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 			pocketbuffer[strlen(pocketbuffer) - 1] = ']';
 
 			char buffer2[2048] = { 0 };
-			sprintf_s(buffer2, 2048 - 1, "{\"coins\": %d, \"bombs\": %d, \"keys\": %d, \"items\": %s, \"trinkets\": %s, \"pockets\": %s}", pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
-
+			sprintf_s(buffer2, 2048 - 1, "{\"character\": \"%s\", \"characterid\": %d, \"coins\": %d, \"bombs\": %d, \"keys\": %d, \"items\": %s, \"trinkets\": %s, \"pockets\": %s}",pPlayer->_characterName, pPlayer->_charID, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
+			cout << buffer2 << endl;
+			cout << pPlayer->_charID << endl;
 			CURL *curl;
 			char finalUrl[256] = { 0 };
 			sprintf_s(finalUrl, 256 - 1, "%s/api/%s/pickup/", gIsaacUrl, gTrackerID);
@@ -105,7 +105,6 @@ PAPI VOID InitPlugin()
 	AddCommand("getkey", getKey);
 
 	IniReadString("tracker", "key", gTrackerID);
-
 	CreateThread(NULL, 0, updateServer, NULL, 0L, NULL);
 }
 
