@@ -12,6 +12,7 @@ start.sh
 *.opensdf
 *.sdf
 *.suo
+*.idc
 Debug/
 ipch/
 testing/
