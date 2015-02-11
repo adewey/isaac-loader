@@ -1,6 +1,5 @@
 #include "commands.h"
 #include "utilities.h"
-
 PCOMMAND pCommandList = 0;
 
 PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc)
