@@ -33,12 +33,44 @@ trackerView.asView = function(req, res) {
     });
 };
 
-trackerView.formatData = function(data) {
+trackerView.formatData = function (data) {
+
+    var charImgName = "playerportraitbig_01_isaac.png";
+    if (data.characterid === 0) {
+        charImgName = "playerportraitbig_01_isaac.png";
+    } else if (data.characterid === 1) {
+        charImgName = "playerportraitbig_02_magdalene.png";
+    } else if (data.characterid === 2) {
+        charImgName = "playerportraitbig_03_cain.png";
+    } else if (data.characterid === 3) {
+        charImgName = "playerportraitbig_04_judas.png";
+    } else if (data.characterid === 4) {
+        charImgName = "playerportraitbig_06_bluebaby.png";
+    } else if (data.characterid === 5) {
+        charImgName = "playerportraitbig_05_eve.png";
+    } else if (data.characterid === 6) {
+        charImgName = "playerportraitbig_07_samson.png";
+    } else if (data.characterid === 7) {
+        charImgName = "playerportraitbig_08_azazel.png";
+    } else if (data.characterid === 8) {
+        charImgName = "playerportraitbig_09_lazarus.png";
+    } else if (data.characterid === 9) {
+        charImgName = "playerportraitbig_09_eden.png";
+    } else if (data.characterid === 10) {
+        charImgName = "playerportraitbig_12_thelost.png";
+    } else if (data.characterid === 11) {
+        charImgName = "playerportraitbig_10_lazarus2.png";
+    } else if (data.characterid === 12) {
+        charImgName = "playerportraitbig_blackjudas.png";
+    }
+
     return {
         display_name: data.display_name,
         items: items.list(data.items),
         trinkets: trinkets.list(data.trinkets),
         pockets: pockets.list(data.pockets),
+        character: data.character,
+        charImgName: charImgName,
         coins: data.coins,
         bombs: data.bombs,
         keys: data.keys,
