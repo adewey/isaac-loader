@@ -18,6 +18,20 @@ bool bUpdateRequired = false;
 using easywsclient::WebSocket;
 static WebSocket::pointer websocket = NULL;
 
+void SendMessage(string message){
+	if (websocket->CLOSED){
+		cout << "Not Connected to Server, Connecting..." << endl;
+		//CreateThread(NULL, 0, startSocket, NULL, 0L, NULL); //Why doesn't this work, meh
+		//Sleep(1000);
+		if (!websocket->CLOSED){ //If the socket managed to connect, call SendMessage again.
+			SendMessage(message);
+		}
+	}
+	else{
+		websocket->send(message);
+	}
+}
+
 void handle_message(const std::string & message)
 {
 	cout << "Message Received from Server: " << message;
@@ -30,19 +44,24 @@ void terminateSocket(){
 	#endif
 }
 DWORD WINAPI startSocket(void *pThreadArgument){
-	#ifdef _WIN32
-		INT rc;
-		WSADATA wsaData;
+#ifdef _WIN32
+	INT rc;
+	WSADATA wsaData;
 
-		rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
-		if (rc) {
-			printf("WSAStartup Failed.\n");
-		}
-	#endif
+	rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (rc) {
+		printf("WSAStartup Failed.\n");
+	}
+#endif
 	websocket = from_url("ws://localhost:8126/foo", false, "Client");
-	while (websocket->getReadyState() != WebSocket::CLOSED) {
-		websocket->poll();
-		websocket->dispatch(handle_message);
+	if (websocket->CLOSED){
+		cout << "Could Not Connect to Web Socket." << endl;
+	}
+	else{
+		while (websocket->getReadyState() != WebSocket::CLOSED) {
+			websocket->poll();
+			websocket->dispatch(handle_message);
+		}
 	}
 	return 0;
 }
@@ -158,9 +177,6 @@ PAPI VOID UnInitPlugin(VOID)
 
 PAPI VOID PreSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER *playerManager, int *entityID, int *variant, Entity *parent, int *subtype, unsigned int *seed)
 {
-	PPLAYERMANAGER PlayerManager = *playerManager;
-	cout << "New Entity: " << endl;
-
 }
 
 PAPI VOID OnSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, Entity *parent, int subtype, unsigned int seed)
@@ -175,7 +191,7 @@ PAPI VOID PreAddCollectible(Player *pPlayer, int *relatedID, int *itemID, int *c
 PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 	//do stuff with the collectible's information
-		websocket->send("Picking Up Item");
+	SendMessage("Item Picked Up");
 }
 
 DWORD dwFrameCount = 0;
