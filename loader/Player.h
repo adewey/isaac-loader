@@ -56,10 +56,12 @@ public:
 /*[0x0BE8]*/		char _unk0BE8[0x4];
 /*[0x0BEC]*/		int _ntearsfired;
 /*[0x0BF0]*/		float _damage;
-/*[0x0BF4]*/		char _unk0BF4[0xB8];
-/*[0x0CAC]*/		float _speed;
-/*[0x0CB0]*/		float _luck;
-/*[0x0CB4]*/		char _unk0CC4[0x18];
+/*[0x0BF4]*/		char _unk0BF4[0x4];
+/*[0x0BF8]*/		float _range;
+/*[0x0BFC]*/		char _unk0BFC[0xB8];
+/*[0x0CB4]*/		float _speed;
+/*[0x0CB8]*/		float _luck;
+/*[0x0CBC]*/		char _unk0CBC[0x10];
 /*[0x0CCC]*/		int _charges;
 /*[0x0CD0]*/		char _unk0CD0[0x94];
 /*[0x0D64]*/		int _trinket1ID;
@@ -68,9 +70,11 @@ public:
 /*[0x0D70]*/		int _items[0x15A];
 /*[0x12D8]*/		char _unk12D8[0x1CBC];
 /*[0x2F94]*/		int _pocket1ID;
-/*[0x2F98]*/		int _pocket1isCard;
+/*[0x2F98]*/		bool _pocket1isCard;
+/*[0x2F99]*/		char unk2F99[0x3]; //fix alignment
 /*[0x2F9C]*/		int _pocket2ID;
-/*[0x2FA0]*/		int _pocket2isCard;
+/*[0x2FA0]*/		bool _pocket2isCard;
+/*[0x2FA1]*/		char _unk2FA1[0x3]; //fix alignment
 /*[0x2FA4]*/		char _unk2FA4[0x10];
 /*[0x2FB4]*/		int _nGuppyItems;
 /*[0x2FB8]*/		int _nFlyItems;
