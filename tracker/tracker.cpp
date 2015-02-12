@@ -18,31 +18,11 @@ bool bUpdateRequired = false;
 using easywsclient::WebSocket;
 static WebSocket::pointer websocket = NULL;
 
-void SendMessage(string message){
-	if (websocket->CLOSED){
-		cout << "Not Connected to Server, Connecting..." << endl;
-		//CreateThread(NULL, 0, startSocket, NULL, 0L, NULL); //Why doesn't this work, meh
-		//Sleep(1000);
-		if (!websocket->CLOSED){ //If the socket managed to connect, call SendMessage again.
-			SendMessage(message);
-		}
-	}
-	else{
-		websocket->send(message);
-	}
-}
-
 void handle_message(const std::string & message)
 {
 	cout << "Message Received from Server: " << message;
 }
-void terminateSocket(){
-	websocket->close();
-	delete websocket;
-	#ifdef _WIN32
-		WSACleanup();
-	#endif
-}
+
 DWORD WINAPI startSocket(void *pThreadArgument){
 #ifdef _WIN32
 	INT rc;
@@ -53,18 +33,43 @@ DWORD WINAPI startSocket(void *pThreadArgument){
 		printf("WSAStartup Failed.\n");
 	}
 #endif
-	websocket = from_url("ws://localhost:8126/foo", false, "Client");
-	if (websocket->CLOSED){
+	websocket = from_url("ws://isaactracker.com:8126/", false, "Client");
+	if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
 		cout << "Could Not Connect to Web Socket." << endl;
 	}
 	else{
+		cout << "Web socket Connected" << endl;
 		while (websocket->getReadyState() != WebSocket::CLOSED) {
 			websocket->poll();
 			websocket->dispatch(handle_message);
 		}
+		cout << "Websocket disconnected" << endl;
 	}
 	return 0;
 }
+
+void SendMessage(string message){
+	if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
+		cout << "Not Connected to Server, Connecting..." << endl;
+		CreateThread(NULL, 0, startSocket, NULL, 0L, NULL); //Why doesn't this work, meh
+		//Sleep(1000);
+		if (websocket != NULL && websocket->getReadyState() != WebSocket::CLOSED){ //If the socket managed to connect, call SendMessage again.
+			SendMessage(message);
+		}
+	}
+	else{
+		websocket->send(message);
+	}
+}
+
+void terminateSocket(){
+	websocket->close();
+	delete websocket;
+	#ifdef _WIN32
+		WSACleanup();
+	#endif
+}
+
 DWORD WINAPI updateServer(void *pThreadArgument)
 {
 	while (bAttached)
@@ -117,6 +122,7 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 
 			char buffer2[2048] = { 0 };
 			sprintf_s(buffer2, 2048 - 1, "{\"character\": \"%s\", \"characterid\": %d, \"coins\": %d, \"bombs\": %d, \"keys\": %d, \"items\": %s, \"trinkets\": %s, \"pockets\": %s}",pPlayer->_characterName, pPlayer->_charID, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
+			SendMessage((string)buffer2);
 			CURL *curl;
 			char finalUrl[256] = { 0 };
 			sprintf_s(finalUrl, 256 - 1, "%s/api/%s/pickup/", gIsaacUrl, gTrackerID);
@@ -191,7 +197,10 @@ PAPI VOID PreAddCollectible(Player *pPlayer, int *relatedID, int *itemID, int *c
 PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 	//do stuff with the collectible's information
-	SendMessage("Item Picked Up");
+	bUpdateRequired = true;
+	string sendString = "Item Picked Up: ";
+	sendString.append(to_string(itemID));
+	//SendMessage(sendString);
 }
 
 DWORD dwFrameCount = 0;
