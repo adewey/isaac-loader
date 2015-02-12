@@ -14,6 +14,7 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 		if (bUpdateRequired && GetPlayer())
 		{
 			Player *pPlayer = GetPlayer();
+			PlayerManager *pPlayerManager = GetPlayerManager();
 			/* craft our json object to send to the server */
 			/* craft our item array */
 			char itembuffer[1024] = { 0 };
@@ -24,7 +25,7 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 				ZeroMemory(itemidbuffer, 0x32);
 				if (pPlayer->_items[i])
 				{
-					sprintf_s(itemidbuffer, 0x32, "%d,", i + 1);
+					sprintf_s(itemidbuffer, 0x32, "\"%d\",", i + 1);
 					strcat_s(itembuffer, 1024 - 1, itemidbuffer);
 				}
 			}
@@ -36,10 +37,10 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 			strcat_s(trinketbuffer, 1024, "[");
 			char trinketidbuffer[0x32];
 			ZeroMemory(trinketidbuffer, 0x32 - 1);
-			sprintf_s(trinketidbuffer, 0x32 - 1, "%d,", pPlayer->_trinket1ID);
+			sprintf_s(trinketidbuffer, 0x32 - 1, "\"%d\",", pPlayer->_trinket1ID);
 			strcat_s(trinketbuffer, 1024 - 1, trinketidbuffer);
 			ZeroMemory(trinketidbuffer, 0x32 - 1);
-			sprintf_s(trinketidbuffer, 0x32 - 1, "%d,", pPlayer->_trinket2ID);
+			sprintf_s(trinketidbuffer, 0x32 - 1, "\"%d\",", pPlayer->_trinket2ID);
 			strcat_s(trinketbuffer, 1024 - 1, trinketidbuffer);
 			/* replace our trailing comma with a closing bracket */
 			trinketbuffer[strlen(trinketbuffer) - 1] = ']';
@@ -49,20 +50,21 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 			strcat_s(pocketbuffer, 1024 - 1, "[");
 			char pocketidbuffer[0x32];
 			ZeroMemory(pocketidbuffer, 0x32 - 1);
-			sprintf_s(pocketidbuffer, 0x32 - 1, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket1ID, pPlayer->_pocket1isCard);
+			sprintf_s(pocketidbuffer, 0x32 - 1, "{\"id\": \"%d\", \"is_card\": \"%d\"},", pPlayer->_pocket1ID, pPlayer->_pocket1isCard);
 			strcat_s(pocketbuffer, 1024 - 1, pocketidbuffer);
 			ZeroMemory(pocketidbuffer, 0x32 - 1);
-			sprintf_s(pocketidbuffer, 0x32 - 1, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket2ID, pPlayer->_pocket2isCard);
+			sprintf_s(pocketidbuffer, 0x32 - 1, "{\"id\": \"%d\", \"is_card\": \"%d\"},", pPlayer->_pocket2ID, pPlayer->_pocket2isCard);
 			strcat_s(pocketbuffer, 1024 - 1, pocketidbuffer);
 			/* replace our trailing comma with a closing bracket */
 			pocketbuffer[strlen(pocketbuffer) - 1] = ']';
 
 			char buffer2[2048] = { 0 };
-			sprintf_s(buffer2, 2048 - 1, "{\"character\": \"%s\", \"characterid\": %d, \"coins\": %d, \"bombs\": %d, \"keys\": %d, \"items\": %s, \"trinkets\": %s, \"pockets\": %s}",pPlayer->_characterName, pPlayer->_charID, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
+			sprintf_s(buffer2, 2048 - 1, "{\"character\": \"%s\", \"characterid\": \"%d\", \"seed\": \"%s\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"range\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": \"%d\", \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s}",pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_startSeed, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_range, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
 			CURL *curl;
 			char finalUrl[256] = { 0 };
 			sprintf_s(finalUrl, 256 - 1, "%s/api/%s/pickup/", gIsaacUrl, gTrackerID);
 			curl = curl_easy_init();
+
 			if (curl)
 			{
 				struct curl_slist *headers = NULL;
@@ -79,6 +81,7 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 		}
 		Sleep(1000);
 	}
+	Sleep(1000);
 	return 0;
 }
 
@@ -117,8 +120,6 @@ PAPI VOID UnInitPlugin(VOID)
 
 PAPI VOID PreSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER *playerManager, int *entityID, int *variant, Entity *parent, int *subtype, unsigned int *seed)
 {
-	PPLAYERMANAGER PlayerManager = *playerManager;
-	cout << "New Entity: " << endl;
 
 }
 
@@ -129,20 +130,17 @@ PAPI VOID OnSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER playe
 
 PAPI VOID PreAddCollectible(Player *pPlayer, int *relatedID, int *itemID, int *charges, int *arg5)
 {
-	//do stuff with the collectible's information
-	if (*itemID == 105){
-		*itemID = 235;
-	}
-}
-PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
-{
-	//do stuff with the collectible's information
-	if (itemID != 235){
-		bUpdateRequired = true;
-	}
+
 }
 
 DWORD dwFrameCount = 0;
+PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
+{
+	//do stuff with the collectible's information
+	bUpdateRequired = true;
+	dwFrameCount = 0;
+}
+
 PAPI VOID OnGameUpdate()
 {
 	if (dwFrameCount > 60 * 60)
