@@ -1,11 +1,55 @@
 #include "..\loader\plugin.h"
 #include "curl.h"
-
+#include "easywsclient.hpp"
+#include "easywsclient.cpp" // <-- include only if you don't want compile separately
+#ifdef _WIN32
+#pragma comment( lib, "ws2_32" )
+#include <WinSock2.h>
+#endif
+#include <assert.h>
+#include <stdio.h>
+#include <string>
 char gTrackerID[MAX_STRING] = { 0 };
 char *gIsaacUrl = "http://www.isaactracker.com";
 
 bool bAttached = false;
 bool bUpdateRequired = false;
+
+using easywsclient::WebSocket;
+static WebSocket::pointer websocket = NULL;
+
+void handle_message(const std::string & message)
+{
+	printf(">>> %s\n", message.c_str());
+	if (message == "world") { websocket->close(); }
+}
+
+void setupSocket(){
+#ifdef _WIN32
+	INT rc;
+	WSADATA wsaData;
+
+	rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (rc) {
+		printf("WSAStartup Failed.\n");
+	}
+#endif
+	cout << "Huh?" << endl;
+	websocket = from_url("ws://localhost:8126/foo", false, "Client");
+	cout << "Well," << endl;
+	assert(websocket);
+	cout << "ha!" << endl;
+	websocket->send("goodbye");
+	websocket->send("hello");
+	while (websocket->getReadyState() != WebSocket::CLOSED) {
+		websocket->poll();
+		websocket->dispatch(handle_message);
+	}
+	delete websocket;
+#ifdef _WIN32
+	WSACleanup();
+#endif
+}
 
 DWORD WINAPI updateServer(void *pThreadArgument)
 {
@@ -91,6 +135,7 @@ void setKey(int argc, char *argv[])
 
 void getKey(int argc, char *argv[])
 {
+	setupSocket();
 	cout << "Your current tracker ID: " << gTrackerID << endl;
 }
 
