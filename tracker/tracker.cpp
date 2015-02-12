@@ -20,37 +20,32 @@ static WebSocket::pointer websocket = NULL;
 
 void handle_message(const std::string & message)
 {
-	printf(">>> %s\n", message.c_str());
-	if (message == "world") { websocket->close(); }
+	cout << "Message Received from Server: " << message;
 }
+void terminateSocket(){
+	websocket->close();
+	delete websocket;
+	#ifdef _WIN32
+		WSACleanup();
+	#endif
+}
+DWORD WINAPI startSocket(void *pThreadArgument){
+	#ifdef _WIN32
+		INT rc;
+		WSADATA wsaData;
 
-void setupSocket(){
-#ifdef _WIN32
-	INT rc;
-	WSADATA wsaData;
-
-	rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (rc) {
-		printf("WSAStartup Failed.\n");
-	}
-#endif
-	cout << "Huh?" << endl;
+		rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
+		if (rc) {
+			printf("WSAStartup Failed.\n");
+		}
+	#endif
 	websocket = from_url("ws://localhost:8126/foo", false, "Client");
-	cout << "Well," << endl;
-	assert(websocket);
-	cout << "ha!" << endl;
-	websocket->send("goodbye");
-	websocket->send("hello");
 	while (websocket->getReadyState() != WebSocket::CLOSED) {
 		websocket->poll();
 		websocket->dispatch(handle_message);
 	}
-	delete websocket;
-#ifdef _WIN32
-	WSACleanup();
-#endif
+	return 0;
 }
-
 DWORD WINAPI updateServer(void *pThreadArgument)
 {
 	while (bAttached)
@@ -135,7 +130,6 @@ void setKey(int argc, char *argv[])
 
 void getKey(int argc, char *argv[])
 {
-	setupSocket();
 	cout << "Your current tracker ID: " << gTrackerID << endl;
 }
 
@@ -149,11 +143,13 @@ PAPI VOID InitPlugin()
 
 	IniReadString("tracker", "key", gTrackerID);
 	CreateThread(NULL, 0, updateServer, NULL, 0L, NULL);
+	CreateThread(NULL, 0, startSocket, NULL, 0L, NULL);
 }
 
 // called when the plugin is removed
 PAPI VOID UnInitPlugin(VOID)
 {
+	terminateSocket();
 	bAttached = false;
 	//remove commands, detours, etc
 	RemoveCommand("setkey");
@@ -175,16 +171,11 @@ PAPI VOID OnSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER playe
 PAPI VOID PreAddCollectible(Player *pPlayer, int *relatedID, int *itemID, int *charges, int *arg5)
 {
 	//do stuff with the collectible's information
-	if (*itemID == 105){
-		*itemID = 235;
-	}
 }
 PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 	//do stuff with the collectible's information
-	if (itemID != 235){
-		bUpdateRequired = true;
-	}
+		websocket->send("Picking Up Item");
 }
 
 DWORD dwFrameCount = 0;
