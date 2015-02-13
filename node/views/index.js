@@ -4,7 +4,9 @@ var View = require('../libs/views'),
     tracker = require('../libs/tracker'),
     items = require('../libs/items'),
     trinkets = require('../libs/trinkets'),
-    pockets = require('../libs/pockets');
+    pockets = require('../libs/pockets'),
+    sockets = require('../libs/sockets'),
+    websockets = require('../libs/websockets');
 
 /*
     Home page view
@@ -29,7 +31,7 @@ trackerView.asView = function(req, res) {
     tracker.getUserData(display_name, function(err, data) {
         if (!data || !data.display_name)
             return res.redirect(urls.reverse('index'));
-        return res.render(trackerView.template, trackerView.formatData(data));
+        return res.render(trackerView.template, {user: req.session.user, data: trackerView.formatData(data)});
     });
 };
 
@@ -74,6 +76,16 @@ trackerView.formatData = function (data) {
         coins: data.coins,
         bombs: data.bombs,
         keys: data.keys,
+        guppy: data.guppy,
+        lof: data.lof,
+        charges: data.charges,
+        speed: data.speed,
+        range: data.range,
+        shotspeed: data.shotspeed,
+        tearrate: data.tearrate,
+        damage: data.damage,
+        luck: data.luck,
+        seed: data.seed,
         updated_at: data.updated_at,
     };
 };
@@ -103,8 +115,8 @@ actionView.asView = function(req, res) {
             return;
         case 'pickup':
             //this is the only one we use currently
-            console.log(req.body);
-            tracker.pickupItem(stream_key, req.body, function() {
+            tracker.pickupItem(stream_key, req.body, function(err, data) {
+                sockets.to(data.display_name).emit('update', trackerView.formatData(data));
                 res.status(200).send();
             });
             return;
