@@ -56,7 +56,8 @@ public:
 /*[0x0BE8]*/		char _unk0BE8[0x4];
 /*[0x0BEC]*/		int _ntearsfired;
 /*[0x0BF0]*/		float _damage;
-/*[0x0BF4]*/		char _unk0BF4[0xB8];
+/*[0x0BF4]*/            char _unk0BF4[0x4];
+/*[0x0BF8]*/            float _range;
 /*[0x0CAC]*/		float _speed;
 /*[0x0CB0]*/		float _luck;
 /*[0x0CB4]*/		char _unk0CC4[0x18];

@@ -77,6 +77,7 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 		if (bUpdateRequired && GetPlayer())
 		{
 			Player *pPlayer = GetPlayer();
+			PPLAYERMANAGER pPlayerManager = GetPlayerManager();
 			/* craft our json object to send to the server */
 			/* craft our item array */
 			char itembuffer[1024] = { 0 };
