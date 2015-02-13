@@ -49,16 +49,16 @@ DWORD WINAPI startSocket(void *pThreadArgument){
 }
 
 void SendMessage(string message){
-	if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
+	if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED || websocket->getReadyState() == WebSocket::CLOSING || websocket->getReadyState() == WebSocket::CONNECTING){
 		cout << "Not Connected to Server, Connecting..." << endl;
 		CreateThread(NULL, 0, startSocket, NULL, 0L, NULL); //Why doesn't this work, meh
 		//Sleep(1000);
-		if (websocket != NULL && websocket->getReadyState() != WebSocket::CLOSED){ //If the socket managed to connect, call SendMessage again.
+		if (websocket != NULL && websocket->getReadyState() != WebSocket::CLOSED && websocket->getReadyState() != WebSocket::CLOSING && websocket->getReadyState() != WebSocket::CONNECTING){ //If the socket managed to connect, call SendMessage again.
 			SendMessage(message);
 		}
 	}
 	else{
-		websocket->send(message);
+			websocket->send(message);
 	}
 }
 

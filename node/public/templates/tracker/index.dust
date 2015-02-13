@@ -1,14 +1,47 @@
-{>"base" /}
+{>"base"/}
 
 {<title}
-	Isaac Tracker - {display_name}
+	Isaac Tracker - {data.display_name}
 {/title}
 
 {<extra_head}
-<meta http-equiv="refresh" content="30" />   
 {/extra_head}
 
 {<extra_js}
+<script src="http://www.isaactracker.com:7001/socket.io/socket.io.js"></script>
+<script>
+var socket = io.connect('http://www.isaactracker.com:7001');
+socket.on('connect', function () {
+    socket.emit('join', '{data.display_name}');
+});
+
+socket.on('update', function (data) {
+	console.log(data);
+    if(data.charImgName){
+		$('#charImgName').attr("src","/gfx/ui/stage/" + data.charImgName);
+	}
+	if(data.coins){
+		$('.coins').html(data.coins);
+	}
+	if(data.bombs){
+		$('.bombs').html(data.bombs);
+	}
+	if(data.keys){
+		$('.keys').html(data.keys);
+	}
+	if(data.trinkets){
+		$.each(data.trinkets, function(){
+			$('.trinket-list').html('');
+			if(data.trinkets[0]){
+				$('.trinket-list').html('<li><img src="/gfx/items/trinkets2x/' + data.trinkets[0].gfx + '" /></li>')
+			}
+			if(data.trinkets[1]){
+				
+			}
+		});
+	}
+});
+</script>
 <script>
     $(function() {
         $('[data-toggle="tooltip"]').tooltip()
@@ -19,63 +52,69 @@
 
 {<content}
 <div class="container">
-<img src="/gfx/IsaacTracker/IsaacTrackerLogo.png"/>
-	<br/>
-    <div class="col-xs-12" style="border:1px solid black; border-radius:32px;padding:10px; border-top-left-radius:0px;">
-        <div class="col-xs-6 col-md-2">
-            <ul class="consumable-list" style="min-width:40px;">
-                <li class="coins">
-                    {coins}
-                </li>
-                <li class="bombs">
-                    {bombs}
-                </li>
-                <li class="keys">
-                    {keys}
-                </li>
-            </ul>
-            <ul class="trinket-list col-lg-1">
-            {#trinkets}
-                <li>
-                    <img src="/gfx/items/trinkets/{gfx}" />
-                    <div class="hidden name">
-                        {name}
-                    </div>
-                    <div class="hidden description">
-                        {description}
-                    </div>
-                    <div class="hidden id">
-                        {id}
-                    </div>
-                </li>
-            {/trinkets}
-            </ul>
-        </div>
-		<div class="col-xs-6 col-md-2">
-			<div style="max-width:112px">
-				<img src="/gfx/ui/stage/{charImgName}"/>
-				<p class="charactername" style="text-align:center;">{character}</p>
+	<div class="col-xs-10 col-xs-push-1">
+		<div id="trackerContainer" class="col-xs-12">
+			<div class="col-xs-6 col-md-6">
+				<ul class="consumable-list" style="min-width:40px;">
+					<li class="coins">
+						{data.coins}
+					</li>
+					<li class="bombs">
+						{data.bombs}
+					</li>
+					<li class="keys">
+						{data.keys}
+					</li>
+				</ul>
+				<ul class="trinket-list col-lg-1">
+				{#data.trinkets}
+					<li>
+						<img src="/gfx/items/trinkets2x/{gfx}" />
+						<div class="hidden name">
+							{name}
+						</div>
+						<div class="hidden description">
+							{description}
+						</div>
+						<div class="hidden id">
+							{id}
+						</div>
+					</li>
+				{/data.trinkets}
+				</ul>
+			</div>
+			<div class="col-xs-6 col-md-6">
+				<img id="charImgName" src="/gfx/ui/stage/{data.charImgName}" style="max-width:112px" title="{data.character}" class="pull-right"/>
+				Damage: {data.damage}</br>
+				Tearrate: {data.tearrate}</br>
+				Speed: {data.speed}</br>
+				Shot Speed: {data.shotspeed}</br>
+				Luck: {data.luck}</br>
+				Range: {data.range}</br>
+			</div>
+			<div class="col-xs-12 col-md-12">
+				<ul class="item-list">
+				{#data.items}
+					<li class="{state}">
+						<img src="/gfx/items/collectibles2x/{gfx}" style="width:64px;" data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4>{name} (<i class='text-danger'>{id}</i>) [<i class='text-info'>{state}</i>]</h4><h5>{description}</h5>" />
+					</li>
+				{/data.items}
+				</ul>
 			</div>
 		</div>
-        <div class="col-xs-12 col-md-8">
-            <ul class="item-list">
-            {#items}
-                <li class="{state}">
-                    <img src="/gfx/items/collectibles/{gfx}" data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4>{name} (<i class='text-danger'>{id}</i>) [<i class='text-info'>{state}</i>]</h4><h5>{description}</h5>" />
-                </li>
-            {/items}
-            </ul>
+        <div class="text-right text-muted">
+            Last Updated: {data.updated_at}
         </div>
-    </div>
-    <!-- this doesn't work yet -->
-    <ul class="pocket-list hidden">
-    {#pockets}
-        <li>
-            <div class="hidden id">
-                {id}
-            </div>
-        </li>
-    {/pockets}
-    </ul>
+		<!-- this doesn't work yet -->
+		<ul class="pocket-list hidden">
+		{#data.pockets}
+			<li>
+				<div class="hidden id">
+					{id}
+				</div>
+			</li>
+		{/data.pockets}
+		</ul>
+	</div>
 </div>
 {/content}
