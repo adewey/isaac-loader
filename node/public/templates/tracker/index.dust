@@ -20,27 +20,37 @@ socket.on('update', function (data) {
     if(data.charImgName){
 		$('#charImgName').attr("src","/gfx/ui/stage/" + data.charImgName);
 	}
-	if(data.coins){
+	if(data.hasOwnProperty('coins')){
 		$('.coins').html(data.coins);
 	}
-	if(data.bombs){
+	if(data.hasOwnProperty('bombs')){
 		$('.bombs').html(data.bombs);
 	}
-	if(data.keys){
+	if(data.hasOwnProperty('keys')){
 		$('.keys').html(data.keys);
 	}
 	if(data.trinkets){
+		$('.trinket-list').html('');
 		$.each(data.trinkets, function(){
-			$('.trinket-list').html('');
 			if(data.trinkets[0]){
 				$('.trinket-list').html('<li><img src="/gfx/items/trinkets2x/' + data.trinkets[0].gfx + '" /></li>')
 			}
-			if(data.trinkets[1]){
-				
-			}
 		});
 	}
+	if(data.items){
+		var tempHolder = "";
+		$.each(data.items, function(k,v){
+			tempHolder += "<li class='" + data.items[k].state + "'>";
+			tempHolder += '<img src="/gfx/items/collectibles2x/' + data.items[k].gfx + '"  data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4>' + data.items[k].name + '(<i class=\'text-danger\'>' + data.items[k].id + '</i>) [<i class=\'text-info\'>' + data.items[k].state + '</i>]</h4><h5>' + data.items[k].description + '</h5>" />';
+			tempHolder += "</li>";
+		});
+		$('.item-list').html(tempHolder);
+	}
+	makeToolTip();
 });
+function makeToolTip(){
+	$('[data-toggle="tooltip"]').tooltip()
+}
 </script>
 <script>
     $(function() {
