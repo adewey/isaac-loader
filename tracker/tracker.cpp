@@ -77,7 +77,6 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 		if (bUpdateRequired && GetPlayer())
 		{
 			Player *pPlayer = GetPlayer();
-			PPLAYERMANAGER pPlayerManager = GetPlayerManager();
 			/* craft our json object to send to the server */
 			/* craft our item array */
 			char itembuffer[1024] = { 0 };
@@ -122,7 +121,7 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 			pocketbuffer[strlen(pocketbuffer) - 1] = ']';
 
 			char buffer2[2048] = { 0 };
-			sprintf_s(buffer2, 2048 - 1, "{\"character\": \"%s\", \"characterid\": \"%d\", \"seed\": \"%s\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"range\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": \"%d\", \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s}", pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_startSeed, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_range, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
+			sprintf_s(buffer2, 2048 - 1, "{\"character\": \"%s\", \"characterid\": \"%d\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"range\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": \"%d\", \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s}", pPlayer->_characterName, pPlayer->_charID, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_range, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
 			cout << buffer2 << endl;
 			SendMessage((string)buffer2);
 			CURL *curl;
