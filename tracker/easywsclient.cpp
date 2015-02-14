@@ -412,14 +412,14 @@ namespace { // private module-only namespace
 			txbuf.insert(txbuf.end(), message_begin, message_end);
 			cout << "Sketch 3" << endl;
 			if (useMask) {
-				cout << "mask" << endl;
+				//cout << "mask" << endl;
 				for (size_t i = 0; i != message_size; ++i) {
 					*(txbuf.end() - message_size + i) ^= masking_key[i & 0x3];
 				}
-				cout << "Phew." << endl;
+				//cout << "Phew." << endl;
 			}
 			else{
-				cout << "No mask" << endl;
+				//cout << "No mask" << endl;
 			}
 			
 		}
