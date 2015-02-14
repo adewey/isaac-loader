@@ -26,22 +26,16 @@ enum Curses {
 typedef struct PlayerManager
 {
 	/*0x0000*/	int _floorNo;
-	/*0x0004*/	BOOL _alternateFloor;
+	/*0x0004*/	bool _alternateFloor;
 	/*0x0008*/	union {
-					Curses _curses;
-					int i_curses;
-				};
+		Curses _curses;
+		int i_curses;
+	};
 	/*0x000C*/	char _unk000C;
 	/*0x000D*/	bool _seeForever;
 	/*0x000E*/	char _unk000E[0x2]; // to fix alignment
-	/*0x0010*/	char _unk0010[0x8];
-	/*0x0018*/	//Room rooms[50]; // unknown size.. 50 for now
-	char unknown4[0x3BB8];
-	int RoomCount;
-	char unknown5[0x23D1];
-	bool unknown6;
-	// f23936 = floor Seed
-	// f23920 = current seed
+	/*0x0010*/	char _unk0010[0x8A9C];
+	/*0x8AAC*/	char _startSeed[10];
 } PLAYERMANAGER, *PPLAYERMANAGER;
 
 GLOBAL bool gbAttached;

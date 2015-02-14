@@ -29,6 +29,29 @@ socket.on('update', function (data) {
 	if(data.hasOwnProperty('keys')){
 		$('.keys').html(data.keys);
 	}
+	if(data.hasOwnProperty('damage')){
+		var curDmg = data.damage;
+
+	}
+	if(data.hasOwnProperty('speed')){
+		var barsUsed = 0;
+		if (data.speed < 1){
+			barsUsed = 1;
+		}else if(data.speed < 1.5){
+			barsUsed = 2;
+		}else if(data.speed < 2){
+			barsUsed = 3;
+		}else if(data.speed < 2.5){
+			barsUsed = 4;
+		}else if(data.speed < 3){
+			barsUsed = 5;
+		}else if(data.speed < 3.5){
+			barsUsed = 6;
+		}else{
+			barsUsed = 7;
+		}
+		$('.speed').html('Speed: ' + barsUsed);
+	}
 	if(data.trinkets){
 		$('.trinket-list').html('');
 		$.each(data.trinkets, function(){
@@ -46,6 +69,23 @@ socket.on('update', function (data) {
 		});
 		$('.item-list').html(tempHolder);
 	}
+    if (data.hasOwnProperty('floor')) {
+        $('.floor').removeClass('in');
+		$( ".floor-list li:nth-child(" + data.floor + ")" ).addClass('in');
+        if (data.hasOwnProperty('altfloor')) {
+			if(data.altfloor == "1"){
+				$( ".floor-list li:nth-child(" + data.floor + ")" ).addClass('alt');
+			}else{
+				
+				$( ".floor-list li:nth-child(" + data.floor + ")" ).removeClass('alt');  
+			}
+		}
+        if (data.curses[2]) {
+            $( ".floor-list li:nth-child(" + data.floor + ")" ).addClass('xl');  
+        }else{
+			$( ".floor-list li:nth-child(" + data.floor + ")" ).removeClass('xl');  
+		}
+    }
 	makeToolTip();
 });
 function makeToolTip(){
@@ -96,12 +136,12 @@ function makeToolTip(){
                 </div>
                 <div class="col-xs-10 col-md-10">
                     <img id="charImgName" src="/gfx/ui/stage/{data.charImgName}" style="max-width:112px" title="{data.character}" class="pull-right"/>
-                    Damage: {data.damage}</br>
-                    Tearrate: {data.tearrate}</br>
-                    Speed: {data.speed}</br>
-                    Shot Speed: {data.shotspeed}</br>
-                    Luck: {data.luck}</br>
-                    Range: {data.range}</br>
+                    <div class="damage">Damage: {data.damage}</div>
+                    <div class="tearrate">Tearrate: {data.tearrate}</div>
+                    <div class="speed">Speed: {data.speed}</div>
+                    <div class="shotspeed">Shot Speed: {data.shotspeed}</div>
+                    <div class="luck">Luck: {data.luck}</div>
+                    <div class="range">Range: {data.range}</div>
                 </div>
                 <div class="col-xs-12 col-md-12">
                     <ul class="item-list">
@@ -113,9 +153,10 @@ function makeToolTip(){
                     </ul>
                 </div>
             </div>
+			{floor}
             <div class="col-xs-1 col-md-1">
                 <ul class="floor-list">
-                    <li class="floor">
+                    <li class="floor {@eq key=floor value="0"} in{/eq}">
                         <span class="overlay"></span>
                         <span class="isaac"></span>
                         <span class="basement-i"></span>

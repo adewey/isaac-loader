@@ -122,24 +122,8 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 			pocketbuffer[strlen(pocketbuffer) - 1] = ']';
 
 			char buffer2[2048] = { 0 };
-			sprintf_s(buffer2, 2048 - 1, "{\"stream_key\": \"%s\",\"character\": \"%s\", \"characterid\": \"%d\", \"floorno\": \"%d\", \"altfloor\": \"%d\", \"curses\": \"%d\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": \"%0.2f\", \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"range\": \"%d\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s}", gTrackerID, pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_floorNo, pPlayerManager->_alternateFloor,pPlayerManager->i_curses, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_range, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
+			sprintf_s(buffer2, 2048 - 1, "{\"stream_key\": \"%s\",\"character\": \"%s\", \"characterid\": \"%d\", \"seed\": \"%s\", \"floor\": \"%d\", \"altfloor\": \"%d\", \"curses\": \"%d\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": \"%0.2f\", \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"range\": \"%d\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s}", gTrackerID, pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_startSeed, pPlayerManager->_floorNo, pPlayerManager->_alternateFloor,pPlayerManager->i_curses, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_range, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
 			SendMessage((string)buffer2);
-			CURL *curl;
-			char finalUrl[256] = { 0 };
-			sprintf_s(finalUrl, 256 - 1, "%s/api/%s/pickup/", gIsaacUrl, gTrackerID);
-			curl = curl_easy_init();
-			if (curl)
-			{
-				struct curl_slist *headers = NULL;
-				headers = curl_slist_append(headers, "Accept: application/json");
-				headers = curl_slist_append(headers, "Content-Type: application/json");
-				curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-				curl_easy_setopt(curl, CURLOPT_POSTFIELDS, buffer2);
-				curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-				curl_easy_setopt(curl, CURLOPT_URL, finalUrl);
-				//curl_easy_perform(curl);
-				curl_easy_cleanup(curl);
-			}
 			bUpdateRequired = 0;
 		}
 		Sleep(1000);
@@ -199,9 +183,6 @@ PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charg
 {
 	//do stuff with the collectible's information
 	bUpdateRequired = true;
-	string sendString = "Item Picked Up: ";
-	sendString.append(to_string(itemID));
-	//SendMessage(sendString);
 }
 
 DWORD dwFrameCount = 0;

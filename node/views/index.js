@@ -36,6 +36,7 @@ trackerView.asView = function(req, res) {
 };
 
 websockets.on('connection', function (ws) {
+    console.log("User Connected.");
     ws.on('message', function (rdata, flags) {
         if (flags.binary) { return; }
         console.log(rdata);
@@ -46,7 +47,7 @@ websockets.on('connection', function (ws) {
         });
     });
     ws.on('close', function () {
-        console.log('Connection closed!');
+        console.log("User Disconnected.");
     });
     ws.on('error', function (e) {
         console.log(e)

@@ -193,6 +193,7 @@ module.exports.pickupItem = function(stream_key, data, callback) {
             user.damage = data.damage;
             user.luck = data.luck;
             user.seed = data.seed;
+            console.log(user.floor);
             return user.save(function(err, res) {
                 return callback(err, formatUserData(user));
             });
