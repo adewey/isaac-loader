@@ -19,8 +19,8 @@ bool LoadPlugin(const char *fn)
 	sprintf_s(TheFilename, MAX_STRING, "%s.dll", Filename);
 
 	char FullFilename[MAX_STRING] = { 0 };
-	sprintf_s(FullFilename, MAX_STRING, "%s\%s.dll", gszPluginPath, Filename);
-	cout << FullFilename << endl;
+	sprintf_s(FullFilename, MAX_STRING, "%s\\%s.dll", gszPluginPath, Filename);
+
 	HMODULE hmod = LoadLibraryA(FullFilename);
 	if (!hmod)
 	{

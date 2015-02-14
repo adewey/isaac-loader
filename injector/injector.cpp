@@ -38,7 +38,7 @@ bool bInjectDLL(DWORD dwPid)
 	GetModuleFileNameA(NULL, szPath, MAX_PATH);
 	szTempPath = strrchr(szPath, '\\');
 	szTempPath[1] = '\0';
-	strcat(szPath, "loader.dll");
+	strcat_s(szPath, MAX_PATH, "loader.dll");
 
 	HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPid);
 	if (!process)
