@@ -5,6 +5,96 @@
 {/title}
 
 {<extra_head}
+        <style>
+            ul.floor-list {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                overflow: hidden;
+            }
+            ul.floor-list li {
+                position: relative;
+                width: 64px;
+                height: 40px;
+            }
+            ul.floor-list li :first {
+                height: 48px;
+            }
+            ul.floor-list li.current-floor span {
+                display: none;
+            }
+            ul.floor-list li.beaten-floor span.overlay {
+                display: block;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                position: absolute;
+                background-color: rgba(0, 0, 0, 0.75);
+            }
+            
+            span.basement-i, span.basement-ii, span.basement-xl,
+            span.cellar-i, span.cellar-ii, span.cellar-xl,
+            span.caves-i, span.caves-ii, span.caves-xl,
+            span.catacombs-i, span.catacombs-ii, span.catacombs-xl,
+            span.depths-i, span.depths-ii, span.depths-xl,
+            span.necropolis-i, span.necropolis-ii, span.necropolis-xl, 
+            span.womb-i, span.womb-ii, span.womb-xl, 
+            span.utero-i, span.utero-ii, span.utero-xl, 
+            span.cathedral-i, span.cathedral-ii, span.cathedral-xl, 
+            span.sheol, span.chest, span.darkroom {
+                content: "";
+                display: block;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                position: absolute;
+            }
+            
+            span.basement-i{
+                background: url(/gfx/ui2x/stage/progress.png) 0px 236px
+            }
+            span-cellar-i {
+                background: url(/gfx/ui2x/stage/progress.png) -64px 236px
+            }
+            span.basement-ii, span.basement-xl {
+                background: url(/gfx/ui2x/stage/progress.png) 0px 228px
+            }
+            span.cellar-ii, span.cellar-xl {
+                background: url(/gfx/ui2x/stage/progress.png) -64px 228px
+            }
+            span.caves-i, span.caves-ii, span.caves-xl {
+                background: url(/gfx/ui2x/stage/progress.png) -128px 228px
+            }
+            span.catacombs-i, span.catacombs-ii, span.catacombs-xl {
+                background: url(/gfx/ui2x/stage/progress.png) -192px 228px
+            }
+            span.depths-i, span.depths-ii, span.depths-xl {
+                background: url(/gfx/ui2x/stage/progress.png) 0px 164px
+            }
+            span.necropolis-i, span.necropolis-ii, span.necropolis-xl {
+                background: url(/gfx/ui2x/stage/progress.png) -64px 164px
+            }
+            span.womb-i, span.womb-ii, span.womb-xl {
+                background: url(/gfx/ui2x/stage/progress.png) -128px 164px
+            }
+            span.utero-i, span.utero-ii, span.utero-xl {
+                background: url(/gfx/ui2x/stage/progress.png) -192px 164px
+            }
+            span.cathedral {
+                background: url(/gfx/ui2x/stage/progress.png) 0px 100px
+            }
+            span.sheol {
+                background: url(/gfx/ui2x/stage/progress.png) -64px 100px
+            }
+            span.chest {
+                background: url(/gfx/ui2x/stage/progress.png) -128px 100px
+            }
+            span.darkroom {
+                background: url(/gfx/ui2x/stage/progress.png) -192px 100px
+            }
+        </style>
 {/extra_head}
 
 {<extra_js}
@@ -49,12 +139,12 @@ socket.on('update', function (data) {
 	makeToolTip();
 });
 function makeToolTip(){
-	$('[data-toggle="tooltip"]').tooltip()
+	$('[data-toggle="tooltip"]').tooltip();
 }
 </script>
 <script>
     $(function() {
-        $('[data-toggle="tooltip"]').tooltip()
+        makeToolTip();
     })
 </script>
 {/extra_js}
@@ -64,7 +154,7 @@ function makeToolTip(){
 <div class="container">
 	<div class="col-xs-10 col-xs-push-1">
 		<div id="trackerContainer" class="col-xs-12">
-			<div class="col-xs-6 col-md-6">
+			<div class="col-xs-2 col-md-2">
 				<ul class="consumable-list" style="min-width:40px;">
 					<li class="coins">
 						{data.coins}
@@ -93,7 +183,69 @@ function makeToolTip(){
 				{/data.trinkets}
 				</ul>
 			</div>
-			<div class="col-xs-6 col-md-6">
+			<div class="col-xs-10 col-md-10">
+                <div class="pull-right">
+                    <ul class="floor-list">
+                        <li class="beaten-floor">
+                            <span class="overlay"></span>
+                            <span class="basement-i"></span>
+                            <span class="cellar-i"></span>
+                        </li>
+                        <li class="beaten-floor">
+                            <span class="overlay"></span>
+                            <span class="basement-ii"></span>
+                            <span class="basement-xl"></span>
+                            <span class="cellar-ii"></span>
+                            <span class="cellar-xl"></span>
+                        </li>
+                        <li class="beaten-floor">
+                            <span class="overlay"></span>
+                            <span class="caves-i"></span>
+                            <span class="catacombs-i"></span>
+                        </li>
+                        <li class="beaten-floor">
+                            <span class="overlay"></span>
+                            <span class="caves-ii"></span>
+                            <span class="caves-xl"></span>
+                            <span class="catacombs-ii"></span>
+                            <span class="catacombs-xl"></span>
+                        </li>
+                        <li class="beaten-floor">
+                            <span class="overlay"></span>
+                            <span class="depths-i"></span>
+                            <span class="necropolis-i"></span>
+                        </li>
+                        <li class="beaten-floor">
+                            <span class="overlay"></span>
+                            <span class="depths-ii"></span>
+                            <span class="depths-xl"></span>
+                            <span class="necropolis-ii"></span>
+                            <span class="necropolis-xl"></span>
+                        </li>
+                        <li class="beaten-floor">
+                            <span class="overlay"></span>
+                            <span class="womb-i"></span>
+                            <span class="utero-i"></span>
+                        </li>
+                        <li class="beaten-floor">
+                            <span class="overlay"></span>
+                            <span class="womb-ii"></span>
+                            <span class="womb-xl"></span>
+                            <span class="utero-ii"></span>
+                            <span class="utero-xl"></span>
+                        </li>
+                        <li class="beaten-floor">
+                            <span class="overlay"></span>
+                            <span class="cathedral"></span>
+                            <span class="sheol"></span>
+                        </li>
+                        <li class="beaten-floor">
+                            <span class="overlay"></span>
+                            <span class="chest"></span>
+                            <span class="darkroom"></span>
+                        </li>
+                    </ul>
+                </div>
 				<img id="charImgName" src="/gfx/ui/stage/{data.charImgName}" style="max-width:112px" title="{data.character}" class="pull-right"/>
 				Damage: {data.damage}</br>
 				Tearrate: {data.tearrate}</br>
