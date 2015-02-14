@@ -77,6 +77,7 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 		if (bUpdateRequired && GetPlayer())
 		{
 			Player *pPlayer = GetPlayer();
+			PPLAYERMANAGER pPlayerManager = GetPlayerManager();
 			/* craft our json object to send to the server */
 			/* craft our item array */
 			char itembuffer[1024] = { 0 };
@@ -121,7 +122,7 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 			pocketbuffer[strlen(pocketbuffer) - 1] = ']';
 
 			char buffer2[2048] = { 0 };
-			sprintf_s(buffer2, 2048 - 1, "{\"character\": \"%s\", \"characterid\": \"%d\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": \"%d\", \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s}", pPlayer->_characterName, pPlayer->_charID, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
+			sprintf_s(buffer2, 2048 - 1, "{\"stream_key\": \"%s\",\"character\": \"%s\", \"characterid\": \"%d\", \"floorno\": \"%d\", \"altfloor\": \"%d\", \"curses\": \"%d\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": \"%0.2f\", \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"range\": \"%d\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s}", gTrackerID, pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_floorNo, pPlayerManager->_alternateFloor,pPlayerManager->i_curses, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_range, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
 			SendMessage((string)buffer2);
 			CURL *curl;
 			char finalUrl[256] = { 0 };
@@ -136,7 +137,7 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 				curl_easy_setopt(curl, CURLOPT_POSTFIELDS, buffer2);
 				curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 				curl_easy_setopt(curl, CURLOPT_URL, finalUrl);
-				curl_easy_perform(curl);
+				//curl_easy_perform(curl);
 				curl_easy_cleanup(curl);
 			}
 			bUpdateRequired = 0;

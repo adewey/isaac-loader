@@ -35,8 +35,35 @@ trackerView.asView = function(req, res) {
     });
 };
 
+websockets.on('connection', function (ws) {
+    ws.on('message', function (rdata, flags) {
+        if (flags.binary) { return; }
+        console.log(rdata);
+        var jsonObj = JSON.parse(rdata);
+        var stream_key = jsonObj.stream_key;
+        tracker.pickupItem(stream_key, jsonObj, function (err, data) {
+            sockets.to(data.display_name).emit('update', trackerView.formatData(data));
+        });
+    });
+    ws.on('close', function () {
+        console.log('Connection closed!');
+    });
+    ws.on('error', function (e) {
+        console.log(e)
+    });
+});
 trackerView.formatData = function (data) {
-
+    var curseValsJSON = { "-64": "Curse of The Blind!", "-32": "Curse of the Maze!", "-16": "Curse of the Cursed!", "-8": "Curse of The Unknown!", "-4": "Curse of The Lost!", "-2": "Curse of the Labyrinth!", "-1": "Curse of Darkness!" }
+    var currentCurseNum = data.curse;
+    var currentCurses = {};
+    for (var key in curseValsJSON) {
+        if (curseValsJSON.hasOwnProperty(key)) {
+            if (currentCurseNum >= -(key)) {
+                currentCurseNum -= -(key);
+                currentCurses[-(key)] = curseValsJSON[key];
+            }
+        }
+    }
     var charImgName = "playerportraitbig_01_isaac.png";
     if (data.characterid === 0) {
         charImgName = "playerportraitbig_01_isaac.png";
@@ -78,6 +105,9 @@ trackerView.formatData = function (data) {
         keys: data.keys,
         guppy: data.guppy,
         lof: data.lof,
+        floor: data.floor,
+        altfloor: data.altfloor,
+        curses: currentCurses,
         charges: data.charges,
         speed: data.speed,
         range: data.range,
