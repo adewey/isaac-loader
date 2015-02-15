@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="template.cpp" />
+    <ClCompile Include="givex.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0443A11D-A10F-4D48-BF61-16882A30027C}</ProjectGuid>
