@@ -22,7 +22,6 @@ void handle_message(const std::string & message)
 {
 	cout << "Message Received from Server: " << message;
 }
-
 DWORD WINAPI startSocket(void *pThreadArgument){
 #ifdef _WIN32
 	INT rc;
@@ -69,7 +68,6 @@ void terminateSocket(){
 		WSACleanup();
 	#endif
 }
-
 DWORD WINAPI updateServer(void *pThreadArgument)
 {
 	while (bAttached)
@@ -107,7 +105,6 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 			strcat_s(trinketbuffer, 1024 - 1, trinketidbuffer);
 			/* replace our trailing comma with a closing bracket */
 			trinketbuffer[strlen(trinketbuffer) - 1] = ']';
-
 			/* craft our pocket array */
 			char pocketbuffer[1024] = { 0 };
 			strcat_s(pocketbuffer, 1024 - 1, "[");

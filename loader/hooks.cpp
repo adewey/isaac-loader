@@ -22,7 +22,6 @@ int __fastcall addCollectible(Player *pPlayer, int relatedID, int itemID, int ch
 	if (pPlayer != GetPlayer()){
 		gpPlayer = pPlayer;
 	}
-	cout << "pPlayer [0x" << GetPlayer() << "]" << endl << "pPlayerManager [0x" << GetPlayerManager() << "]" << endl;
 	PreAddCollectible(pPlayer, &relatedID, &itemID, &charges, &arg5);
 	int	ret = original_addCollectible(pPlayer, relatedID, itemID, charges, arg5);
 	//tell our plugins we added a collectible and give the entity id
@@ -31,6 +30,11 @@ int __fastcall addCollectible(Player *pPlayer, int relatedID, int itemID, int ch
 	return ret;
 }
 
+
+//HEY DOOFUS, ADD THAT FUNCTION
+void AddCollectible(Player *player, int itemID){
+	addCollectible(player, 0, itemID, 6, 0);
+}
 
 /* SpawnEntity functions */
 /* TODO(Aaron): figure out a better way to handle this so we can detour properly */

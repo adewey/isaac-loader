@@ -1,6 +1,7 @@
 #include "plugins.h"
 #include "utilities.h"
 #include "commands.h"
+#include "hooks.h"
 char gszPluginPath[MAX_PATH] = { 0 };
 char gszINIPath[MAX_PATH] = { 0 };
 PPLUGIN pPluginList = 0;

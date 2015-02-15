@@ -3,6 +3,7 @@
 
 #include "statics.h"
 #include "utilities.h"
+#include "hooks.h"
 
 GLOBAL char gszPluginPath[MAX_PATH];
 GLOBAL char gszINIPath[MAX_PATH];

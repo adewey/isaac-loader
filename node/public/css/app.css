@@ -1,5 +1,23 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  width: 100%;
+}
+
 ul.consumable-list, ul.trinket-list, ul.pocket-list {
-    font-size: 11px;
+    font-size: 27px;
     font-weight: bold;
     list-style: none;
     padding: 5px;
@@ -8,23 +26,23 @@ ul.consumable-list, ul.trinket-list, ul.pocket-list {
 ul.consumable-list li:before {
     content: "";
     display: inline-block;
-    height: 16px;
+    height: 32px;
     left: -2px;
     position: relative;
     top: 4px;
-    width: 16px;
+    width: 32px;
 }
 
 ul.consumable-list li.coins:before {
-    background: url(/gfx/ui/hudpickups.png) 0px 0px;
+    background: url(/gfx/ui2x/hudpickups.png) 0px 0px;
 }
 
 ul.consumable-list li.bombs:before {
-    background: url(/gfx/ui/hudpickups.png) 0px 16px;
+    background: url(/gfx/ui2x/hudpickups.png) 0px 32px;
 }
 
 ul.consumable-list li.keys:before {
-    background: url(/gfx/ui/hudpickups.png) -16px 0px;
+    background: url(/gfx/ui2x/hudpickups.png) -32px 0px;
 }
 
 ul.item-list {
@@ -45,8 +63,8 @@ ul.item-list li.active {
 }
 
 .tooltip-inner {
+    padding:10px;
     max-width: 350px;
-    width: 350px;
 }
 
 .tooltip-inner h4 {
@@ -55,4 +73,188 @@ ul.item-list li.active {
 
 i {
     font-style: normal;
+}
+
+#isaacTrackerLogo {
+    margin-top:10px;
+    margin-right:15px;
+    margin-bottom: 10px;
+}
+
+#trackerContainer {
+    border:1px solid #3D3D3D;
+    border-radius:32px;
+    padding:10px;
+    border-top-left-radius:0px;
+    border-bottom-right-radius:0px;
+    color:#3D3D3D;
+}
+
+ul.site-links {
+    display: inline-block;
+    float: right;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    margin-right: 10px;
+    margin-top: 25px
+}
+
+ul.site-links li {
+    clear: none;
+    display: inline-block;
+    float: right;
+    margin: 0;
+}
+
+ul.site-links li span {
+    font-size: 12px;
+}
+
+ul.site-links li a {
+    padding: 3px;
+    font-size: 26px;
+}
+
+ul.site-links li.in {
+    padding-top: 10px;
+}
+ul.floor-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+ul.floor-list li {
+    position: relative;
+    width: 64px;
+    height: 40px;
+}
+ul.floor-list li.floor.in span.overlay {
+    display: none;
+}
+ul.floor-list li.floor span.isaac {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    z-index: 2;
+    left: -12px
+}
+ul.floor-list li.floor.in span.isaac {
+    background: url(/gfx/ui2x/stage/progress.png) -64px 316px
+}
+
+ul.floor-list li.floor span.overlay {
+    width: 48px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.05);
+    top: 4px;
+    left: 8px;
+    z-index: 1;
+}
+
+span.basement-i, span.basement-ii, span.basement-xl,
+span.cellar-i, span.cellar-ii, span.cellar-xl,
+span.caves-i, span.caves-ii, span.caves-xl,
+span.catacombs-i, span.catacombs-ii, span.catacombs-xl,
+span.depths-i, span.depths-ii, span.depths-xl,
+span.necropolis-i, span.necropolis-ii, span.necropolis-xl, 
+span.womb-i, span.womb-ii, span.womb-xl, 
+span.utero-i, span.utero-ii, span.utero-xl, 
+span.cathedral, span.sheol, span.chest, span.darkroom {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+}
+          
+span.basement-i, span.basement-ii {
+    background: url(/gfx/ui2x/stage/progress.png) 0px 232px
+}
+span.cellar-i, span.cellar-ii {
+    background: url(/gfx/ui2x/stage/progress.png) -64px 232px
+}
+span.caves-i, span.caves-ii {
+    background: url(/gfx/ui2x/stage/progress.png) -128px 232px
+}
+span.catacombs-i, span.catacombs-ii {
+    background: url(/gfx/ui2x/stage/progress.png) -192px 232px
+}
+span.depths-i, span.depths-ii {
+    background: url(/gfx/ui2x/stage/progress.png) 0px 168px
+}
+span.necropolis-i, span.necropolis-ii {
+    background: url(/gfx/ui2x/stage/progress.png) -64px 168px
+}
+span.womb-i, span.womb-ii {
+    background: url(/gfx/ui2x/stage/progress.png) -128px 168px
+}
+span.utero-i, span.utero-ii {
+    background: url(/gfx/ui2x/stage/progress.png) -192px 168px
+}
+span.cathedral {
+    background: url(/gfx/ui2x/stage/progress.png) -64px 104px
+}
+span.sheol {
+    background: url(/gfx/ui2x/stage/progress.png) 0px 104px
+}
+span.chest {
+    background: url(/gfx/ui2x/stage/progress.png) -128px 104px
+}
+span.darkroom {
+    background: url(/gfx/ui2x/stage/progress.png) -192px 104px
+}
+
+span.cellar-i, span.cellar-ii,
+span.catacombs-i, span.catacombs-ii,
+span.necropolis-i, span.necropolis-ii,
+span.utero-i, span.utero-ii,
+span.sheol, span.darkroom {
+    z-index: -1;
+}
+
+li.alt span.basement-i, li.alt span.basement-ii, li.alt span.caves-i, li.alt span.caves-ii,
+li.alt span.depths-i, li.alt span.depths-ii, li.alt span.womb-i, li.alt span.womb-ii,
+li.alt span.cathedral,  li.alt span.chest {
+    display: none;
+}
+                                    
+.xl span.basement-i, .xl span.caves-i, .xl span.depths-i, .xl span.womb-i {
+    background: url(/gfx/ui2x/stage/progress.png) 128px 362px;
+}
+
+.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2,
+.col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4,
+.col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6,
+.col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8,
+.col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10,
+.col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+    padding: 0;
+}
+#charContainer {
+    position:relative;
+    margin:0;
+    display:inline-block;
+}
+.guppyProgress {
+    position:absolute;
+    bottom:45px;
+    left:110px;
+    z-index:-1;
+}
+
+.flyProgress {
+    position:absolute;
+    bottom:10px;
+    left:112px;
+    z-index:-1;
 }

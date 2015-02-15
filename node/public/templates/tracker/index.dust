@@ -220,7 +220,11 @@ function makeToolTip(){
                     </ul>
                 </div>
                 <div class="col-xs-10 col-md-10">
-                    <img id="charImgName" src="/gfx/ui/stage/{data.charImgName}" style="max-width:112px" title="{data.character}" class="pull-right"/>
+					<div id="charContainer">
+						<img id="charImgName" src="/gfx/ui/stage/{data.charImgName}" style="max-width:112px" title="{data.character}" class=""/>
+						<img src="/gfx/IsaacTracker/guppyProgress/{data.guppy}_3.png" class="guppyProgress"/>
+						<img src="/gfx/IsaacTracker/flyLordProgress/{data.lof}_3.png" class="flyProgress"/>
+					</div>
                     <div class="damage">Damage: {data.damage}</div>
                     <div class="tearrate">Tearrate: {data.tearrate}</div>
                     <div class="speed">Speed: {data.speed}</div>
@@ -238,64 +242,63 @@ function makeToolTip(){
                     </ul>
                 </div>
             </div>
-			{data.floor}
             <div class="col-xs-1 col-md-1">
                 <ul class="floor-list">
-                    <li class="floor {@eq key=data.floor value="1"} in{/eq}">
+                    <li class="floor{@eq key=data.floor value="1"}{~s}in{/eq}">
                         <span class="overlay"></span>
                         <span class="isaac"></span>
                         <span class="basement-i"></span>
                         <span class="cellar-i"></span>
                     </li>
-                    <li class="floor {@eq key=data.floor value="2"} in{/eq}">
+                    <li class="floor{@eq key=data.floor value="2"}{~s}in{/eq}">
                         <span class="overlay"></span>
                         <span class="isaac"></span>
                         <span class="basement-ii"></span>
                         <span class="cellar-ii"></span>
                     </li>
-                    <li class="floor {@eq key=data.floor value="3"} in{/eq}">
+                    <li class="floor{@eq key=data.floor value="3"}{~s}in{/eq}">
                         <span class="overlay"></span>
                         <span class="isaac"></span>
                         <span class="caves-i"></span>
                         <span class="catacombs-i"></span>
                     </li>
-                    <li class="floor {@eq key=data.floor value="4"} in{/eq}">
+                    <li class="floor{@eq key=data.floor value="4"}{~s}in{/eq}">
                         <span class="overlay"></span>
                         <span class="isaac"></span>
                         <span class="caves-ii"></span>
                         <span class="catacombs-ii"></span>
                     </li>
-                    <li class="floor {@eq key=data.floor value="5"} in{/eq}">
+                    <li class="floor{@eq key=data.floor value="5"}{~s}in{/eq}">
                         <span class="overlay"></span>
                         <span class="isaac"></span>
                         <span class="depths-i"></span>
                         <span class="necropolis-i"></span>
                     </li>
-                    <li class="floor {@eq key=data.floor value="6"} in{/eq}">
+                    <li class="floor{@eq key=data.floor value="6"}{~s}in{/eq}">
                         <span class="overlay"></span>
                         <span class="isaac"></span>
                         <span class="depths-ii"></span>
                         <span class="necropolis-ii"></span>
                     </li>
-                    <li class="floor {@eq key=data.floor value="7"} in{/eq}">
+                    <li class="floor{@eq key=data.floor value="7"}{~s}in{/eq}">
                         <span class="overlay"></span>
                         <span class="isaac"></span>
                         <span class="womb-i"></span>
                         <span class="utero-i"></span>
                     </li>
-                    <li class="floor {@eq key=data.floor value="8"} in{/eq}">
+                    <li class="floor{@eq key=data.floor value="8"}{~s}in{/eq}">
                         <span class="overlay"></span>
                         <span class="isaac"></span>
                         <span class="womb-ii"></span>
                         <span class="utero-ii"></span>
                     </li>
-                    <li class="floor {@eq key=data.floor value="9"} in{/eq}">
+                    <li class="floor{@eq key=data.floor value="9"}{~s}in{/eq}">
                         <span class="overlay"></span>
                         <span class="isaac"></span>
                         <span class="cathedral"></span>
                         <span class="sheol"></span>
                     </li>
-                    <li class="floor {@eq key=data.floor value="10"} in{/eq}">
+                    <li class="floor{@eq key=data.floor value="10"}{~s}in{/eq}">
                         <span class="overlay"></span>
                         <span class="isaac"></span>
                         <span class="chest"></span>

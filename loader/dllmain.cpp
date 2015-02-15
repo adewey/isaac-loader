@@ -40,7 +40,6 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	InitConsole();
 	cout << "DLL Attached!" << endl;
 	InitHooks();
-
 	/* set our plugin path to the directory our main dll was loaded from */
 	strcpy_s(gszPluginPath, MAX_PATH, (char *)pThreadArgument);
 	sprintf_s(gszINIPath, MAX_PATH, "%s\\settings.ini", gszPluginPath);
