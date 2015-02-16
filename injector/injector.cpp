@@ -95,7 +95,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			injected = bInjectDLL(dwPid);
 		}
 		else if (!dwPid && injected)
-		{ 
+		{
 			injected = !injected;
 		}
 		Sleep(500);
