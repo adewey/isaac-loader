@@ -123,6 +123,34 @@ void Pills(int argc, char *argv[])
 	curPill++;
 }
 
+void showoffsets(int argc, char *argv[])
+{
+	cout << "gdwBaseAddress\t\t[0x" << (void *)gdwBaseAddress << "]" << endl;
+	cout << "gdwBaseSize\t\t[0x" << (void *)gdwBaseSize << "]" << endl;
+	cout << "dwGameUpdate\t\t[0x" << (void *)(gdwGameUpdate - gdwBaseAddress) << "]" << endl;
+	cout << "dwAddCollectible\t[0x" << (void *)(gdwAddCollectible - gdwBaseAddress) << "]" << endl;
+	cout << "dwSpawnEntity\t\t[0x" << (void *)(gdwSpawnEntity - gdwBaseAddress) << "]" << endl;
+	cout << "pPlayer\t\t\t[0x" << (void *)GetPlayer() << "]" << endl;
+	cout << "gdwPlayerManager\t[0x" << (void *)(gdwPlayerManager - gdwBaseAddress) << "]" << endl;
+	cout << "pPlayerManager\t\t[0x" << (void *)GetPlayerManager() << "]" << endl;
+
+}
+
+void testcall(int argc, char *argv[])
+{
+	DWORD fOffset = gdwBaseAddress + 0xFA50;
+	void *pPlayerManager = GetPlayerManager();
+	void *pPlayer = 0;
+	__asm {
+		pushad
+			mov esi, pPlayerManager
+			call fOffset
+			mov pPlayer, eax
+		popad
+	}
+	cout << "pPlayer?: " << pPlayer << endl;
+}
+
 
 // called when the plugin initializes
 PAPI VOID InitPlugin()
@@ -131,6 +159,8 @@ PAPI VOID InitPlugin()
 	AddCommand("spewvf", SpewVF);
 	AddCommand("pills", Pills);
 	AddCommand("setcurse", setCurse);
+	AddCommand("showoffsets", showoffsets);
+	AddCommand("testcall", testcall);
 }
 
 // called when the plugin is removed
@@ -140,12 +170,13 @@ PAPI VOID UnInitPlugin(VOID)
 	RemoveCommand("spewvf");
 	RemoveCommand("pills");
 	RemoveCommand("setcurse");
+	RemoveCommand("showoffsets");
+	RemoveCommand("testcall");
 	Sleep(1000);
 }
 
 PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
-	cout << "pPlayer [0x" << GetPlayer() << "]" << endl << "pPlayerManager [0x" << GetPlayerManager() << "]" << endl;
 }
 
 DWORD dwFrameCount = 0;

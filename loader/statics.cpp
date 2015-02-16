@@ -1,14 +1,23 @@
 #include "statics.h"
 #include "hooks.h"
 
-Player *gpPlayer = 0;
-
 PPLAYERMANAGER GetPlayerManager()
 {
 	return (PPLAYERMANAGER)*(DWORD*)gdwPlayerManager;
 }
 
-Player *GetPlayer()
+Player *GetPlayerEntity()
 {
-	return gpPlayer;
+	PlayerManager *pPlayerManager = GetPlayerManager();
+	if (!pPlayerManager)
+		return NULL;
+	Player *pPlayer = 0;
+	__asm {
+		pushad
+			mov esi, pPlayerManager
+			call gdwGetPlayerEntity
+			mov pPlayer, eax
+			popad
+	}
+	return pPlayer;
 }
