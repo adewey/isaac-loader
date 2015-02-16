@@ -42,6 +42,7 @@ DWORD WINAPI startSocket(void *pThreadArgument){
 		while (websocket->getReadyState() != WebSocket::CLOSED) {
 			websocket->poll();
 			websocket->dispatch(handle_message);
+			if (!bAttached) break;
 		}
 		cout << "Websocket disconnected" << endl;
 	}
@@ -168,30 +169,34 @@ PAPI VOID UnInitPlugin(VOID)
 	RemoveCommand("getkey");
 }
 
-PAPI VOID PreSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER *playerManager, int *entityID, int *variant, Entity *parent, int *subtype, unsigned int *seed)
+bool bShouldUpdate = false;
+PAPI VOID PostAddCollectible(int ret)
 {
+	bShouldUpdate = true;
 }
 
-PAPI VOID OnSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, Entity *parent, int subtype, unsigned int seed)
+PAPI VOID PostChangeKeys(int ret)
 {
-
+	bShouldUpdate = true;
 }
 
-PAPI VOID PreAddCollectible(Player *pPlayer, int *relatedID, int *itemID, int *charges, int *arg5)
+PAPI VOID PostChangeBombs(int ret)
 {
-	//do stuff with the collectible's information
+	bShouldUpdate = true;
 }
-PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
+
+PAPI VOID PostChangeCoins(int ret)
 {
-	//do stuff with the collectible's information
-	bUpdateRequired = true;
+	bShouldUpdate = true;
 }
 
 DWORD dwFrameCount = 0;
 PAPI VOID OnGameUpdate()
 {
-	if (dwFrameCount > 60 * 60)
+	/* limit updates to once every 30 frames, then wait to update again until we need to */
+	if (dwFrameCount > 60 * 30 && bShouldUpdate && !bUpdateRequired)
 	{
+		bShouldUpdate = false;
 		bUpdateRequired = true;
 		dwFrameCount = 0;
 	}
