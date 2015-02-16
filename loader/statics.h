@@ -26,11 +26,11 @@ enum Curses {
 typedef struct PlayerManager
 {
 	/*0x0000*/	int _floorNo;
-	/*0x0004*/	BOOL _alternateFloor;
+	/*0x0004*/	bool _alternateFloor;
 	/*0x0008*/	union {
-					Curses _curses;
-					int i_curses;
-				};
+		Curses _curses;
+		int i_curses;
+	};
 	/*0x000C*/	char _unk000C;
 	/*0x000D*/	bool _seeForever;
 	/*0x000E*/	char _unk000E[0x2]; // to fix alignment

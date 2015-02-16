@@ -15,6 +15,5 @@ start.sh
 *.idc
 Debug/
 ipch/
-testing/
 
 !*.lib

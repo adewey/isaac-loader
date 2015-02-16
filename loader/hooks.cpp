@@ -2,10 +2,9 @@
 #include "utilities.h"
 #include "plugins.h"
 #include "statics.h"
+
 DWORD gdwBaseAddress = (DWORD)GetModuleHandle(NULL);
 DWORD gdwBaseSize = (DWORD)dwGetModuleSize("isaac-ng.exe");
-
-#define printarg(i, arg) cout << "Arg" << i << ":\t" << (void *)arg << "\t" << (float)arg << endl;
 
 /*
 addCollectible is called when you pick up a pedestal, shop, market, or devil/angel item
@@ -16,20 +15,79 @@ it includes active(spacebar), passive, and familiar(followers)
 :params arg5: currently unknown what this is for (maybe a boolean value? i have only seen 1 or 0
 */
 DWORD dwAddCollectible = 0;
-int (__fastcall *original_addCollectible)(Player *pPlayer, int relatedID, int itemID, int charges, int arg5);
+int(__fastcall *original_addCollectible)(Player *pPlayer, int relatedID, int itemID, int charges, int arg5);
 int __fastcall addCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 	if (pPlayer != GetPlayer()){
 		gpPlayer = pPlayer;
 	}
-	cout << "pPlayer [0x" << GetPlayer() << "]" << endl << "pPlayerManager [0x" << GetPlayerManager() << "]" << endl;
 	PreAddCollectible(pPlayer, &relatedID, &itemID, &charges, &arg5);
 	int	ret = original_addCollectible(pPlayer, relatedID, itemID, charges, arg5);
-	//tell our plugins we added a collectible and give the entity id
 	OnAddCollectible(pPlayer, relatedID, itemID, charges, arg5);
-
+	PostAddCollectible(ret);
 	return ret;
 }
+
+DWORD dwChangeKeys = 0;
+int(__fastcall *original_changeKeys)(Player *pPlayer, int _EDX, int nKeys);
+int __fastcall changeKeys(Player *pPlayer, int _EDX, int nKeys)
+{
+	if (pPlayer != GetPlayer()){
+		gpPlayer = pPlayer;
+	}
+	PreChangeKeys(pPlayer, &nKeys);;
+	int	ret = original_changeKeys(pPlayer, _EDX, nKeys);
+	OnChangeKeys(pPlayer, nKeys);
+	PostChangeKeys(ret);
+	return ret;
+}
+
+DWORD dwChangeBombs = 0;
+int(__fastcall *original_changeBombs)(Player *pPlayer, int _EDX, int nBombs);
+int __fastcall changeBombs(Player *pPlayer, int _EDX, int nBombs)
+{
+	if (pPlayer != GetPlayer()){
+		gpPlayer = pPlayer;
+	}
+	PreChangeBombs(pPlayer, &nBombs);
+	int	ret = original_changeBombs(pPlayer, _EDX, nBombs);
+	OnChangeBombs(pPlayer, nBombs);
+	PostChangeBombs(ret);
+	return ret;
+}
+
+DWORD dwChangeCoins = 0;
+DWORD original_changeCoins = 0;
+void* coins_retAddr = NULL;
+__declspec(naked) char changeCoins()
+{
+	_asm
+	{
+		push ebp
+			mov ebp, esp
+				push dword ptr[ebp + 0x08]
+				push eax
+				call PreChangeCoins
+				pop eax
+				add esp, 4
+				push dword ptr[ebp + 0x08]
+				push eax
+				call OnChangeCoins
+				pop eax
+				add esp, 4
+			pop ebp
+			pop coins_retAddr
+			call original_changeCoins
+			push eax
+				push eax
+				call PostChangeCoins
+				add esp, 4
+			pop eax
+			push coins_retAddr
+			ret
+	}
+}
+
 
 
 /* SpawnEntity functions */
@@ -70,14 +128,6 @@ __declspec(naked) char SpawnEntityEvent_Hook()
 	}
 }
 
-/* currently unused */
-bool(__cdecl* original_checkForGoldenKey)();
-bool checkForGoldenKey()
-{
-	cout << "checkForGoldenKey() Called" << endl;
-	return original_checkForGoldenKey();
-}
-
 /* isaac random function used in many things */
 DWORD dwIsaacRandom = 0;
 int(__cdecl* original_IsaacRandom)();
@@ -100,17 +150,13 @@ DWORD gdwPlayerManager = 0;
 
 void InitHooks()
 {
-	cout << "gdwBaseAddress [0x" << (void *)gdwBaseAddress << "]" << endl;
 	/* scan for functions */
-	//DWORD dwCheckForGoldenKey = dwFindPattern(dwBase, dwSize, (BYTE*)"\x80\xB9\x68\x0B\x00\x00\x00\x75\x11\x8B\x81\x64\x0B\x00\x00\x85\xC0\x7E\x0A\x48\x89\x81\x64\x0B\x00\x00\xB0\x01\xC3\x32\xC0\xC3", "xx????xxxxx????xxxxxxx????xxxxxx");
-
 	dwGameUpdate = dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(BYTE*)"\x55\x8b\xec\x51\x53\x56\x8b\x35\x00\x00\x00\x00\x57",
 		"xxxxxxxx????x");
 
 	if (dwGameUpdate)
 	{
-		cout << "Found dwGameUpdate: [0x" << (void *)(dwGameUpdate - gdwBaseAddress) << "]" << endl;
 		original_gameUpdate = (void(__cdecl *)())DetourFunction((PBYTE)dwGameUpdate, (PBYTE)GameUpdate);
 	}
 
@@ -123,18 +169,12 @@ void InitHooks()
 
 	if (dwAddCollectible)
 	{
-		cout << "dwAddCollectible found [0x" << (void *)(dwAddCollectible - gdwBaseAddress) << "]" << endl;
 		original_addCollectible = (int(__fastcall *)(Player *, int, int, int, int))DetourFunction((PBYTE)dwAddCollectible, (PBYTE)addCollectible);
 	}
 
 	gdwPlayerManager = *(DWORD*)(dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(BYTE*)"\x8b\x0d\x00\x00\x00\x00\x8b\x81\x30\x8a\x00\x00\x2b\x81\x2c\x8a\x00\x00\xc1\xf8\x02\xc3",
 		"xx????xx????xx????xxxx") + 2);
-
-	if (gdwPlayerManager)
-	{
-		cout << "gdwPlayerManager found [0x" << (void *)(gdwPlayerManager - gdwBaseAddress) << "] (holds pointer for PlayerManager)" << endl;
-	}
 
 	dwIsaacRandom = dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(BYTE*)"\xa1\x00\x00\x00\x00\x3d\x00\x00\x00\x00\x0f\x8c\x00\x00\x00\x00\x3d\x00\x00\x00\x00\x75"
@@ -148,7 +188,6 @@ void InitHooks()
 
 	if (dwIsaacRandom)
 	{
-		cout << "Found dwIsaacRandom: [0x" << (void *)(dwIsaacRandom - gdwBaseAddress) << "]" << endl;
 		original_IsaacRandom = (int(__cdecl *)())DetourFunction((PBYTE)dwIsaacRandom, (PBYTE)IsaacRandom);
 	}
 
@@ -158,8 +197,28 @@ void InitHooks()
 
 	if (dwSpawnEntity)
 	{
-		cout << "Found dwSpawnEntity: [0x" << (void *)(dwSpawnEntity - gdwBaseAddress) << "]" << endl;
 		SpawnEntityEvent_Original = (void *)DetourFunction((PBYTE)dwSpawnEntity, (PBYTE)SpawnEntityEvent_Hook);
+	}
+
+	dwChangeKeys = gdwBaseAddress + 0xCEBE0;
+
+	if (dwChangeKeys)
+	{
+		original_changeKeys = (int(__fastcall *)(Player *, int, int))DetourFunction((PBYTE)dwChangeKeys, (PBYTE)changeKeys);
+	}
+
+	dwChangeBombs = gdwBaseAddress + 0xCEB90;
+
+	if (dwChangeBombs)
+	{
+		original_changeBombs = (int(__fastcall *)(Player *, int, int))DetourFunction((PBYTE)dwChangeBombs, (PBYTE)changeBombs);
+	}
+
+	dwChangeCoins = gdwBaseAddress + 0xCEAB0;
+
+	if (dwChangeCoins)
+	{
+		original_changeCoins = (DWORD)DetourFunction((PBYTE)dwChangeCoins, (PBYTE)changeCoins);
 	}
 }
 

@@ -25,15 +25,26 @@ var trackerSchema = new Schema({
     run_start: Date,
     run_end: Date,
     character: String,
+    characterid: Number,
     seed: String,
     floor: String,
+    altfloor: String,
     curse: String,
     coins: Number,
     bombs: Number,
+    charges: Number,
     keys: Number,
     trinkets: [Number],
     pockets: [Schema.Types.Mixed],
     items: [Number],
+    guppy: Number,
+    lof: Number,
+    speed: Number,
+    range: Number,
+    shotspeed: Number,
+    tearrate: Number,
+    damage: Number,
+    luck: Number,
 })
 mongoose.model('Tracker', trackerSchema);
 var Tracker = connection.model('Tracker', trackerSchema);
@@ -103,8 +114,10 @@ module.exports.newGame = function(stream_key, data, callback) {
             user.run_start = Date.now();
             user.run_end = null;
             user.character = data.character;
+            user.characterid = data.characterid;
             user.seed = data.seed;
             user.floor = data.floor;
+            user.altfloor = data.altfloor;
             user.curse = data.curse;
             user.items = data.items;
             user.seen_items = data.items;
@@ -156,6 +169,8 @@ module.exports.pickupItem = function(stream_key, data, callback) {
         if (res) {
             user = res;
             user.updated_at = Date.now();
+            user.character = data.character;
+            user.characterid = data.characterid;
             user.coins = data.coins;
             user.bombs = data.bombs;
             user.keys = data.keys;
@@ -165,6 +180,20 @@ module.exports.pickupItem = function(stream_key, data, callback) {
             user.markModified('trinkets');
             user.pockets = data.pockets;
             user.markModified('pockets');
+            user.guppy = data.guppy;
+            user.lof = data.lof;
+            user.floor = data.floor;
+            user.altfloor = data.altfloor;
+            user.curse = data.curses;
+            user.charges = data.charges;
+            user.speed = data.speed;
+            user.range = data.range;
+            user.shotspeed = data.shotspeed;
+            user.tearrate = data.tearrate;
+            user.damage = data.damage;
+            user.luck = data.luck;
+            user.seed = data.seed;
+            console.log(user.floor);
             return user.save(function(err, res) {
                 return callback(err, formatUserData(user));
             });
