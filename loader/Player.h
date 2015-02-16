@@ -79,7 +79,7 @@ public:
 /*[0x2FB4]*/		int _nGuppyItems;
 /*[0x2FB8]*/		int _nFlyItems;
 /*[0x0000]*/	virtual void *Player_VF_0x000(bool a2); //
-/*[0x0004]*/	virtual int Player_VF_0x004(int a2, int Args, unsigned int a4, int a5); //
+/*[0x0004]*/	virtual int Player_VF_0x004(int a2, int Args, unsigned int a4, int a5); //init.. could possibly be start game? related to continue as well
 /*[0x0008]*/	virtual int Player_VF_0x008(); //poossibly playerupdate
 /*[0x000C]*/	virtual int Player_VF_0x00C(); //related to player move
 /*[0x0010]*/	virtual int Player_VF_0x010(int a2); //

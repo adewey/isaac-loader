@@ -41,6 +41,7 @@ DWORD WINAPI startSocket(void *pThreadArgument){
 		while (websocket->getReadyState() != WebSocket::CLOSED) {
 			websocket->poll();
 			websocket->dispatch(handle_message);
+			if (!bAttached) break;
 		}
 		cout << "Websocket disconnected" << endl;
 	}
@@ -72,9 +73,9 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 {
 	while (bAttached)
 	{
-		if (bUpdateRequired && GetPlayer())
+		if (bUpdateRequired && GetPlayerEntity())
 		{
-			Player *pPlayer = GetPlayer();
+			Player *pPlayer = GetPlayerEntity();
 			PPLAYERMANAGER pPlayerManager = GetPlayerManager();
 			/* craft our json object to send to the server */
 			/* craft our item array */
@@ -120,7 +121,7 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 
 			char buffer2[2048] = { 0 };
 			sprintf_s(buffer2, 2048 - 1, "{\"stream_key\": \"%s\",\"character\": \"%s\", \"characterid\": \"%d\", \"seed\": \"%s\", \"floor\": \"%d\", \"altfloor\": \"%d\", \"curses\": \"%d\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": %d, \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"range\": \"%0.2f\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s}",
-									gTrackerID, pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_startSeed, pPlayerManager->_floorNo, pPlayerManager->_alternateFloor,pPlayerManager->i_curses, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, GetPlayer()->_speed, GetPlayer()->_shotspeed, GetPlayer()->_tearrate, GetPlayer()->_damage, GetPlayer()->_luck, GetPlayer()->_range, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
+				gTrackerID, pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_startSeed, pPlayerManager->_floorNo, pPlayerManager->_alternateFloor, pPlayerManager->i_curses, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_range, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
 			cout << buffer2 << endl;
 			SendMessage((string)buffer2);
 			bUpdateRequired = 0;
@@ -165,30 +166,34 @@ PAPI VOID UnInitPlugin(VOID)
 	RemoveCommand("getkey");
 }
 
-PAPI VOID PreSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER *playerManager, int *entityID, int *variant, Entity *parent, int *subtype, unsigned int *seed)
+bool bShouldUpdate = false;
+PAPI VOID PostAddCollectible(int ret)
 {
+	bShouldUpdate = true;
 }
 
-PAPI VOID OnSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, Entity *parent, int subtype, unsigned int seed)
+PAPI VOID PostChangeKeys(int ret)
 {
-
+	bShouldUpdate = true;
 }
 
-PAPI VOID PreAddCollectible(Player *pPlayer, int *relatedID, int *itemID, int *charges, int *arg5)
+PAPI VOID PostChangeBombs(int ret)
 {
-	//do stuff with the collectible's information
+	bShouldUpdate = true;
 }
-PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
+
+PAPI VOID PostChangeCoins(int ret)
 {
-	//do stuff with the collectible's information
-	bUpdateRequired = true;
+	bShouldUpdate = true;
 }
 
 DWORD dwFrameCount = 0;
 PAPI VOID OnGameUpdate()
 {
-	if (dwFrameCount > 60 * 60)
+	/* limit updates to once every 30 frames, then wait to update again until we need to */
+	if (dwFrameCount > 60 * 30 && bShouldUpdate && !bUpdateRequired)
 	{
+		bShouldUpdate = false;
 		bUpdateRequired = true;
 		dwFrameCount = 0;
 	}

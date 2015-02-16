@@ -27,13 +27,6 @@ void PluginUnload(int argc, char *argv[])
 	cout << "unloading plugin " << argv[0] << "... " << unloaded << endl;
 }
 
-void setCurse(int argc, char *argv[])
-{
-	PPLAYERMANAGER pPlayerManager = GetPlayerManager();
-	cout << "pPlayerManager [0x" << (void *)pPlayerManager << "]" << endl;
-	pPlayerManager->i_curses = atoi(argv[0]);
-}
-
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
 	/* attach console and hooks */
@@ -50,7 +43,6 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	AddCommand("load", PluginLoad);
 	AddCommand("unload", PluginUnload);
 	AddCommand("detatch", detatch);
-	AddCommand("setcurse", setCurse);
 
 	/* wait to be detached */
 	while (gbAttached){
@@ -65,7 +57,6 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 
 	/* remove commands*/
 	RemoveCommand("unload");
-	RemoveCommand("setcurse");
 
 	/* remove console and unhook */
 	cout << "DLL Detached!" << endl;
