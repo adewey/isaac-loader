@@ -65,6 +65,12 @@ trackerView.formatData = function (data) {
             }
         }
     }
+    if (data.guppy > 3) {
+        data.guppy = 3;
+    }
+    if (data.lof > 3) {
+        data.lof = 3;
+    }
     var charImgName = "playerportraitbig_01_isaac.png";
     if (data.characterid === 0) {
         charImgName = "playerportraitbig_01_isaac.png";

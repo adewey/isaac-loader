@@ -19,6 +19,10 @@ DWORD dwAddCollectible = 0;
 int (__fastcall *original_addCollectible)(Player *pPlayer, int relatedID, int itemID, int charges, int arg5);
 int __fastcall addCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
+	//cout << relatedID << endl;
+	//cout << itemID << endl;
+	//cout << charges << endl;
+	//cout << arg5 << endl;
 	if (pPlayer != GetPlayer()){
 		gpPlayer = pPlayer;
 	}
@@ -33,7 +37,7 @@ int __fastcall addCollectible(Player *pPlayer, int relatedID, int itemID, int ch
 
 //HEY DOOFUS, ADD THAT FUNCTION
 void AddCollectible(Player *player, int itemID){
-	addCollectible(player, 0, itemID, 6, 0);
+	addCollectible(player, itemID, itemID, 6, 1);
 }
 
 /* SpawnEntity functions */

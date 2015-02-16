@@ -243,6 +243,8 @@ li.alt span.cathedral,  li.alt span.chest {
 #charContainer {
     position:relative;
     margin:0;
+    float:right;
+    width:145px;
     display:inline-block;
 }
 .guppyProgress {
@@ -257,4 +259,228 @@ li.alt span.cathedral,  li.alt span.chest {
     bottom:10px;
     left:112px;
     z-index:-1;
+}
+
+/*Stat Bars*/
+.damage {
+    margin-top:10px;
+    position:relative;
+    padding-left:20px;
+}
+.speed {
+    margin-top:10px;
+    position:relative;
+    padding-left:10px;
+}
+.shotspeed {
+    margin-top:10px;
+    position:relative;
+    padding-left:20px;
+}
+.luck {
+    margin-top:10px;
+    position:relative;
+    padding-left:20px;
+}
+.range {
+    margin-top:10px;
+    position:relative;
+    padding-left:14px;
+}
+.damage-1, .speed-1, .shotspeed-1{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:6px;
+    background:url(/gfx/IsaacTracker/Stats/DamageFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.damage-2, .speed-2, .shotspeed-2{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:16px;
+    background:url(/gfx/IsaacTracker/Stats/DamageFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.damage-3, .speed-3, .shotspeed-3{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:22px;
+    background:url(/gfx/IsaacTracker/Stats/DamageFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.damage-4, .speed-4, .shotspeed-4{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:32px;
+    background:url(/gfx/IsaacTracker/Stats/DamageFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.damage-5, .speed-5, .shotspeed-5{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:40px;
+    background:url(/gfx/IsaacTracker/Stats/DamageFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.damage-6, .speed-6, .shotspeed-6{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:50px;
+    background:url(/gfx/IsaacTracker/Stats/DamageFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.damage-7, .speed-7, .shotspeed-7{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:60px;
+    background:url(/gfx/IsaacTracker/Stats/DamageFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+
+.tearrate {
+    margin-top:10px;
+    position:relative;
+    padding-left:-15px;
+}
+.tearrate-1{
+    position:absolute;
+    height:26px;
+    top:4px;
+    left:52px;
+    width:6px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.tearrate-2{
+    position:absolute;
+    height:26px;
+    top:4px;
+    left:52px;
+    width:16px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.tearrate-3{
+    position:absolute;
+    height:26px;
+    top:4px;
+    left:52px;
+    width:26px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.tearrate-4{
+    position:absolute;
+    height:26px;
+    top:4px;
+    left:52px;
+    width:34px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.tearrate-5{
+    position:absolute;
+    height:26px;
+    top:4px;
+    left:52px;
+    width:42px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.tearrate-6{
+    position:absolute;
+    height:26px;
+    top:4px;
+    left:52px;
+    width:52px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.tearrate-7{
+    position:absolute;
+    height:26px;
+    top:4px;
+    left:52px;
+    width:60px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+
+
+.luck-1, .range-1{
+    position:absolute;
+    height:26px;
+    top:0px;
+    left:52px;
+    width:6px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.luck-2, .range-2{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:16px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.luck-3, .range-3{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:26px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.luck-4, .range-4{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:34px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.luck-5, .range-5{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:42px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.luck-6, .range-6{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:52px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
+}
+.luck-7, .range-7{
+    position:absolute;
+    height:26px;
+    top:0;
+    left:52px;
+    width:60px;
+    background:url(/gfx/IsaacTracker/Stats/TearRateFull.png) 0px 0px;
+    background-repeat:no-repeat;
 }

@@ -1,14 +1,34 @@
 #include "..\loader\plugin.h"
+#include <string>
 
 void GiveX(int argc, char *argv[])
 {
-	string thingToGive = (string)argv[0];
+	string thingToGive = argv[0];
 	for (string::size_type i = 0; i < thingToGive.length(); ++i){ //all Lowercase.
 		thingToGive[i] = tolower(thingToGive[i]);
 	}
 	for (int i = 1; i < argc; i++){
 		string value = argv[i];
-		cout << argv[0] << ": " << atos(value) << endl;
+		if (value.find_first_not_of("1234567890") == string::npos){
+			if (thingToGive == "item"){
+				AddCollectible(GetPlayer(), stoi(value));
+			}
+			else if (thingToGive == "key" || thingToGive == "keys"){
+				GetPlayer()->_numKeys += stoi(value);
+			}
+			else if (thingToGive == "goldkey"){
+				GetPlayer()->_hasGoldenKey = stoi(value);
+			}
+			else if (thingToGive == "bomb" || thingToGive == "bombs"){
+				GetPlayer()->_numBombs += stoi(value);
+			}
+			else if (thingToGive == "coin" || thingToGive == "coins"){
+				GetPlayer()->_numCoins += stoi(value);
+			}
+			else{
+				cout << "'" << thingToGive << "' is not a thing. (item, key, goldkey, bomb, coin)" << endl;
+			}
+		}
 	}
 	//if (newValue.find_first_not_of("1234567890.-") != string::npos){  //This is Not a Real Number, inform the user.
 	//	std::cout << "Not a Real Number" << endl;
