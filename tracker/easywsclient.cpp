@@ -406,11 +406,11 @@ namespace { // private module-only namespace
 				}
 			}
 			// N.B. - txbuf will keep growing until it can be transmitted over the socket:
-			cout << "Sketch " << endl;
+			//cout << "Sketch " << endl;
 			txbuf.insert(txbuf.end(), header.begin(), header.end());
-			cout << "Sketch 2" << endl;
+			//cout << "Sketch 2" << endl;
 			txbuf.insert(txbuf.end(), message_begin, message_end);
-			cout << "Sketch 3" << endl;
+			//cout << "Sketch 3" << endl;
 			if (useMask) {
 				//cout << "mask" << endl;
 				for (size_t i = 0; i != message_size; ++i) {

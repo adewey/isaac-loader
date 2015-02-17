@@ -11,28 +11,25 @@ void GiveX(int argc, char *argv[])
 		string value = argv[i];
 		if (value.find_first_not_of("1234567890") == string::npos){
 			if (thingToGive == "item"){
-				AddCollectible(GetPlayer(), stoi(value));
+				AddCollectible(GetPlayerEntity(), stoi(value));
 			}
 			else if (thingToGive == "key" || thingToGive == "keys"){
-				GetPlayer()->_numKeys += stoi(value);
+				GetPlayerEntity()->_numKeys += stoi(value);
 			}
 			else if (thingToGive == "goldkey"){
-				GetPlayer()->_hasGoldenKey = stoi(value);
+				GetPlayerEntity()->_hasGoldenKey = stoi(value);
 			}
 			else if (thingToGive == "bomb" || thingToGive == "bombs"){
-				GetPlayer()->_numBombs += stoi(value);
+				GetPlayerEntity()->_numBombs += stoi(value);
 			}
 			else if (thingToGive == "coin" || thingToGive == "coins"){
-				GetPlayer()->_numCoins += stoi(value);
+				GetPlayerEntity()->_numCoins += stoi(value);
 			}
 			else{
 				cout << "'" << thingToGive << "' is not a thing. (item, key, goldkey, bomb, coin)" << endl;
 			}
 		}
 	}
-	//if (newValue.find_first_not_of("1234567890.-") != string::npos){  //This is Not a Real Number, inform the user.
-	//	std::cout << "Not a Real Number" << endl;
-	//}
 }
 
 // called when the plugin initializes
