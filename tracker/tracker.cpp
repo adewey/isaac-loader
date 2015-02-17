@@ -40,10 +40,10 @@ DWORD WINAPI SocketHandler(void *pThreadArgument){
 	#endif
 		websocket = from_url("ws://isaactracker.com:8126/", false, "Client");
 		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
-			cout << "Could Not Connect to Web Socket." << endl;
+			//cout << "Could Not Connect to Web Socket." << endl;
 		}
 		else{
-			cout << "Web socket Connected" << endl;
+			//cout << "Web socket Connected" << endl;
 			while (websocket->getReadyState() != WebSocket::CLOSED) {
 				websocket->poll();
 				websocket->dispatch(handle_message);
@@ -54,12 +54,13 @@ DWORD WINAPI SocketHandler(void *pThreadArgument){
 				if (!bAttached) break;
 			}
 			cout << "Websocket disconnected" << endl;
-			websocket->close();
-			delete websocket;
-	#ifdef _WIN32
-			WSACleanup();
-	#endif
 		}
+		websocket->close();
+		cout << "Detached" << endl;
+		delete websocket;
+#ifdef _WIN32
+		WSACleanup();
+#endif
 	}
 	return 0;
 }
