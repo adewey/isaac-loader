@@ -26,73 +26,49 @@ void handle_message(const std::string & message)
 {
 	cout << "Message Received from Server: " << message;
 }
-//DWORD WINAPI startSocket(void *pThreadArgument){
-//#ifdef _WIN32
-//	INT rc;
-//	WSADATA wsaData;
-//
-//	rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
-//	if (rc) {
-//		printf("WSAStartup Failed.\n");
-//	}
-//#endif
-//	websocket = from_url("ws://isaactracker.com:8126/", false, "Client");
-//	if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
-//		cout << "Could Not Connect to Web Socket." << endl;
-//	}
-//	else{
-//		cout << "Web socket Connected" << endl;
-//		while (websocket->getReadyState() != WebSocket::CLOSED) {
-//			websocket->poll();
-//			websocket->dispatch(handle_message);
-//			if (!bAttached) break;
-//		}
-//		cout << "Websocket disconnected" << endl;
-//	}
-//	return 0;
-//}
 
 DWORD WINAPI SocketHandler(void *pThreadArgument){
-#ifdef _WIN32
-	INT rc;
-	WSADATA wsaData;
+	while (bAttached){
+	#ifdef _WIN32
+		INT rc;
+		WSADATA wsaData;
 
-	rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (rc) {
-		printf("WSAStartup Failed.\n");
-	}
-#endif
-	websocket = from_url("ws://isaactracker.com:8126/", false, "Client");
-	if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
-		cout << "Could Not Connect to Web Socket." << endl;
-	}
-	else{
-		cout << "Web socket Connected" << endl;
-		while (websocket->getReadyState() != WebSocket::CLOSED) {
-			websocket->poll();
-			websocket->dispatch(handle_message);
-			if (!SendToServer.empty()){
-				websocket->send(SendToServer.back());
-				SendToServer.pop_back();
-			}
-			if (!bAttached) break;
+		rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
+		if (rc) {
+			printf("WSAStartup Failed.\n");
 		}
-		cout << "Websocket disconnected" << endl;
+	#endif
+		websocket = from_url("ws://isaactracker.com:8126/", false, "Client");
+		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
+			cout << "Could Not Connect to Web Socket." << endl;
+		}
+		else{
+			cout << "Web socket Connected" << endl;
+			while (websocket->getReadyState() != WebSocket::CLOSED) {
+				websocket->poll();
+				websocket->dispatch(handle_message);
+				if (!SendToServer.empty()){
+					websocket->send(SendToServer.back());
+					SendToServer.pop_back();
+				}
+				if (!bAttached) break;
+			}
+			cout << "Websocket disconnected" << endl;
+			websocket->close();
+			delete websocket;
+	#ifdef _WIN32
+			WSACleanup();
+	#endif
+		}
 	}
 	return 0;
 }
 
 void SendMessage(string message){
-	cout << "'" << message << "'" << endl;
 	SendToServer.push_back(message);
 }
 
 void terminateSocket(){
-	websocket->close();
-	delete websocket;
-	#ifdef _WIN32
-		WSACleanup();
-	#endif
 }
 DWORD WINAPI updateServer(void *pThreadArgument)
 {
