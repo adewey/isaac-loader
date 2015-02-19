@@ -10,8 +10,6 @@ struct PointF {
 
 #include "Player.h"
 
-
-
 enum Curses {
 	None = 0,
 	Darkness = 1,
@@ -28,9 +26,9 @@ typedef struct PlayerManager
 /*0x0000*/	int _floorNo;
 /*0x0004*/	bool _alternateFloor;
 /*0x0008*/	union {
-	Curses _curses;
-	int i_curses;
-};
+				Curses _curses;
+				int i_curses;
+			};
 /*0x000C*/	char _unk000C;
 /*0x000D*/	bool _seeForever;
 /*0x000E*/	char _unk000E[0x2]; // to fix alignment
@@ -42,5 +40,6 @@ GLOBAL bool gbAttached;
 
 GLOBAL Player *GetPlayerEntity();
 GLOBAL PPLAYERMANAGER GetPlayerManager();
+GLOBAL void FlashText(char *pChar);
 
 #endif

@@ -10,6 +10,7 @@ GLOBAL DWORD gdwGetPlayerEntity;
 GLOBAL DWORD gdwGameUpdate;
 GLOBAL DWORD gdwAddCollectible;
 GLOBAL DWORD gdwSpawnEntity;
+GLOBAL DWORD gdwFlashText;
 
 void InitHooks();
 void RemoveHooks();
