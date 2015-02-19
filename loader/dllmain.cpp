@@ -32,6 +32,7 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	/* attach console and hooks */
 	InitConsole();
 	cout << "DLL Attached!" << endl;
+
 	InitHooks();
 
 	/* set our plugin path to the directory our main dll was loaded from */
@@ -60,9 +61,10 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	RemoveCommand("unload");
 
 	/* remove console and unhook */
+	RemoveHooks();
+
 	cout << "DLL Detached!" << endl;
 	RemoveConsole();
-	RemoveHooks();
 
 	Sleep(1000);
 	return 0;

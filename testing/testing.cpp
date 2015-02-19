@@ -5,7 +5,8 @@
 #include <fstream>
 #include <Psapi.h>
 
-#define printarg(i, arg) cout << "Arg" << i << ":\t" << &arg << "\t" << (void *)arg << "\t" << (float)arg << endl;
+#define printarg(i, arg) cout << i << ":" << "\t" << (void *)arg << "\t" << (float)arg << endl;
+
 
 typedef struct _PDWORDSTRUCT {
 	union {
@@ -117,8 +118,8 @@ void setCurse(int argc, char *argv[])
 int curPill = 0;
 void Pills(int argc, char *argv[])
 {
-	GetPlayer()->_pocket1ID = curPill;
-	GetPlayer()->_pocket2ID = curPill + 1;
+	GetPlayerEntity()->_pocket1ID = curPill;
+	GetPlayerEntity()->_pocket2ID = curPill + 1;
 
 	curPill++;
 }
@@ -130,7 +131,7 @@ void showoffsets(int argc, char *argv[])
 	cout << "dwGameUpdate\t\t[0x" << (void *)(gdwGameUpdate - gdwBaseAddress) << "]" << endl;
 	cout << "dwAddCollectible\t[0x" << (void *)(gdwAddCollectible - gdwBaseAddress) << "]" << endl;
 	cout << "dwSpawnEntity\t\t[0x" << (void *)(gdwSpawnEntity - gdwBaseAddress) << "]" << endl;
-	cout << "pPlayer\t\t\t[0x" << (void *)GetPlayer() << "]" << endl;
+	cout << "pPlayer\t\t\t[0x" << (void *)GetPlayerEntity() << "]" << endl;
 	cout << "gdwPlayerManager\t[0x" << (void *)(gdwPlayerManager - gdwBaseAddress) << "]" << endl;
 	cout << "pPlayerManager\t\t[0x" << (void *)GetPlayerManager() << "]" << endl;
 
@@ -138,17 +139,67 @@ void showoffsets(int argc, char *argv[])
 
 void testcall(int argc, char *argv[])
 {
-	DWORD fOffset = gdwBaseAddress + 0xFA50;
-	void *pPlayerManager = GetPlayerManager();
-	void *pPlayer = 0;
-	__asm {
-		pushad
-			mov esi, pPlayerManager
-			call fOffset
-			mov pPlayer, eax
-		popad
+	FlashText(argv[0]);
+}
+
+
+
+
+DWORD gdwPlayer0000 = 0;
+int (__fastcall *original_Player0000)(int self, int _EDX, int a2);
+int  __fastcall Player0000(int self, int _EDX, int a2)
+{
+	printarg("self", self);
+	printarg("EDX", _EDX);
+	printarg("a2", a2);
+	int ret = original_Player0000(self, _EDX, a2);
+	printarg("ret", ret);
+	cout << endl;
+	return ret;
+}
+
+DWORD gdwPlayer0004 = 0;
+int(__fastcall *original_Player0004)(int self, int _EDX, int a2, int Args, unsigned int a4, int a5);
+int __fastcall Player0004(int self, int _EDX, int a2, int Args, unsigned int a4, int a5)
+{
+	printarg("self", self);
+	printarg("EDX", _EDX);
+	printarg("a2", a2);
+	printarg("Args", Args);
+	printarg("a4", a4);
+	printarg("a5", a5);
+	int ret = original_Player0004(self, _EDX, a2, Args, a4, a5);
+	printarg("ret", ret);
+	cout << endl;
+	return ret;
+}
+
+DWORD original_FlashText = 0;
+void* FlashTexts_retAddr = NULL;
+DWORD _RET = 0;
+DWORD _EAX = 0;
+DWORD _EDI = 0;
+DWORD _ESI = 0;
+void __stdcall printer(int arg)
+{
+	printarg(1, arg);
+}
+__declspec(naked) char nFlashText()
+{
+	_asm
+	{
+		mov _EAX, eax
+			push _EAX
+			call printer
+		mov _EDI, edi
+		mov _ESI, esi
+		jmp original_FlashText
+		mov _RET, eax
 	}
-	cout << "pPlayer?: " << pPlayer << endl;
+	printarg("_EAX", _EAX);
+	printarg("_EDI", _EDI);
+	printarg("_ESI", _ESI);
+	printarg("_RET", _RET);
 }
 
 
@@ -161,11 +212,27 @@ PAPI VOID InitPlugin()
 	AddCommand("setcurse", setCurse);
 	AddCommand("showoffsets", showoffsets);
 	AddCommand("testcall", testcall);
+
+	/*
+	gdwPlayer0000 = gdwBaseAddress + 0xCD330;
+	original_Player0000 = (int(__fastcall *)(int self, int _EDX, int a2))DetourFunction((PBYTE)gdwPlayer0000, (PBYTE)Player0000);
+
+	gdwPlayer0004 = gdwBaseAddress + 0xCD4B0;
+	original_Player0004 = (int(__fastcall *)(int self, int _EDX, int a2, int Args, unsigned int a4, int a5))DetourFunction((PBYTE)gdwPlayer0004, (PBYTE)Player0004);
+	*/
+	printarg("AddCollectible", (gdwAddCollectible - gdwBaseAddress));
+	if (gdwFlashText)
+	{
+		//original_FlashText = (DWORD)DetourFunction((PBYTE)gdwFlashText, (PBYTE)nFlashText);
+	}
 }
 
 // called when the plugin is removed
 PAPI VOID UnInitPlugin(VOID)
 {
+	DetourRemove((PBYTE)gdwPlayer0004, (PBYTE)original_Player0000);
+	DetourRemove((PBYTE)gdwPlayer0000, (PBYTE)original_Player0004);
+
 	//remove commands, detours, etc
 	RemoveCommand("spewvf");
 	RemoveCommand("pills");

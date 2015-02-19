@@ -56,30 +56,28 @@ __declspec(naked) char changeCoins()
 	{
 		push ebp
 			mov ebp, esp
-				push dword ptr[ebp + 0x08]
-				push eax
-				call PreChangeCoins
-				pop eax
-				add esp, 4
-				push dword ptr[ebp + 0x08]
-				push eax
-				call OnChangeCoins
-				pop eax
-				add esp, 4
+			push dword ptr[ebp + 0x08]
+			push eax
+			call PreChangeCoins
+			pop eax
+			add esp, 4
+			push dword ptr[ebp + 0x08]
+			push eax
+			call OnChangeCoins
+			pop eax
+			add esp, 4
 			pop ebp
 			pop coins_retAddr
 			call original_changeCoins
 			push eax
-				push eax
-				call PostChangeCoins
-				add esp, 4
+			push eax
+			call PostChangeCoins
+			add esp, 4
 			pop eax
 			push coins_retAddr
 			ret
 	}
 }
-
-
 
 /* SpawnEntity functions */
 /* TODO(Aaron): figure out a better way to handle this so we can detour properly */
@@ -140,6 +138,8 @@ void __cdecl GameUpdate()
 DWORD gdwPlayerManager = 0;
 DWORD gdwGetPlayerEntity = 0;
 
+DWORD gdwFlashText = 0;
+
 void InitHooks()
 {
 	/* scan for functions */
@@ -180,7 +180,7 @@ void InitHooks()
 
 	if (dwIsaacRandom)
 	{
-		original_IsaacRandom = (int(__cdecl *)())DetourFunction((PBYTE)dwIsaacRandom, (PBYTE)IsaacRandom);
+		original_IsaacRandom = (int(__cdecl *)())dwIsaacRandom;
 	}
 
 	gdwSpawnEntity = dwFindPattern(gdwBaseAddress, gdwBaseSize,
@@ -215,6 +215,7 @@ void InitHooks()
 
 	/* todo: replace this with a sig */
 	gdwGetPlayerEntity = gdwBaseAddress + 0xFA50;
+	
 }
 
 void RemoveHooks()

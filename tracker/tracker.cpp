@@ -1,5 +1,4 @@
 #include "..\loader\plugin.h"
-#include "curl.h"
 #include "easywsclient.hpp"
 #include "easywsclient.cpp" // <-- include only if you don't want compile separately
 #ifdef _WIN32
