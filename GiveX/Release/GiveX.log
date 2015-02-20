@@ -1,0 +1,13 @@
+﻿Build started 2/18/2015 6:11:16 AM.
+     1>Project "C:\Users\YourRuler\Documents\GitHub\isaac-loader\GiveX\GiveX.vcxproj" on node 3 (Build target(s)).
+     1>Link:
+         D:\VisualStudio\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\YourRuler\Documents\GitHub\isaac-loader\Release\GiveX.dll" /NOLOGO /LIBPATH:..\detours\ /LIBPATH:..\Release\ loader.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\YourRuler\Documents\GitHub\isaac-loader\Release\GiveX.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\YourRuler\Documents\GitHub\isaac-loader\Release\GiveX.lib" /MACHINE:X86 /SAFESEH:NO /DLL Release\givex.obj
+            Creating library C:\Users\YourRuler\Documents\GitHub\isaac-loader\Release\GiveX.lib and object C:\Users\YourRuler\Documents\GitHub\isaac-loader\Release\GiveX.exp
+         Generating code
+         Finished generating code
+         GiveX.vcxproj -> C:\Users\YourRuler\Documents\GitHub\isaac-loader\Release\GiveX.dll
+     1>Done Building Project "C:\Users\YourRuler\Documents\GitHub\isaac-loader\GiveX\GiveX.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.33
