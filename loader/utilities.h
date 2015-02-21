@@ -10,7 +10,7 @@
 using namespace std;
 
 DWORD dwGetPidByName(TCHAR *wExeName);
-GLOBAL DWORD dwGetModuleSize(char *);
+DWORD dwGetModuleSize(char *);
 bool bDataCompare(const BYTE* pData, const BYTE* bMask, const char* szMask);
 GLOBAL DWORD dwFindPattern(DWORD dwAddress, DWORD dwLen, BYTE *bMask, char * szMask);
 

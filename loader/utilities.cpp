@@ -26,7 +26,7 @@ DWORD dwGetPidByName(TCHAR *wExeName)
 	return res;
 }
 
-GLOBAL DWORD dwGetModuleSize(char *szModule)
+DWORD dwGetModuleSize(char *szModule)
 {
 	MODULEINFO modinfo = { 0 };
 	HMODULE hModule = GetModuleHandleA(szModule);

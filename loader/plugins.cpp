@@ -47,20 +47,10 @@ bool LoadPlugin(const char *fn)
 
 	pPlugin->InitPlugin = (fInitPlugin)GetProcAddress(hmod, "InitPlugin");
 	pPlugin->UnInitPlugin = (fUnInitPlugin)GetProcAddress(hmod, "UnInitPlugin");
-	pPlugin->PreAddCollectible = (fPreAddCollectible)GetProcAddress(hmod, "PreAddCollectible");
-	pPlugin->OnAddCollectible = (fOnAddCollectible)GetProcAddress(hmod, "OnAddCollectible");
 	pPlugin->PostAddCollectible = (fPostAddCollectible)GetProcAddress(hmod, "PostAddCollectible");
-	pPlugin->PreChangeKeys = (fPreChangeKeys)GetProcAddress(hmod, "PreChangeKeys");
-	pPlugin->OnChangeKeys = (fOnChangeKeys)GetProcAddress(hmod, "OnChangeKeys");
 	pPlugin->PostChangeKeys = (fPostChangeKeys)GetProcAddress(hmod, "PostChangeKeys");
-	pPlugin->PreChangeBombs = (fPreChangeBombs)GetProcAddress(hmod, "PreChangeBombs");
-	pPlugin->OnChangeBombs = (fOnChangeBombs)GetProcAddress(hmod, "OnChangeBombs");
 	pPlugin->PostChangeBombs = (fPostChangeBombs)GetProcAddress(hmod, "PostChangeBombs");
-	pPlugin->PreChangeCoins = (fPreChangeCoins)GetProcAddress(hmod, "PreChangeCoins");
-	pPlugin->OnChangeCoins = (fOnChangeCoins)GetProcAddress(hmod, "OnChangeCoins");
 	pPlugin->PostChangeCoins = (fPostChangeCoins)GetProcAddress(hmod, "PostChangeCoins");
-	pPlugin->PreSpawnEntity = (fPreSpawnEntity)GetProcAddress(hmod, "PreSpawnEntity");
-	pPlugin->OnSpawnEntity = (fOnSpawnEntity)GetProcAddress(hmod, "OnSpawnEntity");
 	pPlugin->OnGameUpdate = (fOnGameUpdate)GetProcAddress(hmod, "OnGameUpdate");
 
 	if (pPlugin->InitPlugin)
@@ -142,49 +132,6 @@ void InitPlugins()
 		LoadPlugin(szPluginList[o]);
 }
 
-void PreSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER *playerManager, int *entityID, int *variant, Entity *parent, int *subtype, unsigned int *seed){
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin){
-		if (pPlugin->PreSpawnEntity){
-			pPlugin->PreSpawnEntity(velocity, position, playerManager, entityID, variant, parent, subtype, seed);
-		}
-		pPlugin = pPlugin->pNext;
-	}
-}
-
-void OnSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, Entity *parent, int subtype, unsigned int seed){
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin){
-		if (pPlugin->OnSpawnEntity){
-			pPlugin->OnSpawnEntity(velocity, position, playerManager, entityID, variant, parent, subtype, seed);
-		}
-		pPlugin = pPlugin->pNext;
-	}
-}
-
-void PreAddCollectible(Player *pPlayer, int *relatedID, int *itemID, int *charges, int *arg5)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->PreAddCollectible){
-			pPlugin->PreAddCollectible(pPlayer, relatedID, itemID, charges, arg5);
-		}
-		pPlugin = pPlugin->pNext;
-	}
-}
-
-void OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->OnAddCollectible)
-			pPlugin->OnAddCollectible(pPlayer, relatedID, itemID, charges, arg5);
-		pPlugin = pPlugin->pNext;
-	}
-}
-
 void PostAddCollectible(int ret)
 {
 	PPLUGIN pPlugin = pPluginList;
@@ -193,29 +140,6 @@ void PostAddCollectible(int ret)
 		if (pPlugin->PostAddCollectible){
 			pPlugin->PostAddCollectible(ret);
 		}
-		pPlugin = pPlugin->pNext;
-	}
-}
-
-void PreChangeKeys(Player *pPlayer, int *nKeys)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->PreChangeKeys){
-			pPlugin->PreChangeKeys(pPlayer, nKeys);
-		}
-		pPlugin = pPlugin->pNext;
-	}
-}
-
-void OnChangeKeys(Player *pPlayer, int nKeys)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->OnChangeKeys)
-			pPlugin->OnChangeKeys(pPlayer, nKeys);
 		pPlugin = pPlugin->pNext;
 	}
 }
@@ -232,29 +156,6 @@ void PostChangeKeys(int ret)
 	}
 }
 
-void PreChangeBombs(Player *pPlayer, int *nBombs)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->PreChangeBombs){
-			pPlugin->PreChangeBombs(pPlayer, nBombs);
-		}
-		pPlugin = pPlugin->pNext;
-	}
-}
-
-void OnChangeBombs(Player *pPlayer, int nBombs)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->OnChangeBombs)
-			pPlugin->OnChangeBombs(pPlayer, nBombs);
-		pPlugin = pPlugin->pNext;
-	}
-}
-
 void PostChangeBombs(int ret)
 {
 	PPLUGIN pPlugin = pPluginList;
@@ -263,29 +164,6 @@ void PostChangeBombs(int ret)
 		if (pPlugin->PostChangeBombs){
 			pPlugin->PostChangeBombs(ret);
 		}
-		pPlugin = pPlugin->pNext;
-	}
-}
-
-void PreChangeCoins(Player *pPlayer, int *nCoins)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->PreChangeCoins){
-			pPlugin->PreChangeCoins(pPlayer, nCoins);
-		}
-		pPlugin = pPlugin->pNext;
-	}
-}
-
-void OnChangeCoins(Player *pPlayer, int nCoins)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->OnChangeCoins)
-			pPlugin->OnChangeCoins(pPlayer, nCoins);
 		pPlugin = pPlugin->pNext;
 	}
 }

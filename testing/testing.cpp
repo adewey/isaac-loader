@@ -110,7 +110,7 @@ void SpewVF(int argc, char *argv[])
 
 void setCurse(int argc, char *argv[])
 {
-	PPLAYERMANAGER pPlayerManager = GetPlayerManager();
+	PlayerManager *pPlayerManager = GetPlayerManager();
 	cout << "pPlayerManager [0x" << (void *)pPlayerManager << "]" << endl;
 	pPlayerManager->i_curses = atoi(argv[0]);
 }
@@ -139,7 +139,15 @@ void showoffsets(int argc, char *argv[])
 
 void testcall(int argc, char *argv[])
 {
-	FlashText(argv[0]);
+	DWORD dwResource = (*(DWORD*)(gdwBaseAddress + 0x21BCFC));
+	Resource * pResource = (Resource *)dwResource;
+	printarg("dwResource", (DWORD)dwResource);
+	printarg("pResource", (DWORD)pResource);
+
+	for (int i = 0; i < 0x15A; i++)
+		if (pResource->ItemList[i])
+			if (pResource->ItemList[i]->_id != 0x38)
+				pResource->ItemList[i]->unknown0x90 = 0xFFFFFFFF;
 }
 
 
@@ -220,18 +228,18 @@ PAPI VOID InitPlugin()
 	gdwPlayer0004 = gdwBaseAddress + 0xCD4B0;
 	original_Player0004 = (int(__fastcall *)(int self, int _EDX, int a2, int Args, unsigned int a4, int a5))DetourFunction((PBYTE)gdwPlayer0004, (PBYTE)Player0004);
 	*/
-	printarg("AddCollectible", (gdwAddCollectible - gdwBaseAddress));
 	if (gdwFlashText)
 	{
 		//original_FlashText = (DWORD)DetourFunction((PBYTE)gdwFlashText, (PBYTE)nFlashText);
 	}
+
 }
 
 // called when the plugin is removed
 PAPI VOID UnInitPlugin(VOID)
 {
-	DetourRemove((PBYTE)gdwPlayer0004, (PBYTE)original_Player0000);
-	DetourRemove((PBYTE)gdwPlayer0000, (PBYTE)original_Player0004);
+	//DetourRemove((PBYTE)gdwPlayer0004, (PBYTE)original_Player0000);
+	//DetourRemove((PBYTE)gdwPlayer0000, (PBYTE)original_Player0004);
 
 	//remove commands, detours, etc
 	RemoveCommand("spewvf");
