@@ -130,24 +130,10 @@ void showoffsets(int argc, char *argv[])
 	cout << "gdwBaseSize\t\t[0x" << (void *)gdwBaseSize << "]" << endl;
 	cout << "dwGameUpdate\t\t[0x" << (void *)(gdwGameUpdate - gdwBaseAddress) << "]" << endl;
 	cout << "dwAddCollectible\t[0x" << (void *)(gdwAddCollectible - gdwBaseAddress) << "]" << endl;
-	cout << "dwSpawnEntity\t\t[0x" << (void *)(gdwSpawnEntity - gdwBaseAddress) << "]" << endl;
 	cout << "pPlayer\t\t\t[0x" << (void *)GetPlayerEntity() << "]" << endl;
 	cout << "gdwPlayerManager\t[0x" << (void *)(gdwPlayerManager - gdwBaseAddress) << "]" << endl;
 	cout << "pPlayerManager\t\t[0x" << (void *)GetPlayerManager() << "]" << endl;
 
-}
-
-void testcall(int argc, char *argv[])
-{
-	DWORD dwResource = (*(DWORD*)(gdwBaseAddress + 0x21BCFC));
-	Resource * pResource = (Resource *)dwResource;
-	printarg("dwResource", (DWORD)dwResource);
-	printarg("pResource", (DWORD)pResource);
-
-	for (int i = 0; i < 0x15A; i++)
-		if (pResource->ItemList[i])
-			if (pResource->ItemList[i]->_id != 0x38)
-				pResource->ItemList[i]->unknown0x90 = 0xFFFFFFFF;
 }
 
 
@@ -161,6 +147,20 @@ int  __fastcall Player0000(int self, int _EDX, int a2)
 	printarg("EDX", _EDX);
 	printarg("a2", a2);
 	int ret = original_Player0000(self, _EDX, a2);
+	printarg("ret", ret);
+	cout << endl;
+	return ret;
+}
+
+int(__fastcall *original_sub_552A10)(void *a1, int a2, char *, char a4, char a5);
+int __fastcall sub_552A10(void *a1, int a2, char *a3, char a4, char a5)
+{
+	printarg("a1", (DWORD)a1);
+	printarg("a2", a2);
+	cout << "a3:\t" << a3 << endl;
+	printarg("a4", a4);
+	printarg("a5", a5);
+	int ret = original_sub_552A10(a1, a2, "Testing", a4, a5);
 	printarg("ret", ret);
 	cout << endl;
 	return ret;
@@ -211,6 +211,37 @@ __declspec(naked) char nFlashText()
 }
 
 
+
+void testcall(int argc, char *argv[])
+{
+	DWORD arg1 = gdwBaseAddress + 0x1BC66C;
+	printarg("arg1", arg1);
+	DWORD arg12 = *(DWORD*)(gdwBaseAddress + 0x1BC66C);
+	printarg("arg12", arg12);
+	DWORD arg13 = (DWORD)(DWORD *)(gdwBaseAddress + 0x1BC66C);
+	printarg("arg13", arg13);
+	DWORD arg2 = (int)&GetPlayerManager()->_floorNo + 0x2A5A4;
+	printarg("arg2", arg2);
+	char *arg3 = argv[0];
+	cout << "arg3:\t" << arg3 << endl;
+
+
+
+	original_sub_552A10(&arg1, arg2, arg3, 0, 0);
+
+	/*
+	DWORD dwResource = (*(DWORD*)(gdwBaseAddress + 0x21BCFC));
+	Resource * pResource = (Resource *)dwResource;
+	printarg("dwResource", (DWORD)dwResource);
+	printarg("pResource", (DWORD)pResource);
+
+	for (int i = 0; i < 0x15A; i++)
+	if (pResource->ItemList[i])
+	if (pResource->ItemList[i]->_id != 0x38)
+	pResource->ItemList[i]->unknown0x90 = 0xFFFFFFFF;
+	*/
+}
+
 // called when the plugin initializes
 PAPI VOID InitPlugin()
 {
@@ -228,10 +259,16 @@ PAPI VOID InitPlugin()
 	gdwPlayer0004 = gdwBaseAddress + 0xCD4B0;
 	original_Player0004 = (int(__fastcall *)(int self, int _EDX, int a2, int Args, unsigned int a4, int a5))DetourFunction((PBYTE)gdwPlayer0004, (PBYTE)Player0004);
 	*/
-	if (gdwFlashText)
-	{
+	//if (gdwFlashText)
+	//{
 		//original_FlashText = (DWORD)DetourFunction((PBYTE)gdwFlashText, (PBYTE)nFlashText);
-	}
+	//}
+
+	DWORD gdwPlayer0000 = gdwBaseAddress + 0x4820;
+	//original_Player0000 = (int(__fastcall *)(int self, int _EDX, int a2))DetourFunction((PBYTE)gdwPlayer0000, (PBYTE)Player0000);
+
+	DWORD dwsub_552A10 = gdwBaseAddress + 0x152A10;
+	original_sub_552A10 = (int(__fastcall *)(void *, int, char *, char, char))DetourFunction((PBYTE)dwsub_552A10, (PBYTE)sub_552A10);
 
 }
 
@@ -239,7 +276,8 @@ PAPI VOID InitPlugin()
 PAPI VOID UnInitPlugin(VOID)
 {
 	//DetourRemove((PBYTE)gdwPlayer0004, (PBYTE)original_Player0000);
-	//DetourRemove((PBYTE)gdwPlayer0000, (PBYTE)original_Player0004);
+	DetourRemove((PBYTE)original_Player0004, (PBYTE)Player0000);
+	DetourRemove((PBYTE)original_sub_552A10, (PBYTE)sub_552A10);
 
 	//remove commands, detours, etc
 	RemoveCommand("spewvf");
