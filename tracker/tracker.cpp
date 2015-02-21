@@ -72,12 +72,12 @@ void terminateSocket(){
 
 DWORD WINAPI updateServer(void *pThreadArgument)
 {
-	while (bAttached)
+	while (bAttached && gbAttached)
 	{
 		if (bUpdateRequired && GetPlayerEntity())
 		{
 			Player *pPlayer = GetPlayerEntity();
-			PPLAYERMANAGER pPlayerManager = GetPlayerManager();
+			PlayerManager *pPlayerManager = GetPlayerManager();
 			/* craft our json object to send to the server */
 			/* craft our item array */
 			char itembuffer[1024] = { 0 };
@@ -133,39 +133,19 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 	return 0;
 }
 
-void setKey(int argc, char *argv[])
-{
-	strncpy_s(gTrackerID, argv[0], MAX_STRING);
-	IniWriteString("tracker", "key", gTrackerID);
-	cout << "Tracker ID set to: " << gTrackerID << endl;
-}
-
-void getKey(int argc, char *argv[])
-{
-	cout << "Your current tracker ID: " << gTrackerID << endl;
-}
-
-// called when the plugin initializes
 PAPI VOID InitPlugin()
 {
 	bAttached = true;
-	//Add commands, detours, etc
-	AddCommand("setkey", setKey);
-	AddCommand("getkey", getKey);
 
 	IniReadString("tracker", "key", gTrackerID);
 	CreateThread(NULL, 0, updateServer, NULL, 0L, NULL);
 	CreateThread(NULL, 0, startSocket, NULL, 0L, NULL);
 }
 
-// called when the plugin is removed
 PAPI VOID UnInitPlugin(VOID)
 {
 	terminateSocket();
 	bAttached = false;
-	//remove commands, detours, etc
-	RemoveCommand("setkey");
-	RemoveCommand("getkey");
 }
 
 bool bShouldUpdate = false;
@@ -189,7 +169,7 @@ PAPI VOID PostChangeCoins(int ret)
 	bShouldUpdate = true;
 }
 
-DWORD dwFrameCount = 0;
+DWORD dwFrameCount = 30 * 60;
 PAPI VOID OnGameUpdate()
 {
 	/* limit updates to once every 30 frames, then wait to update again until we need to */

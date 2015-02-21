@@ -7,6 +7,7 @@
 HANDLE ghThread;
 bool gbAttached = false;
 
+#ifdef _DEBUG
 void detatch(int argc, char *argv[])
 {
 	cout << "detatching..." << endl;
@@ -26,45 +27,57 @@ void PluginUnload(int argc, char *argv[])
 	char *unloaded = (UnloadPlugin(argv[0])) ? "success" : "failed";
 	cout << "unloading plugin " << argv[0] << "... " << unloaded << endl;
 }
+#endif
 
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
+#ifdef _DEBUG
 	/* attach console and hooks */
 	InitConsole();
 	cout << "DLL Attached!" << endl;
+#endif
 
 	InitHooks();
-
 	/* set our plugin path to the directory our main dll was loaded from */
 	strcpy_s(gszPluginPath, MAX_PATH, (char *)pThreadArgument);
 	sprintf_s(gszINIPath, MAX_PATH, "%s\\settings.ini", gszPluginPath);
 
 	InitPlugins();
 
+#ifdef _DEBUG
 	/* add commands */
 	AddCommand("load", PluginLoad);
 	AddCommand("unload", PluginUnload);
 	AddCommand("detatch", detatch);
+#endif
 
 	/* wait to be detached */
 	while (gbAttached){
+#ifdef _DEBUG
 		/* monitor for commands */
 		char buffer[MAX_PATH] = { 0 };
 		fgets(buffer, MAX_PATH, stdin);
 		ParseCommand(buffer);
+#else
+		Sleep(100);
+#endif
 	}
 	
 	/* unload our plugins */
 	UnloadPlugins();
 
+#ifdef _DEBUG
 	/* remove commands*/
 	RemoveCommand("unload");
+#endif
 
 	/* remove console and unhook */
 	RemoveHooks();
 
+#ifdef _DEBUG
 	cout << "DLL Detached!" << endl;
 	RemoveConsole();
+#endif
 
 	Sleep(1000);
 	return 0;

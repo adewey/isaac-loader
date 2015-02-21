@@ -13,7 +13,7 @@ typedef struct _COMMAND {
 } COMMAND, *PCOMMAND;
 
 
-GLOBAL PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc);
+PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc);
 void ParseCommand(char *);
 void HandleCommand(char *, int, char *[]);
 void InitConsole();

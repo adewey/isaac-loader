@@ -8,6 +8,8 @@ struct PointF {
 	float y;
 };
 
+#include "Item.h"
+#include "Resource.h"
 #include "Player.h"
 
 enum Curses {
@@ -34,12 +36,9 @@ typedef struct PlayerManager
 /*0x000E*/	char _unk000E[0x2]; // to fix alignment
 /*0x0010*/	char _unk0010[0x8A9C];
 /*0x8AAC*/	char _startSeed[10];
-} PLAYERMANAGER, *PPLAYERMANAGER;
-
-GLOBAL bool gbAttached;
+} PLAYERMANAGER;
 
 GLOBAL Player *GetPlayerEntity();
-GLOBAL PPLAYERMANAGER GetPlayerManager();
-GLOBAL void FlashText(char *pChar);
+GLOBAL PlayerManager *GetPlayerManager();
 
 #endif
