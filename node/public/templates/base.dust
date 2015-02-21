@@ -22,23 +22,77 @@
 	</head>
 	<body>
         
-		<!-- header -->
+		<!-- header -->		
+        <header class="container">
+            <div class="col-xs-10 col-xs-push-1">
+                <img id="isaacTrackerLogo" src="/gfx/IsaacTracker/IsaacTrackerLogo.png"/>
+                <ul class="site-links">
+                    {#user}
+                    <li class="logged in">
+                        <a href="/{display_name}/" alt="view tracker">
+                            {display_name}
+                        </a>
+                        <a class="" href="/twitch/logout/" alt="log out">
+                            <span class="glyphicon glyphicon-log-out"></span>
+                        </a>
+                    </li>
+                    <li class="logged in">
+                        <a href="/download/" alt="download tracker">
+                            <span class="glyphicon glyphicon-download-alt"></span>
+                        </a>
+                    </li>
+                    {:else}
+                    <li class="logged out">
+                        <a href="/twitch/redirect">
+                            <img src="//ttv-api.s3.amazonaws.com/assets/connect_dark.png" />
+                        </a>
+                    </li>
+                    {/user}
+                </ul>
+            </div>
+        </header>
 		<!-- /header -->
 		
 		<!-- body -->
+		{+content /}
+		<!-- /body -->
+		
+		<!-- footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="col-xs-10 col-xs-push-1">
+                    <p class="text-muted">
+                        <span class="pull-right">
+                            <ul class="footer-links">
+                                <li>
+                                    <a href="/faq/">
+                                        FAQ
+                                    </a>
+                                </li>
+								<li>
+								&nbsp;|&nbsp;
+								</li>
+                                <li>
+                                    <a href="/privacy/">
+                                        Privacy Policy
+                                    </a>
+                                </li>
+                            </ul>
+                        </span>
+                        <span class="pull-left">&copy;isaactracker.com 2015</span>
+                    </p>
+                </div>
+            </div>
+        </footer>
+		<!-- /footer -->
+		
 		
 		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
 		<script src="/js/bootstrap.min.js"></script>
 		<script src="/js/app.js"></script>
-		{+content /}
-		<!-- /body -->
-		
-		<!-- footer -->
-		<!-- /footer -->
-		
-		
+        
 		{+extra_js /}
 
 	</body>

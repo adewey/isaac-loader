@@ -1,0 +1,14 @@
+
+.guppyProgress {
+    position:absolute;
+    bottom:45px;
+    left:110px;
+    z-index:-1;
+}
+
+.flyProgress {
+    position:absolute;
+    bottom:10px;
+    left:112px;
+    z-index:-1;
+}
