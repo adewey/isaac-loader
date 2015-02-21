@@ -6,6 +6,11 @@
 DWORD gdwBaseAddress = (DWORD)GetModuleHandle(NULL);
 DWORD gdwBaseSize = (DWORD)dwGetModuleSize("isaac-ng.exe");
 
+/* who knows why this is here? */
+void __stdcall nullstub()
+{
+}
+
 /*
 addCollectible is called when you pick up a pedestal, shop, market, or devil/angel item
 it includes active(spacebar), passive, and familiar(followers)
@@ -43,16 +48,16 @@ int __fastcall changeBombs(Player *pPlayer, int _EDX, int nBombs)
 
 DWORD dwChangeCoins = 0;
 DWORD original_changeCoins = 0;
-void* coins_retAddr = NULL;
 __declspec(naked) char changeCoins()
 {
 	_asm
 	{
+		call nullstub
 		jmp original_changeCoins
-		push eax
-		push eax
-		call PostChangeCoins
-		add esp, 4
+			push eax
+			push eax
+			call PostChangeCoins
+			add esp, 4
 		pop eax
 	}
 }
@@ -112,16 +117,20 @@ void InitHooks()
 		original_changeBombs = (int(__fastcall *)(Player *, int, int))DetourFunction((PBYTE)dwChangeBombs, (PBYTE)changeBombs);
 	}
 
-	dwChangeCoins = gdwBaseAddress + 0xCEAB0;
+	dwChangeCoins = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(PBYTE)"\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x0C\x53\x8B\xD8",
+		"xxxxxxxxxxxx");// gdwBaseAddress + 0xCEAB0;
 
 	if (dwChangeCoins)
 	{
 		original_changeCoins = (DWORD)DetourFunction((PBYTE)dwChangeCoins, (PBYTE)changeCoins);
 	}
 
-	/* todo: replace this with a sig */
-	gdwGetPlayerEntity = gdwBaseAddress + 0xFA50;
-	
+	gdwGetPlayerEntity = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(PBYTE)"\x8B\x86\x00\x00\x00\x00\x2B\x86\x00\x00\x00\x00\xA9\x00\x00\x00\x00\x75\x0F\x68\x00"
+		"\x00\x00\x00\x6A\x00\xE8\x00\x00\x00\x00\x83\xC4\x08\x8B\x8E\x00\x00\x00\x00\x2B\x8E"
+		"\x00\x00\x00\x00\xC1\xF9\x02\x3B\xF9\x73\x0C",
+		"xx????xx????x????xxx????xxx????xxxxx????xx????xxxxxxx");//gdwBaseAddress + 0xFA50;
 }
 
 void RemoveHooks()

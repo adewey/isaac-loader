@@ -27,6 +27,29 @@ void PluginUnload(int argc, char *argv[])
 	char *unloaded = (UnloadPlugin(argv[0])) ? "success" : "failed";
 	cout << "unloading plugin " << argv[0] << "... " << unloaded << endl;
 }
+
+#include <fstream>
+LONG WINAPI VectoredExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
+{
+	std::ofstream f;
+	f.open("gemini\\VectoredExceptionHandler.txt", std::ios::out | std::ios::trunc);
+	f << std::hex << pExceptionInfo->ExceptionRecord->ExceptionCode << std::endl;
+	f << std::hex << pExceptionInfo->ExceptionRecord->ExceptionAddress << std::endl;
+	f.close();
+
+	return EXCEPTION_CONTINUE_SEARCH;
+}
+
+LONG WINAPI TopLevelExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
+{
+	std::ofstream f;
+	f.open("gemini\\TopLevelExceptionHandler.txt", std::ios::out | std::ios::trunc);
+	f << std::hex << pExceptionInfo->ExceptionRecord->ExceptionCode << std::endl;
+	f << std::hex << pExceptionInfo->ExceptionRecord->ExceptionAddress << std::endl;
+	f.close();
+
+	return EXCEPTION_CONTINUE_SEARCH;
+}
 #endif
 
 DWORD WINAPI DllThread(void* pThreadArgument)
@@ -35,6 +58,9 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	/* attach console and hooks */
 	InitConsole();
 	cout << "DLL Attached!" << endl;
+
+	AddVectoredExceptionHandler(1, VectoredExceptionHandler);
+	SetUnhandledExceptionFilter(TopLevelExceptionHandler);
 #endif
 
 	InitHooks();
