@@ -16,59 +16,51 @@ bool bUpdateRequired = false;
 
 using easywsclient::WebSocket;
 static WebSocket::pointer websocket = NULL;
+vector<string> SendToServer;
 
 void handle_message(const std::string & message)
 {
 	cout << "Message Received from Server: " << message;
 }
 
-DWORD WINAPI startSocket(void *pThreadArgument){
+DWORD WINAPI socketHandler(void *pThreadArgument){
+	while (bAttached){
 #ifdef _WIN32
-	INT rc;
-	WSADATA wsaData;
+		INT rc;
+		WSADATA wsaData;
 
-	rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (rc) {
-		printf("WSAStartup Failed.\n");
-	}
-#endif
-	websocket = from_url("ws://isaactracker.com:8126/", false, "Client");
-	if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
-		cout << "Could Not Connect to Web Socket." << endl;
-	}
-	else{
-		cout << "Web socket Connected" << endl;
-		while (websocket->getReadyState() != WebSocket::CLOSED) {
-			websocket->poll();
-			websocket->dispatch(handle_message);
-			if (!bAttached) break;
+		rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
+		if (rc) {
+			printf("WSAStartup Failed.\n");
 		}
-		cout << "Websocket disconnected" << endl;
+#endif
+		websocket = from_url("ws://www.isaactracker.com:7002/", false, "Client");;
+		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
+		}
+		else{
+			while (websocket->getReadyState() != WebSocket::CLOSED) {
+				websocket->poll();
+				websocket->dispatch(handle_message);
+				if (!SendToServer.empty()){
+					websocket->send(SendToServer.back());
+					SendToServer.pop_back();
+				}
+				if (!bAttached) break;
+			}
+		websocket->close();
+		delete websocket;
+		}
+#ifdef _WIN32
+		WSACleanup();
+#endif
 	}
 	return 0;
 }
 
 void SendMessage(string message){
-	if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED || websocket->getReadyState() == WebSocket::CLOSING || websocket->getReadyState() == WebSocket::CONNECTING){
-		cout << "Not Connected to Server, Connecting..." << endl;
-		CreateThread(NULL, 0, startSocket, NULL, 0L, NULL); //Why doesn't this work, meh
-		//Sleep(1000);
-		if (websocket != NULL && websocket->getReadyState() != WebSocket::CLOSED && websocket->getReadyState() != WebSocket::CLOSING && websocket->getReadyState() != WebSocket::CONNECTING){ //If the socket managed to connect, call SendMessage again.
-			SendMessage(message);
-		}
-	}
-	else{
-			websocket->send(message);
-	}
+	SendToServer.push_back(message);
 }
 
-void terminateSocket(){
-	websocket->close();
-	delete websocket;
-	#ifdef _WIN32
-		WSACleanup();
-	#endif
-}
 
 DWORD WINAPI updateServer(void *pThreadArgument)
 {
@@ -139,12 +131,11 @@ PAPI VOID InitPlugin()
 
 	IniReadString("tracker", "key", gTrackerID);
 	CreateThread(NULL, 0, updateServer, NULL, 0L, NULL);
-	CreateThread(NULL, 0, startSocket, NULL, 0L, NULL);
+	CreateThread(NULL, 0, socketHandler, NULL, 0L, NULL);
 }
 
 PAPI VOID UnInitPlugin(VOID)
 {
-	terminateSocket();
 	bAttached = false;
 }
 
