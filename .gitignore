@@ -13,6 +13,7 @@ start.sh
 *.sdf
 *.suo
 *.idc
+Release/
 Debug/
 ipch/
 testing/
