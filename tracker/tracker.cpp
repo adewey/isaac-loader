@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <string>
 char gTrackerID[MAX_STRING] = { 0 };
-char *gIsaacUrl = "http://www.isaactracker.com";
+char *gIsaacUrl = "ws://ws.isaactracker.com";
 
 bool bAttached = false;
 bool bUpdateRequired = false;
@@ -32,7 +32,7 @@ DWORD WINAPI startSocket(void *pThreadArgument){
 		printf("WSAStartup Failed.\n");
 	}
 #endif
-	websocket = from_url("ws://isaactracker.com:8126/", false, "Client");
+	websocket = from_url(gIsaacUrl, false, "Client");
 	if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
 		cout << "Could Not Connect to Web Socket." << endl;
 	}

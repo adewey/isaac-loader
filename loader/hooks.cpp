@@ -52,7 +52,9 @@ __declspec(naked) char changeCoins()
 {
 	_asm
 	{
+#ifndef _DEBUG
 		call nullstub
+#endif
 		jmp original_changeCoins
 			push eax
 			push eax
