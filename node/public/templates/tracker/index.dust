@@ -34,10 +34,9 @@ function makeToolTip(){
 
 
 {<content}
-	<div class="col-xs-10">
 		<div class="col-xs-12 col-md-12">
             <div class="col-xs-9 col-sm-11">
-                <div class="column pull-left col-xs-6 col-sm-2">
+                <div class="column pull-left col-xs-3 col-sm-2">
                     <ul class="consumable-list">
                         <li class="coins">
                             {data.coins}
@@ -50,7 +49,7 @@ function makeToolTip(){
                         </li>
                     </ul>
                 </div>
-                <div class="column hidden-xs col-xs-3 pull-left">
+                <div class="column hidden-xs col-xs-3 col-sm-1 pull-left">
                     <ul class="trinket-list">
                     {#data.trinkets}
                         <li>
@@ -68,34 +67,36 @@ function makeToolTip(){
                     {/data.trinkets}
                     </ul>
                 </div>
-                <div class="column pull-left">
-                    <div class="damage">
-                        <img src="/gfx/IsaacTracker/Stats/DamageBack.png" class="statBackImg"/>
-                        <span id="damage-stat" class="stat damage-{data.damage}"></span>
-                    </div>
-                    <div class="tearrate">
-                        <img src="/gfx/IsaacTracker/Stats/TearRateBack.png"/>
-                        <span id="tearrate-stat" class="stat tearrate-{data.tearrate}"></span>
-                    </div>
-                    <div class="speed">
-                        <img src="/gfx/IsaacTracker/Stats/SpeedBack.png"/>
-                        <span id="speed-stat" class="stat speed-{data.speed}"></span>
-                    </div>
-                </div>
-                <div class="column pull-left">
-                    <div class="shotspeed">
-                        <img src="/gfx/IsaacTracker/Stats/ShotSpeedBack.png"/>
-                        <span id="shotspeed-stat" class="stat shotspeed-{data.shotspeed}"></span>
-                    </div>
-                    <div class="luck">
-                        <img src="/gfx/IsaacTracker/Stats/LuckBack.png"/>
-                        <span id="luck-stat" class="stat luck-{data.luck}"></span>
-                    </div>
-                    <div class="range">
-                        <img src="/gfx/IsaacTracker/Stats/RangeBack.png"/>
-                        <span id="range-stat" class="stat range-{data.range}"></span>
-                    </div>
-                </div>
+				<div class="column col-xs-7 col-sm-6" style="">
+					<div class="column pull-left">
+						<div class="damage">
+							<img src="/gfx/IsaacTracker/Stats/DamageBack.png" class="statBackImg"/>
+							<span id="damage-stat" class="stat damage-{data.damage}"></span>
+						</div>
+						<div class="tearrate">
+							<img src="/gfx/IsaacTracker/Stats/TearRateBack.png"/>
+							<span id="tearrate-stat" class="stat tearrate-{data.tearrate}"></span>
+						</div>
+						<div class="speed">
+							<img src="/gfx/IsaacTracker/Stats/SpeedBack.png"/>
+							<span id="speed-stat" class="stat speed-{data.speed}"></span>
+						</div>
+					</div>
+					<div class="column pull-left">
+						<div class="shotspeed">
+							<img src="/gfx/IsaacTracker/Stats/ShotSpeedBack.png"/>
+							<span id="shotspeed-stat" class="stat shotspeed-{data.shotspeed}"></span>
+						</div>
+						<div class="luck">
+							<img src="/gfx/IsaacTracker/Stats/LuckBack.png"/>
+							<span id="luck-stat" class="stat luck-{data.luck}"></span>
+						</div>
+						<div class="range">
+							<img src="/gfx/IsaacTracker/Stats/RangeBack.png"/>
+							<span id="range-stat" class="stat range-{data.range}"></span>
+						</div>
+					</div>
+				</div>
                 <div class="column pull-right">
 					<div id="charContainer">
 						<img id="charImgName" src="/gfx/ui/stage/{data.charImgName}" style="max-width:112px" title="{data.character}" class=""/>
@@ -183,5 +184,4 @@ function makeToolTip(){
 			</li>
 		{/data.pockets}
 		</ul>
-	</div>
 {/content}

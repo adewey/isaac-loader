@@ -38,6 +38,12 @@ privacyView.asView = function(req, res) {
     res.render(privacyView.template, {user: req.session.user});
 };
 
+var aboutView = new View('aboutView');
+aboutView.template = 'about',
+aboutView.asView = function (req, res) {
+    res.render(aboutView.template, { user: req.session.user });
+};
+
 var downloadView = new View('downloadView');
 downloadView.asView = function(req, res) {
     if (!req.session.user || !req.session.user.stream_key)
@@ -246,6 +252,7 @@ module.exports = {
     'indexView': indexView,
     'faqView': faqView,
     'privacyView': privacyView,
+    'aboutView': aboutView,
     'downloadView': downloadView,
     'trackerView': trackerView,
 };

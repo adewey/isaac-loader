@@ -48,8 +48,8 @@
 		</p>
 		<h2>Take my money!</h2>
 		<p>
-			Ha! This isn't actually a FAQ, but we figured we could throw it in here. We're working on setting up a donation page so 
-			that anyone who actually wants to throw any money at us (You crazy person you) then you can. 
+			Ha! This isn't actually a FAQ, but we figured we could throw it in here. We've set up a donation page so 
+			that anyone who actually wants to throw any money at us (You crazy person you) can. Any money sent to us goes towards our bad habits and supporting the server :D
             <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
                 <input type="hidden" name="cmd" value="_s-xclick">
                 <input type="hidden" name="hosted_button_id" value="DGPXKJVSCVTLJ">
@@ -57,4 +57,9 @@
                 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
             </form>
 		</p>
+		<h2>Can I contribute to the project?</h2>
+		<p>
+			Yes, please do! :D if you understand web design or have experience reverse engineering programs on Mac/Linux, or if you think that you can be helpful in some other way, shoot us an email at <code>support@isaactracker.com</code>
+		</p>
+		<p>We'll make sure to get back to you ASAP.</p>
 {/content}
