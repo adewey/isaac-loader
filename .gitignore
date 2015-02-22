@@ -15,7 +15,6 @@ start.sh
 *.idc
 Release/
 Debug/
-Release/
 ipch/
 
 !*.lib
