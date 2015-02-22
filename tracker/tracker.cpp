@@ -34,7 +34,7 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 			printf("WSAStartup Failed.\n");
 		}
 #endif
-		websocket = from_url("ws://www.isaactracker.com:7002/", false, "Client");;
+		websocket = from_url("ws://ws.isaactracker.com/", false, "Client");;
 		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
 		}
 		else{
@@ -163,7 +163,7 @@ DWORD dwFrameCount = 30 * 60;
 PAPI VOID OnGameUpdate()
 {
 	/* limit updates to once every 30 frames, then wait to update again until we need to */
-	if (dwFrameCount > 60 * 30 && bShouldUpdate && !bUpdateRequired)
+	if (dwFrameCount > 60 && bShouldUpdate && !bUpdateRequired)
 	{
 		bShouldUpdate = false;
 		bUpdateRequired = true;

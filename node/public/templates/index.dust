@@ -6,7 +6,7 @@
 
 {<content}
 <div class="container">
-	<div class="col-lg-12">
+	<div class="col-lg-10 col-lg-push-1">
 		<h1 class="text-center">Welcome!</h1>
 		<p>
 			IsaacTracker was made as a way to show off your Rebirth runs in style. 

@@ -25,7 +25,7 @@
 		<!-- header -->		
         <header class="container">
             <div class="col-xs-10 col-xs-push-1">
-                <img id="isaacTrackerLogo" src="/gfx/IsaacTracker/IsaacTrackerLogo.png"/>
+                <a href="/"><img id="isaacTrackerLogo" src="/gfx/IsaacTracker/IsaacTrackerLogo.png"/></a>
                 <ul class="site-links">
                     {#user}
                     <li class="logged in">
@@ -54,7 +54,11 @@
 		<!-- /header -->
 		
 		<!-- body -->
-		{+content /}
+        <section class="container">
+            <div class="col-lg-10 col-lg-push-1">
+                {+content /}
+            </div>
+        </section>
 		<!-- /body -->
 		
 		<!-- footer -->
