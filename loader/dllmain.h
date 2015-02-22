@@ -7,4 +7,4 @@
 #define IniReadString(section, key, szOut) GetPrivateProfileStringA(section, key, "", szOut, MAX_STRING, gszINIPath);
 #define IniWriteString(section, key, szIn) WritePrivateProfileStringA(section, key, szIn, gszINIPath);
 
-#define printarg(i, arg) cout << "Arg" << i << ":\t" << (void *)arg << "\t" << (float)arg << endl;
+GLOBAL bool gbAttached;

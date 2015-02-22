@@ -1,19 +1,82 @@
 #include "..\loader\plugin.h"
-#include "curl.h"
-
+#include "easywsclient.hpp"
+#include "easywsclient.cpp" // <-- include only if you don't want compile separately
+#ifdef _WIN32
+#pragma comment( lib, "ws2_32" )
+#include <WinSock2.h>
+#endif
+#include <assert.h>
+#include <stdio.h>
+#include <string>
 char gTrackerID[MAX_STRING] = { 0 };
 char *gIsaacUrl = "http://www.isaactracker.com";
 
 bool bAttached = false;
 bool bUpdateRequired = false;
 
+using easywsclient::WebSocket;
+static WebSocket::pointer websocket = NULL;
+
+void handle_message(const std::string & message)
+{
+	cout << "Message Received from Server: " << message;
+}
+
+DWORD WINAPI startSocket(void *pThreadArgument){
+#ifdef _WIN32
+	INT rc;
+	WSADATA wsaData;
+
+	rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (rc) {
+		printf("WSAStartup Failed.\n");
+	}
+#endif
+	websocket = from_url("ws://isaactracker.com:8126/", false, "Client");
+	if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
+		cout << "Could Not Connect to Web Socket." << endl;
+	}
+	else{
+		cout << "Web socket Connected" << endl;
+		while (websocket->getReadyState() != WebSocket::CLOSED) {
+			websocket->poll();
+			websocket->dispatch(handle_message);
+			if (!bAttached) break;
+		}
+		cout << "Websocket disconnected" << endl;
+	}
+	return 0;
+}
+
+void SendMessage(string message){
+	if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED || websocket->getReadyState() == WebSocket::CLOSING || websocket->getReadyState() == WebSocket::CONNECTING){
+		cout << "Not Connected to Server, Connecting..." << endl;
+		CreateThread(NULL, 0, startSocket, NULL, 0L, NULL); //Why doesn't this work, meh
+		//Sleep(1000);
+		if (websocket != NULL && websocket->getReadyState() != WebSocket::CLOSED && websocket->getReadyState() != WebSocket::CLOSING && websocket->getReadyState() != WebSocket::CONNECTING){ //If the socket managed to connect, call SendMessage again.
+			SendMessage(message);
+		}
+	}
+	else{
+			websocket->send(message);
+	}
+}
+
+void terminateSocket(){
+	websocket->close();
+	delete websocket;
+	#ifdef _WIN32
+		WSACleanup();
+	#endif
+}
+
 DWORD WINAPI updateServer(void *pThreadArgument)
 {
-	while (bAttached)
+	while (bAttached && gbAttached)
 	{
-		if (bUpdateRequired && GetPlayer())
+		if (bUpdateRequired && GetPlayerEntity())
 		{
-			Player *pPlayer = GetPlayer();
+			Player *pPlayer = GetPlayerEntity();
 			PlayerManager *pPlayerManager = GetPlayerManager();
 			/* craft our json object to send to the server */
 			/* craft our item array */
@@ -25,7 +88,7 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 				ZeroMemory(itemidbuffer, 0x32);
 				if (pPlayer->_items[i])
 				{
-					sprintf_s(itemidbuffer, 0x32, "\"%d\",", i + 1);
+					sprintf_s(itemidbuffer, 0x32, "%d,", i + 1);
 					strcat_s(itembuffer, 1024 - 1, itemidbuffer);
 				}
 			}
@@ -37,10 +100,10 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 			strcat_s(trinketbuffer, 1024, "[");
 			char trinketidbuffer[0x32];
 			ZeroMemory(trinketidbuffer, 0x32 - 1);
-			sprintf_s(trinketidbuffer, 0x32 - 1, "\"%d\",", pPlayer->_trinket1ID);
+			sprintf_s(trinketidbuffer, 0x32 - 1, "%d,", pPlayer->_trinket1ID);
 			strcat_s(trinketbuffer, 1024 - 1, trinketidbuffer);
 			ZeroMemory(trinketidbuffer, 0x32 - 1);
-			sprintf_s(trinketidbuffer, 0x32 - 1, "\"%d\",", pPlayer->_trinket2ID);
+			sprintf_s(trinketidbuffer, 0x32 - 1, "%d,", pPlayer->_trinket2ID);
 			strcat_s(trinketbuffer, 1024 - 1, trinketidbuffer);
 			/* replace our trailing comma with a closing bracket */
 			trinketbuffer[strlen(trinketbuffer) - 1] = ']';
@@ -50,101 +113,69 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 			strcat_s(pocketbuffer, 1024 - 1, "[");
 			char pocketidbuffer[0x32];
 			ZeroMemory(pocketidbuffer, 0x32 - 1);
-			sprintf_s(pocketidbuffer, 0x32 - 1, "{\"id\": \"%d\", \"is_card\": \"%d\"},", pPlayer->_pocket1ID, pPlayer->_pocket1isCard);
+			sprintf_s(pocketidbuffer, 0x32 - 1, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket1ID, pPlayer->_pocket1isCard);
 			strcat_s(pocketbuffer, 1024 - 1, pocketidbuffer);
 			ZeroMemory(pocketidbuffer, 0x32 - 1);
-			sprintf_s(pocketidbuffer, 0x32 - 1, "{\"id\": \"%d\", \"is_card\": \"%d\"},", pPlayer->_pocket2ID, pPlayer->_pocket2isCard);
+			sprintf_s(pocketidbuffer, 0x32 - 1, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket2ID, pPlayer->_pocket2isCard);
 			strcat_s(pocketbuffer, 1024 - 1, pocketidbuffer);
 			/* replace our trailing comma with a closing bracket */
 			pocketbuffer[strlen(pocketbuffer) - 1] = ']';
 
 			char buffer2[2048] = { 0 };
-			sprintf_s(buffer2, 2048 - 1, "{\"character\": \"%s\", \"characterid\": \"%d\", \"seed\": \"%s\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"range\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": \"%d\", \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s}",pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_startSeed, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_range, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
-			CURL *curl;
-			char finalUrl[256] = { 0 };
-			sprintf_s(finalUrl, 256 - 1, "%s/api/%s/pickup/", gIsaacUrl, gTrackerID);
-			curl = curl_easy_init();
-
-			if (curl)
-			{
-				struct curl_slist *headers = NULL;
-				headers = curl_slist_append(headers, "Accept: application/json");
-				headers = curl_slist_append(headers, "Content-Type: application/json");
-				curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-				curl_easy_setopt(curl, CURLOPT_POSTFIELDS, buffer2);
-				curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-				curl_easy_setopt(curl, CURLOPT_URL, finalUrl);
-				curl_easy_perform(curl);
-				curl_easy_cleanup(curl);
-			}
+			sprintf_s(buffer2, 2048 - 1, "{\"stream_key\": \"%s\",\"character\": \"%s\", \"characterid\": \"%d\", \"seed\": \"%s\", \"floor\": \"%d\", \"altfloor\": \"%d\", \"curses\": \"%d\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": %d, \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"range\": \"%0.2f\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s}",
+				gTrackerID, pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_startSeed, pPlayerManager->_floorNo, pPlayerManager->_alternateFloor, pPlayerManager->i_curses, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_range, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
+			cout << buffer2 << endl;
+			SendMessage((string)buffer2);
 			bUpdateRequired = 0;
 		}
 		Sleep(1000);
 	}
-	Sleep(1000);
 	return 0;
 }
 
-void setKey(int argc, char *argv[])
-{
-	strncpy_s(gTrackerID, argv[0], MAX_STRING);
-	IniWriteString("tracker", "key", gTrackerID);
-	cout << "Tracker ID set to: " << gTrackerID << endl;
-}
-
-void getKey(int argc, char *argv[])
-{
-	cout << "Your current tracker ID: " << gTrackerID << endl;
-}
-
-// called when the plugin initializes
 PAPI VOID InitPlugin()
 {
 	bAttached = true;
-	//Add commands, detours, etc
-	AddCommand("setkey", setKey);
-	AddCommand("getkey", getKey);
 
 	IniReadString("tracker", "key", gTrackerID);
 	CreateThread(NULL, 0, updateServer, NULL, 0L, NULL);
+	CreateThread(NULL, 0, startSocket, NULL, 0L, NULL);
 }
 
-// called when the plugin is removed
 PAPI VOID UnInitPlugin(VOID)
 {
+	terminateSocket();
 	bAttached = false;
-	//remove commands, detours, etc
-	RemoveCommand("setkey");
-	RemoveCommand("getkey");
 }
 
-PAPI VOID PreSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER *playerManager, int *entityID, int *variant, Entity *parent, int *subtype, unsigned int *seed)
+bool bShouldUpdate = false;
+PAPI VOID PostAddCollectible(int ret)
 {
-
+	bShouldUpdate = true;
 }
 
-PAPI VOID OnSpawnEntity(PointF *velocity, PointF *position, PPLAYERMANAGER playerManager, int entityID, int variant, Entity *parent, int subtype, unsigned int seed)
+PAPI VOID PostChangeKeys(int ret)
 {
-
+	bShouldUpdate = true;
 }
 
-PAPI VOID PreAddCollectible(Player *pPlayer, int *relatedID, int *itemID, int *charges, int *arg5)
+PAPI VOID PostChangeBombs(int ret)
 {
-
+	bShouldUpdate = true;
 }
 
-DWORD dwFrameCount = 0;
-PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
+PAPI VOID PostChangeCoins(int ret)
 {
-	//do stuff with the collectible's information
-	bUpdateRequired = true;
-	dwFrameCount = 0;
+	bShouldUpdate = true;
 }
 
+DWORD dwFrameCount = 30 * 60;
 PAPI VOID OnGameUpdate()
 {
-	if (dwFrameCount > 60 * 60)
+	/* limit updates to once every 30 frames, then wait to update again until we need to */
+	if (dwFrameCount > 60 * 30 && bShouldUpdate && !bUpdateRequired)
 	{
+		bShouldUpdate = false;
 		bUpdateRequired = true;
 		dwFrameCount = 0;
 	}

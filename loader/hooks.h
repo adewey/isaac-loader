@@ -5,6 +5,9 @@
 
 GLOBAL DWORD gdwBaseAddress;
 GLOBAL DWORD gdwBaseSize;
+GLOBAL DWORD gdwGetPlayerEntity;
+GLOBAL DWORD gdwGameUpdate;
+GLOBAL DWORD gdwAddCollectible;
 GLOBAL DWORD gdwPlayerManager;
 
 void InitHooks();

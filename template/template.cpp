@@ -20,11 +20,6 @@ PAPI VOID UnInitPlugin(VOID)
 	RemoveCommand("templatecommand");
 }
 
-PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
-{
-	//do stuff with the collectible's information
-}
-
 DWORD dwFrameCount = 0;
 PAPI VOID OnGameUpdate()
 {

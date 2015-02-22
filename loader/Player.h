@@ -4,7 +4,7 @@
 class Entity
 {
 public:
-/*[0x0000]*/	//void * vftable;
+/*[0x0000]*/	void *vftable;
 /*[0x0004]*/	char _unk0000[0x8];
 /*[0x000C]*/	int _id;
 /*[0x0010]*/	unsigned int _variant;
@@ -28,7 +28,6 @@ public:
 /*[0x041C]*/	char _unk041C[0x3C];
 /*[0x0458]*/	float _unk0x0458;
 /*[0x045C]*/	char _unk0x045C[0x310];
-/*[0x0000]*/	virtual void *Player_VF_0x000(bool a2); //
 }; /*0x076C*/
 
 class Player : Entity
@@ -78,24 +77,6 @@ public:
 /*[0x2FA4]*/		char _unk2FA4[0x10];
 /*[0x2FB4]*/		int _nGuppyItems;
 /*[0x2FB8]*/		int _nFlyItems;
-/*[0x0000]*/	virtual void *Player_VF_0x000(bool a2); //
-/*[0x0004]*/	virtual int Player_VF_0x004(int a2, int Args, unsigned int a4, int a5); //
-/*[0x0008]*/	virtual int Player_VF_0x008(); //poossibly playerupdate
-/*[0x000C]*/	virtual int Player_VF_0x00C(); //related to player move
-/*[0x0010]*/	virtual int Player_VF_0x010(int a2); //
-/*[0x0014]*/	virtual bool Player_VF_0x014(int a2); //draw shadow?
-/*[0x0018]*/	virtual bool Player_VF_0x018(float a2, int a3, float a4, int a5); //
-/*[0x001C]*/	virtual void Player_VF_0x01C(); //
-/*[0x0020]*/	virtual void Player_VF_0x020(); //this->_unk030E = false; if (this->_unk030F == false) this->_unk030F = true;
-/*[0x0024]*/	virtual void Player_VF_0x024(); //do something with position? collision?
-/*[0x0028]*/	virtual int Player_VF_0x028(int a2, int a3, int a4, int a5, int a6); //jumptable
-/*[0x002C]*/	virtual void Player_VF_0x02C(float a2); //this->_unk0x0458 = a2
-/*[0x0030]*/	virtual int Player_VF_0x030(); //
-/*[0x0034]*/	virtual bool Player_VF_0x034(); //return 0;
-/*[0x0038]*/	virtual bool Player_VF_0x038(); //return 0; same pointer as Player_VF_0x034 // stub functions?
-/*[0x003C]*/	virtual bool Player_VF_0x03C(int a2, int a3); //a2 = pointer of some kind
-/*[0x0040]*/	virtual int Player_VF_0x040(); //
-/*[0x0044]*/	virtual int Player_VF_0x044(); // collision related
 };
 
 #endif /*_Player_H_*/

@@ -7,6 +7,7 @@
 HANDLE ghThread;
 bool gbAttached = false;
 
+#ifdef _DEBUG
 void detatch(int argc, char *argv[])
 {
 	cout << "detatching..." << endl;
@@ -27,51 +28,82 @@ void PluginUnload(int argc, char *argv[])
 	cout << "unloading plugin " << argv[0] << "... " << unloaded << endl;
 }
 
-void setCurse(int argc, char *argv[])
+#include <fstream>
+LONG WINAPI VectoredExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
 {
-	PPLAYERMANAGER pPlayerManager = GetPlayerManager();
-	cout << "pPlayerManager [0x" << (void *)pPlayerManager << "]" << endl;
-	pPlayerManager->i_curses = atoi(argv[0]);
+	std::ofstream f;
+	f.open("gemini\\VectoredExceptionHandler.txt", std::ios::out | std::ios::trunc);
+	f << std::hex << pExceptionInfo->ExceptionRecord->ExceptionCode << std::endl;
+	f << std::hex << pExceptionInfo->ExceptionRecord->ExceptionAddress << std::endl;
+	f.close();
+
+	return EXCEPTION_CONTINUE_SEARCH;
 }
+
+LONG WINAPI TopLevelExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
+{
+	std::ofstream f;
+	f.open("gemini\\TopLevelExceptionHandler.txt", std::ios::out | std::ios::trunc);
+	f << std::hex << pExceptionInfo->ExceptionRecord->ExceptionCode << std::endl;
+	f << std::hex << pExceptionInfo->ExceptionRecord->ExceptionAddress << std::endl;
+	f.close();
+
+	return EXCEPTION_CONTINUE_SEARCH;
+}
+#endif
 
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
+#ifdef _DEBUG
 	/* attach console and hooks */
 	InitConsole();
 	cout << "DLL Attached!" << endl;
-	InitHooks();
 
+	AddVectoredExceptionHandler(1, VectoredExceptionHandler);
+	SetUnhandledExceptionFilter(TopLevelExceptionHandler);
+#endif
+
+	InitHooks();
 	/* set our plugin path to the directory our main dll was loaded from */
 	strcpy_s(gszPluginPath, MAX_PATH, (char *)pThreadArgument);
 	sprintf_s(gszINIPath, MAX_PATH, "%s\\settings.ini", gszPluginPath);
 
 	InitPlugins();
 
+#ifdef _DEBUG
 	/* add commands */
 	AddCommand("load", PluginLoad);
 	AddCommand("unload", PluginUnload);
 	AddCommand("detatch", detatch);
-	AddCommand("setcurse", setCurse);
+#endif
 
 	/* wait to be detached */
 	while (gbAttached){
+#ifdef _DEBUG
 		/* monitor for commands */
 		char buffer[MAX_PATH] = { 0 };
 		fgets(buffer, MAX_PATH, stdin);
 		ParseCommand(buffer);
+#else
+		Sleep(100);
+#endif
 	}
 	
 	/* unload our plugins */
 	UnloadPlugins();
 
+#ifdef _DEBUG
 	/* remove commands*/
 	RemoveCommand("unload");
-	RemoveCommand("setcurse");
+#endif
 
 	/* remove console and unhook */
+	RemoveHooks();
+
+#ifdef _DEBUG
 	cout << "DLL Detached!" << endl;
 	RemoveConsole();
-	RemoveHooks();
+#endif
 
 	Sleep(1000);
 	return 0;
