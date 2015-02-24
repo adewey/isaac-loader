@@ -152,17 +152,43 @@ int  __fastcall Player0000(int self, int _EDX, int a2)
 	return ret;
 }
 
-int(__fastcall *original_sub_552A10)(void *a1, int a2, char *, char a4, char a5);
-int __fastcall sub_552A10(void *a1, int a2, char *a3, char a4, char a5)
+int(__fastcall *original_sub_552A10)(char *lower_text, int PlayerManagerUnk, char *upper_text, bool show_lower_banner, bool is_bottom_banner);
+int __fastcall sub_552A10(char *lower_text, int PlayerManagerUnk, char *upper_text, bool show_lower_banner, bool is_bottom_banner)
 {
-	printarg("a1", (DWORD)a1);
-	printarg("a2", a2);
-	cout << "a3:\t" << a3 << endl;
-	printarg("a4", a4);
-	printarg("a5", a5);
-	int ret = original_sub_552A10(a1, a2, "Testing", a4, a5);
+	cout << "sub_552A10 start()" << endl;
+	cout << "lower_text:\t" << lower_text << endl;
+	printarg("PlayerManagerUnk", PlayerManagerUnk);
+	cout << "upper_text:\t" << upper_text << endl;
+	printarg("show_lower_banner", show_lower_banner);
+	printarg("is_bottom_banner", is_bottom_banner);
+	int ret = original_sub_552A10(lower_text, PlayerManagerUnk, "Testing", show_lower_banner, is_bottom_banner);
 	printarg("ret", ret);
-	cout << endl;
+	cout << "sub_552A10 end()" << endl;
+	return ret;
+}
+
+int(__fastcall *original_sub_4C99D0)(int a1, int _EDX, bool a2);
+int __fastcall sub_4C99D0(int a1, int _EDX, bool a2)
+{
+	cout << "sub_4C99D0 start()" << endl;
+	printarg("a1", a1);
+	printarg("_EDX", _EDX);
+	printarg("a2", a2);
+	int ret = original_sub_4C99D0(a1, _EDX, a2);
+	printarg("ret", ret);
+	cout << "sub_4C99D0 end()" << endl;
+	return ret;
+}
+
+int(__fastcall *original_sub_446290)(int a1, int _EDX);
+int __fastcall sub_446290(int a1, int _EDX)
+{
+	cout << "sub_4C99D0 start()" << endl;
+	printarg("a1", a1);
+	printarg("_EDX", _EDX);
+	int ret = original_sub_446290(a1, _EDX);
+	printarg("ret", ret);
+	cout << "sub_4C99D0 end()" << endl;
 	return ret;
 }
 
@@ -182,52 +208,21 @@ int __fastcall Player0004(int self, int _EDX, int a2, int Args, unsigned int a4,
 	return ret;
 }
 
-DWORD original_FlashText = 0;
-void* FlashTexts_retAddr = NULL;
-DWORD _RET = 0;
-DWORD _EAX = 0;
-DWORD _EDI = 0;
-DWORD _ESI = 0;
-void __stdcall printer(int arg)
-{
-	printarg(1, arg);
-}
-__declspec(naked) char nFlashText()
-{
-	_asm
-	{
-		mov _EAX, eax
-			push _EAX
-			call printer
-		mov _EDI, edi
-		mov _ESI, esi
-		jmp original_FlashText
-		mov _RET, eax
-	}
-	printarg("_EAX", _EAX);
-	printarg("_EDI", _EDI);
-	printarg("_ESI", _ESI);
-	printarg("_RET", _RET);
-}
-
-
-
 void testcall(int argc, char *argv[])
 {
-	DWORD arg1 = gdwBaseAddress + 0x1BC66C;
-	printarg("arg1", arg1);
-	DWORD arg12 = *(DWORD*)(gdwBaseAddress + 0x1BC66C);
-	printarg("arg12", arg12);
-	DWORD arg13 = (DWORD)(DWORD *)(gdwBaseAddress + 0x1BC66C);
-	printarg("arg13", arg13);
-	DWORD arg2 = (int)&GetPlayerManager()->_floorNo + 0x2A5A4;
-	printarg("arg2", arg2);
-	char *arg3 = argv[0];
-	cout << "arg3:\t" << arg3 << endl;
+	int frames = 60 * 30;
+	Player *pPlayer = GetPlayerEntity();
+	pPlayer->_freezeFrames = frames;
+	original_sub_446290((int)pPlayer, frames);
 
-
-
-	original_sub_552A10(&arg1, arg2, arg3, 0, 0);
+	/*
+	char *arg1 = _strdup("test1");
+	DWORD arg2 = (DWORD)GetPlayerManager() + 0x2A5A4;
+	char *arg3 = _strdup("test2");
+	bool arg4 = false;
+	bool arg5 = false;
+	int ret = sub_552A10(arg1, arg2, arg3, arg4, arg5);
+	//original_sub_552A10(arg1, arg2, arg3, 0, 0);
 
 	/*
 	DWORD dwResource = (*(DWORD*)(gdwBaseAddress + 0x21BCFC));
@@ -268,8 +263,13 @@ PAPI VOID InitPlugin()
 	//original_Player0000 = (int(__fastcall *)(int self, int _EDX, int a2))DetourFunction((PBYTE)gdwPlayer0000, (PBYTE)Player0000);
 
 	DWORD dwsub_552A10 = gdwBaseAddress + 0x152A10;
-	original_sub_552A10 = (int(__fastcall *)(void *, int, char *, char, char))DetourFunction((PBYTE)dwsub_552A10, (PBYTE)sub_552A10);
+	//original_sub_552A10 = (int(__fastcall *)(char *, int, char *, bool, bool))DetourFunction((PBYTE)dwsub_552A10, (PBYTE)sub_552A10);
 
+	DWORD dwsub_4C99D0 = gdwBaseAddress + 0xC99D0;
+	//original_sub_4C99D0 = (int(__fastcall *)(int, int, bool))DetourFunction((PBYTE)dwsub_4C99D0, (PBYTE)sub_4C99D0);
+
+	DWORD dwsub_446290 = gdwBaseAddress + 0x46290;
+	original_sub_446290 = (int(__fastcall *)(int self, int _EDX))DetourFunction((PBYTE)dwsub_446290, (PBYTE)sub_446290); 
 }
 
 // called when the plugin is removed

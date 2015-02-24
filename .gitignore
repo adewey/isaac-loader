@@ -13,8 +13,8 @@ start.sh
 *.sdf
 *.suo
 *.idc
-Debug/
 Release/
+Debug/
 ipch/
 
 !*.lib

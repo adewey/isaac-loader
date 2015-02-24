@@ -34,7 +34,6 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 			printf("WSAStartup Failed.\n");
 		}
 #endif
-		websocket = from_url("ws://ws.isaactracker.com/", false, "Client");;
 		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
 		}
 		else{
