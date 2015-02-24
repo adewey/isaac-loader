@@ -33,7 +33,9 @@ public:
 class Player : Entity
 {
 public:
-/*[0x076C]*/		char _unk76C[0x3E4];
+/*[0x076C]*/		char _unk76C[0x4];
+/*[0x0770]*/		int _freezeFrames; //setting this > 0 will freeze the character in place until x frames have passed. _freezeFrames--; every frame.
+/*[0x0774]*/		char _unk774[0x3DC];
 /*[0x0B50]*/		int _maxHearts;
 /*[0x0B54]*/		int _hearts;
 /*[0x0B58]*/		int _eternalHearts;
