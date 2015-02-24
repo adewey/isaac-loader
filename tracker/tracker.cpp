@@ -149,7 +149,7 @@ PAPI VOID InitPlugin()
 {
 	bAttached = true;
 
-	trackerLogFile.open("gemini/trackerLog.txt");
+	trackerLogFile.open("gemini/tracker_log.txt");
 	Log("Tracker Started");
 	IniReadString("tracker", "key", gTrackerID);
 	string trackerLog = "Tracker ID: ";
