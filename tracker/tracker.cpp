@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <string>
 char gTrackerID[MAX_STRING] = { 0 };
-char *gIsaacUrl = "http://www.isaactracker.com";
+char *gIsaacUrl = "ws://ws.isaactracker.com";
 
 bool bAttached = false;
 bool bUpdateRequired = false;
@@ -34,18 +34,20 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 			printf("WSAStartup Failed.\n");
 		}
 #endif
-		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
-		}
-		else{
-			while (websocket->getReadyState() != WebSocket::CLOSED) {
-				websocket->poll();
-				websocket->dispatch(handle_message);
-				if (!SendToServer.empty()){
-					websocket->send(SendToServer.back());
-					SendToServer.pop_back();
-				}
-				if (!bAttached) break;
+	websocket = from_url(gIsaacUrl, false, "Client");
+	if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
+		cout << "Could Not Connect to Web Socket." << endl;
+	}
+	else{
+		while (websocket->getReadyState() != WebSocket::CLOSED) {
+			websocket->poll();
+			websocket->dispatch(handle_message);
+			if (!SendToServer.empty()){
+				websocket->send(SendToServer.back());
+				SendToServer.pop_back();
 			}
+			if (!bAttached) break;
+		}
 		websocket->close();
 		delete websocket;
 		}
