@@ -63,13 +63,26 @@ trackerView.asView = function(req, res) {
 };
 
 websockets.on('connection', function (ws) {
+    console.log("User Connected");
+    var user = "0";
     ws.on('message', function (rdata, flags) {
         if (flags.binary) { return; }
         var jsonObj = JSON.parse(rdata);
         var stream_key = jsonObj.stream_key;
+        if (user == "0") {
+            user = stream_key;
+            console.log("User Sent First Message: " + user);
+        }
         tracker.pickupItem(stream_key, jsonObj, function (err, data) {
             sockets.to(data.display_name).emit('update', trackerView.formatData(data));
         });
+    });
+    ws.on('close', function close() {
+        if (user == "0") {
+            console.log("User disconnected before sending any messages.");
+        } else {
+            console.log("User Disconnected: " + user);
+        }
     });
     ws.on('error', function (e) {
         console.log(e)

@@ -103,7 +103,7 @@
 									&nbsp;|&nbsp;
 								</li>
 								<li>
-									<a href="">Admin Panel</a>
+									<a href="/admin/">Admin Panel</a>
 								</li>
 								{/user.admin}
                             </ul>
