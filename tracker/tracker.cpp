@@ -8,52 +8,89 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string>
+#include <iostream>
+#include <fstream>
 char gTrackerID[MAX_STRING] = { 0 };
 char *gIsaacUrl = "http://www.isaactracker.com";
 
 bool bAttached = false;
 bool bUpdateRequired = false;
-
+ofstream trackerLogFile;
 using easywsclient::WebSocket;
 static WebSocket::pointer websocket = NULL;
 vector<string> SendToServer;
 
+
+void Log(string message){
+	if (trackerLogFile.is_open()){
+		trackerLogFile << "LOG: " << message << endl;
+	}
+}
+
 void handle_message(const std::string & message)
 {
-	cout << "Message Received from Server: " << message;
+	string messageLog = "Received Message from server: ";
+	messageLog.append(message);
+	Log(messageLog);
 }
 
 DWORD WINAPI socketHandler(void *pThreadArgument){
+	int num_con_attempts = 0;
+	int sent_data = 0;
 	while (bAttached){
+		num_con_attempts++;
 #ifdef _WIN32
 		INT rc;
 		WSADATA wsaData;
 
 		rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
 		if (rc) {
-			printf("WSAStartup Failed.\n");
+			if (num_con_attempts < 5){
+				Log("WSAStartup Failed.");
+			}
 		}
 #endif
 		websocket = from_url("ws://ws.isaactracker.com/", false, "Client");;
 		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
+			//if (num_con_attempts < 5){
+				Log("Websocket Could not Connect.");
+			//}
 		}
 		else{
+
+			//if (num_con_attempts < 5){
+				Log("Websocket Connected.");
+			//}
 			while (websocket->getReadyState() != WebSocket::CLOSED) {
 				websocket->poll();
 				websocket->dispatch(handle_message);
 				if (!SendToServer.empty()){
+					//if (sent_data == 0){
+						Log("Sending data to server.");
+					//}
 					websocket->send(SendToServer.back());
+					//if (sent_data == 0){
+						Log("Sent Data to server.");
+					//	sent_data++;
+					//}
 					SendToServer.pop_back();
 				}
-				if (!bAttached) break;
+				if (!bAttached){
+					break;
+				}
 			}
 		websocket->close();
+
 		delete websocket;
 		}
 #ifdef _WIN32
 		WSACleanup();
 #endif
+		//if (num_con_attempts < 5){
+			Log("Web Socket Closed.");
+		//}
 	}
+	Log("No Longer Attached to Isaac");
 	return 0;
 }
 
@@ -86,7 +123,10 @@ DWORD WINAPI updateServer(void *pThreadArgument)
 			}
 			/* replace our trailing comma with a closing bracket */
 			itembuffer[strlen(itembuffer) - 1] = ']';
-
+			if (strlen(itembuffer) == 1){
+				itembuffer[0] = '[';
+				itembuffer[1] = ']';
+			}
 			/* craft our trinket array */
 			char trinketbuffer[1024] = { 0 };
 			strcat_s(trinketbuffer, 1024, "[");
@@ -128,7 +168,12 @@ PAPI VOID InitPlugin()
 {
 	bAttached = true;
 
+	trackerLogFile.open("gemini/trackerLog.txt");
+	Log("Tracker Started");
 	IniReadString("tracker", "key", gTrackerID);
+	string trackerLog = "Tracker ID: ";
+	trackerLog.append(gTrackerID);
+	Log(trackerLog);
 	CreateThread(NULL, 0, updateServer, NULL, 0L, NULL);
 	CreateThread(NULL, 0, socketHandler, NULL, 0L, NULL);
 }
@@ -136,6 +181,7 @@ PAPI VOID InitPlugin()
 PAPI VOID UnInitPlugin(VOID)
 {
 	bAttached = false;
+	trackerLogFile.close();
 }
 
 bool bShouldUpdate = false;
