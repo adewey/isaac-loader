@@ -3,6 +3,7 @@
 var urls = require('../libs/urls');
 
 var indexView = require('../views/index').indexView,
+    adminView = require('../views/admin').adminView,
     trackerView = require('../views/index').trackerView,
     aboutView = require('../views/index').aboutView,
     faqView = require('../views/index').faqView,
@@ -15,6 +16,9 @@ module.exports = function (router) {
 
     var index = urls.add('/', router);
     index.get('/', 'index', indexView.asView);
+
+    var admin = urls.add('/admin/', router);
+    admin.get('/admin/', 'admin', adminView.asView);
 
     /*
         /download/

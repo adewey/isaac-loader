@@ -21,7 +21,6 @@
 		
 	</head>
 	<body>
-        
 		<!-- header -->		
         <header class="container">
             <div class="col-xs-10 col-xs-push-1">
@@ -73,6 +72,16 @@
                                         Privacy Policy
                                     </a>
                                 </li>
+								{#user}
+									<li>
+										&nbsp;|&nbsp;
+									</li>
+									<li>
+										<a href="/download/" alt="download tracker">
+											<span class="glyphicon glyphicon-download-alt">Download</span>
+										</a>
+									</li>
+								{/user}
 								<li>
 									&nbsp;|&nbsp;
 								</li>
@@ -89,6 +98,14 @@
 										About Us
 									</a>
 								</li>
+								{#user.admin}
+								<li>
+									&nbsp;|&nbsp;
+								</li>
+								<li>
+									<a href="">Admin Panel</a>
+								</li>
+								{/user.admin}
                             </ul>
                         </span>
                         <span class="pull-left">&copy;isaactracker.com 2015</span>
