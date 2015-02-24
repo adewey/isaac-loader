@@ -11,7 +11,7 @@
 #include <iostream>
 #include <fstream>
 char gTrackerID[MAX_STRING] = { 0 };
-char *gIsaacUrl = "http://www.isaactracker.com";
+char *gIsaacUrl = "ws://ws.isaactracker.com";
 
 bool bAttached = false;
 bool bUpdateRequired = false;
@@ -35,44 +35,27 @@ void handle_message(const std::string & message)
 }
 
 DWORD WINAPI socketHandler(void *pThreadArgument){
-	int num_con_attempts = 0;
-	int sent_data = 0;
 	while (bAttached){
-		num_con_attempts++;
 #ifdef _WIN32
 		INT rc;
 		WSADATA wsaData;
 
 		rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
 		if (rc) {
-			if (num_con_attempts < 5){
-				Log("WSAStartup Failed.");
-			}
+			Log("WSAStartup Failed.");
 		}
 #endif
-		websocket = from_url("ws://ws.isaactracker.com/", false, "Client");;
+		websocket = from_url(gIsaacUrl, false, "Client");;
 		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
-			//if (num_con_attempts < 5){
-				Log("Websocket Could not Connect.");
-			//}
+			Log("Websocket Could not Connect.");
 		}
 		else{
-
-			//if (num_con_attempts < 5){
-				Log("Websocket Connected.");
-			//}
+			Log("Websocket Connected.");
 			while (websocket->getReadyState() != WebSocket::CLOSED) {
 				websocket->poll();
 				websocket->dispatch(handle_message);
 				if (!SendToServer.empty()){
-					//if (sent_data == 0){
-						Log("Sending data to server.");
-					//}
 					websocket->send(SendToServer.back());
-					//if (sent_data == 0){
-						Log("Sent Data to server.");
-					//	sent_data++;
-					//}
 					SendToServer.pop_back();
 				}
 				if (!bAttached){
@@ -86,9 +69,7 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 #ifdef _WIN32
 		WSACleanup();
 #endif
-		//if (num_con_attempts < 5){
-			Log("Web Socket Closed.");
-		//}
+		Log("Web Socket Closed.");
 	}
 	Log("No Longer Attached to Isaac");
 	return 0;
