@@ -1,0 +1,21 @@
+﻿{>"base" /}
+
+{<title}
+	Isaac Tracker -- Admin
+{/title}
+
+{<content}
+	<div>
+		There are currently [{@size key=users /}] users signed up for IsaacTracker!
+	</div>
+	<div class="UserList">
+		<ul>
+			{#users}
+				<li><a href="/{display_name}/">{display_name}</a> {stream_key}</li>
+			{:else}
+				<li>No Users Found :(</li>
+			{/users}
+		</ul>
+	</div>
+	<h1>Let's put more here and make it less ugly... :D</h1>
+{/content}
