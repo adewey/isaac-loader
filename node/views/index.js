@@ -6,7 +6,8 @@ var View = require('../libs/views'),
     trinkets = require('../libs/trinkets'),
     pockets = require('../libs/pockets'),
     sockets = require('../libs/sockets'),
-    websockets = require('../libs/websockets');
+    websockets = require('../libs/websockets'),
+    zipper = require('../libs/zipper');
 
 /*
     Home page view
@@ -14,6 +15,7 @@ var View = require('../libs/views'),
 var indexView = new View('indexView');
 indexView.template = 'index',
 indexView.asView = function(req, res) {
+    /* this shouldn't happen, we don't tell people they can regenerate their keys anymore, and we don't display them on the website */
     if ((req.query && req.query.reKey) && (req.session.user && req.session.user.display_name))
     {
         return tracker.regenerateUUID(req.session.user.display_name, function(err, result) {
@@ -22,6 +24,31 @@ indexView.asView = function(req, res) {
         });
     }
     res.render(indexView.template, {user: req.session.user});
+};
+
+var faqView = new View('faqView');
+faqView.template = 'faq',
+faqView.asView = function(req, res) {
+    res.render(faqView.template, {user: req.session.user});
+};
+
+var privacyView = new View('privacyView');
+privacyView.template = 'privacy',
+privacyView.asView = function(req, res) {
+    res.render(privacyView.template, {user: req.session.user});
+};
+
+var aboutView = new View('aboutView');
+aboutView.template = 'about',
+aboutView.asView = function (req, res) {
+    res.render(aboutView.template, { user: req.session.user });
+};
+
+var downloadView = new View('downloadView');
+downloadView.asView = function(req, res) {
+    if (!req.session.user || !req.session.user.stream_key)
+        return res.redirect(urls.reverse('index'));
+    return zipper(res, req.session.user.stream_key);
 };
 
 var trackerView = new View('trackerView');
@@ -36,23 +63,32 @@ trackerView.asView = function(req, res) {
 };
 
 websockets.on('connection', function (ws) {
-    console.log("User Connected.");
+    console.log("User Connected");
+    var user = "0";
     ws.on('message', function (rdata, flags) {
         if (flags.binary) { return; }
-        console.log(rdata);
         var jsonObj = JSON.parse(rdata);
         var stream_key = jsonObj.stream_key;
+        if (user == "0") {
+            user = stream_key;
+            console.log("User Sent First Message: " + user);
+        }
         tracker.pickupItem(stream_key, jsonObj, function (err, data) {
             sockets.to(data.display_name).emit('update', trackerView.formatData(data));
         });
     });
-    ws.on('close', function () {
-        console.log("User Disconnected.");
+    ws.on('close', function close() {
+        if (user == "0") {
+            console.log("User disconnected before sending any messages.");
+        } else {
+            console.log("User Disconnected: " + user);
+        }
     });
     ws.on('error', function (e) {
         console.log(e)
     });
 });
+
 trackerView.formatData = function (data) {
     var curseValsJSON = { "-64": "Curse of The Blind!", "-32": "Curse of the Maze!", "-16": "Curse of the Cursed!", "-8": "Curse of The Unknown!", "-4": "Curse of The Lost!", "-2": "Curse of the Labyrinth!", "-1": "Curse of Darkness!" }
     var currentCurseNum = data.curse;
@@ -65,6 +101,13 @@ trackerView.formatData = function (data) {
             }
         }
     }
+    if (data.guppy > 3) {
+        data.guppy = 3;
+    }
+    if (data.lof > 3) {
+        data.lof = 3;
+    }
+    if (data.floor == 11) data.floor = 10;
     var charImgName = "playerportraitbig_01_isaac.png";
     if (data.characterid === 0) {
         charImgName = "playerportraitbig_01_isaac.png";
@@ -93,7 +136,104 @@ trackerView.formatData = function (data) {
     } else if (data.characterid === 12) {
         charImgName = "playerportraitbig_blackjudas.png";
     }
+    var barsUsed = 0;
+    if (data.tearrate > 7){
+        barsUsed = 1;
+    }else if(data.tearrate > 5){
+        barsUsed = 2;
+    }else if(data.tearrate > 3){
+        barsUsed = 4;
+    }else{
+        barsUsed = 7;
+    }
+    data.tearrate = barsUsed;
+    
+    if (data.damage < 3){
+        barsUsed = 1;
+    }else if(data.damage< 4.5){
+        barsUsed = 2;
+    }else if(data.damage < 6.0){
+        barsUsed = 3;
+    }else if(data.damage < 7.5){
+        barsUsed = 4;
+    }else if(data.damage < 9){
+        barsUsed = 5;
+    }else if(data.damage < 10.5){
+        barsUsed = 6;
+    }else{
+        barsUsed = 7;
+    }
+    data.damage = barsUsed;
 
+    if (data.range < 0){
+        barsUsed = 1;
+    }else if(data.range < .5){
+        barsUsed = 2;
+    }else if(data.range < 1.0){
+        barsUsed = 3;
+    }else if(data.range < 1.5){
+        barsUsed = 4;
+    }else if(data.range < 2){
+        barsUsed = 5;
+    }else if(data.range < 2.5){
+        barsUsed = 6;
+    }else{
+        barsUsed = 7;
+    }
+    data.range = barsUsed;
+    
+    if (data.shotspeed < 1){
+        barsUsed = 1;
+    }else if(data.shotspeed < 1.2){
+        barsUsed = 2;
+    }else if(data.shotspeed < 1.0){
+        barsUsed = 3;
+    }else if(data.shotspeed < 1.3){
+        barsUsed = 4;
+    }else if(data.shotspeed < 1.6){
+        barsUsed = 5;
+    }else if(data.shotspeed < 1.8){
+        barsUsed = 6;
+    }else{
+        barsUsed = 7;
+    }
+    data.shotspeed = barsUsed;
+    
+    if (data.speed < 1){
+        barsUsed = 1;
+    }else if(data.speed < 1.5){
+        barsUsed = 2;
+    }else if(data.speed < 2){
+        barsUsed = 3;
+    }else if(data.speed < 2.5){
+        barsUsed = 4;
+    }else if(data.speed < 3){
+        barsUsed = 5;
+    }else if(data.speed < 3.5){
+        barsUsed = 6;
+    }else{
+        barsUsed = 7;
+    }
+    data.speed = barsUsed;
+    
+    if (data.luck < 2){
+        barsUsed = 1;
+    }else if(data.luck < 3){
+        barsUsed = 2;
+    }else if(data.luck < 4){
+        barsUsed = 3;
+    }else if(data.luck < 5){
+        barsUsed = 4;
+    }else if(data.luck < 6){
+        barsUsed = 5;
+    }else if(data.luck < 7){
+        barsUsed = 6;
+    }else{
+        barsUsed = 7;
+    }
+    data.luck = barsUsed;
+    
+    
     return {
         display_name: data.display_name,
         items: items.list(data.items),
@@ -120,62 +260,12 @@ trackerView.formatData = function (data) {
         updated_at: data.updated_at,
     };
 };
-    
-var actionView = new View('actionView');
-actionView.asView = function(req, res) {
-    var action = req.params.action,
-        stream_key = req.params.stream_key;
-
-    switch(action) {
-        case 'new':
-            //params: seed
-            tracker.newGame(stream_key, req.body, function() {
-                res.status(200).send();
-            });
-            return;
-        case 'lost':
-            tracker.lostGame(stream_key, req.body, function() {
-                res.status(200).send();
-            });
-            return;
-        case 'seen':
-            //possibly will not be used
-            tracker.seenItem(stream_key, req.body, function() {
-                res.status(200).send();
-            });
-            return;
-        case 'pickup':
-            //this is the only one we use currently
-            tracker.pickupItem(stream_key, req.body, function(err, data) {
-                sockets.to(data.display_name).emit('update', trackerView.formatData(data));
-                res.status(200).send();
-            });
-            return;
-        case 'character':
-            tracker.changeCharacter(stream_key, req.body, function() {
-                res.status(200).send();
-            });
-            return;
-        case 'floor':
-            tracker.updateFloor(stream_key, req.body, function() {
-                res.status(200).send();
-            });
-            return;
-        case 'curse':
-            tracker.updateCurse(stream_key, req.body, function() {
-                res.status(200).send();
-            });
-            return;
-        default:
-            break;
-    };
-
-    // dont think we are actually going to render here, just redirect to the user page if it is non ajax calls
-    return res.redirect(urls.reverse('tracker-detail', {display_name: display_name}));
-};
  
 module.exports = {
     'indexView': indexView,
+    'faqView': faqView,
+    'privacyView': privacyView,
+    'aboutView': aboutView,
+    'downloadView': downloadView,
     'trackerView': trackerView,
-    'actionView': actionView,
 };

@@ -1,29 +1,35 @@
 {>"base" /}
 
 {<title}
-	Isaac Tracker
+	Isaac Tracker -- Home
 {/title}
 
 {<content}
-    {#user}
-        <span class="key">
-            {stream_key}
-        </span>
-        <br />
-        <a href="/?reKey=true">
-            regenerate key?
-        </a>
-        <br />
-        <a href="/{display_name}/">
-            {display_name}
-        </a>
-        &nbsp;
-        <a href="/twitch/logout/">
-            logout?
-        </a>
-    {:else}
-        <a href="/twitch/redirect">
-            <img src="//ttv-api.s3.amazonaws.com/assets/connect_dark.png" />
-        </a>
-    {/user}
+<div class="container">
+	<div class="col-lg-10 col-lg-push-1">
+		<h1 class="text-center">Welcome!</h1>
+		<p>
+			IsaacTracker was made as a way to show off your Rebirth runs in style. 
+			While other solutions for displaying what items you have exist, 
+			none are as nicely put together or as specific as IsaacTracker. 
+			Because we are modding the EXE, we have access to information such as 
+			stats that the competition does not!
+		</p>
+		<p>
+			If you want to see a live example, go <a href="/yourruler">here</a>.
+		</p>
+		<h1 class="text-center">News</h1>
+		<div class="col-lg-12">
+			<h2>Beta Release! <span class="text-muted pull-right">2/21/2015</span></h2>
+			<p>
+				We are happy to finally get this out there for people to try! 
+				We realize there's probably going to be various issues, so we're 
+				labeling it as a beta so that we have a chance to fix any problems that arise :P
+				If you have any ideas for how to improve the service or any bugs that you're 
+				experiencing, email us at <code>support@isaactracker.com</code>.
+			</p>
+		</div>
+	</div>
+</div>
+
 {/content}

@@ -1,0 +1,30 @@
+﻿{>"base" /}
+
+{<title}
+	Isaac Tracker -- About
+{/title}
+
+{<content}
+		<h1 class="text-center">About Us</h1>
+		<p>
+			We're just a couple of average guys that enjoy working on crazy projects in our spare time. (Wait until you see 
+			what we have planned next for you guys!) We started this project about a month ago and have been working 
+			non-stop to polish the mod and this website as much as possible so that everyone can get as excited about it as we are. 
+		</p>
+		<div class="col-sm-6 col-xs-12 text-center">
+			<h3>Ditheren</h3>
+			<p>
+				Blah Blah blah I'm cool yeah go me
+			</p>
+		</div>
+		<div class="col-sm-6 col-xs-12 text-center">
+			<h3>YourRuler</h3>
+			<p>
+				I'm a college student in a Masters program for Software Applications and Development. 
+				I suck out at school a lot because I'm so focused on getting projects such as this 
+				set up that I never get around to actually doing my school work. Hopefully I can start 
+				my own business here soon so that I can more effectively support myself and not have to work for some stingy 
+				company. <span class="text-muted">(If you'd like to help with that, there's a link on our <a href="/faq/">FAQ Page</a> for donations. ☺)</span>
+			</p>
+		</div>
+{/content}

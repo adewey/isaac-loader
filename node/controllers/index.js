@@ -3,8 +3,13 @@
 var urls = require('../libs/urls');
 
 var indexView = require('../views/index').indexView,
+    adminView = require('../views/admin').adminView,
     trackerView = require('../views/index').trackerView,
-    actionView = require('../views/index').actionView,
+    aboutView = require('../views/index').aboutView,
+    faqView = require('../views/index').faqView,
+    privacyView = require('../views/index').privacyView,
+    aboutView = require('../views/index').aboutView,
+    downloadView = require('../views/index').downloadView,
     twitchView = require('../views/twitch').twitchView;
 
 module.exports = function (router) {
@@ -12,7 +17,25 @@ module.exports = function (router) {
     var index = urls.add('/', router);
     index.get('/', 'index', indexView.asView);
 
+    var admin = urls.add('/admin/', router);
+    admin.get('/admin/', 'admin', adminView.asView);
+
+    /*
+        /download/
+        creates a zip file based on the Release folder
+        automatically generates the settings.ini file
+    */
+    var download = urls.add('/download/', router);
+    download.get('/download/', 'download', downloadView.asView);
     
+    var faq = urls.add('/faq/', router);
+    faq.get('/faq/', 'faq', faqView.asView);
+    
+    var privacy = urls.add('/privacy/', router);
+    privacy.get('/privacy/', 'privacy', privacyView.asView);
+    
+    var about = urls.add('/about/', router);
+    about.get('/about/', 'about', aboutView.asView);
     var twitch = urls.add('/twitch/', router);
     /*
         /twitch/
@@ -29,10 +52,5 @@ module.exports = function (router) {
         shows tracked information about the specified twitch display_name 
      */
     index.get('/:display_name/', 'tracker-detail', trackerView.asView);
-    /*
-        /api/:stream_key/:action/
-        allows users to update their tracked data (through rest api)
-     */
-    index.post('/api/:stream_key/:action/', 'tracker-update', actionView.asView);
-
+    
 };

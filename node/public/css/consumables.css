@@ -1,0 +1,34 @@
+ul.consumable-list, ul.trinket-list, ul.pocket-list {
+    font-size: 27px;
+    font-weight: bold;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul.consumable-list li, ul.trinket-list li, ul.pocket-list li {
+    padding: 0;
+    margin: 0;
+}
+
+ul.consumable-list li:before {
+    content: "";
+    display: inline-block;
+    height: 32px;
+    left: -2px;
+    position: relative;
+    top: 4px;
+    width: 32px;
+}
+
+ul.consumable-list li.coins:before {
+    background: url(/gfx/ui2x/hudpickups.png) 0px 0px;
+}
+
+ul.consumable-list li.bombs:before {
+    background: url(/gfx/ui2x/hudpickups.png) 0px 32px;
+}
+
+ul.consumable-list li.keys:before {
+    background: url(/gfx/ui2x/hudpickups.png) -32px 0px;
+}

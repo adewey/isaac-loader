@@ -1,0 +1,65 @@
+{>"base" /}
+
+{<title}
+	Isaac Tracker -- FAQ
+{/title}
+
+{<content}
+		<h1 class="text-center">FAQ</h1>
+		<h2>How do I set this up?</h2>
+		<p>
+			We made that really simple for you! All you have to do is log in with twitch using the button at the top 
+			right of the page, and then click the little download icon next to your name. Once the download is done 
+			(it shouldn't take very long), open the file and copy and paste everything into Isaac's install folder! 
+		</p>
+		<p>
+			<span class="text-muted">
+				Typically the install location for Isaac will be at <br />
+				<code>C:\Program Files (x86)\Steam\SteamApps\common\The Binding of Isaac Rebirth\</code> <br />
+                or<br />
+				<code>C:\Users\(UserName)\Program Files\Steam\SteamApps\The Binding of Isaac Rebirth\</code> <br/ >
+				for most of you.
+			</span>
+		</p>
+		<h2>Will this work on Linux/Mac?</h2>
+		<p>
+			Unfortunately, no. We'd love to have it working on Linux and Mac as well as Windows, but it's just not feasible 
+			for us to maintain 2 more versions of the mod through future updates. It takes a lot of work!
+		</p>
+		<h2>Why do I have to sign in with Twitch?</h2>
+		<p>
+			There are a couple of reasons for this. The first is that our target audience is primarily Isaac streamers. 
+			We want anyone who has a stream to have their page easy to find for viewers 
+		</p>
+		<p>
+			There are also security reasons for this, by having you sign in with a 3rd party such as Twitch, we do not need to 
+			store passwords in any way on our end, this way we can leave the security of the most important information to you 
+			with a company that has a lot more money than two random guys in the Isaac community :D 
+		</p>
+		<h2>Will I crash?</h2>
+		<p>
+			Probably. Or Maybe. We haven't gotten to test it on many computers so at least while it's in Beta, you guys are the guinea pigs! 
+			Make sure to contact us with any info if you are experiencing crashes.
+		</p>
+		<h2>Why did you set all of this up?</h2>
+		<p>
+			Basically, we're crazy! We both love a good challenge and this certainly has been that. Also, who wouldn't want to be able 
+			to show off their current Isaac run to their friends? 
+		</p>
+		<h2>Take my money!</h2>
+		<p>
+			Ha! This isn't actually a FAQ, but we figured we could throw it in here. We've set up a donation page so 
+			that anyone who actually wants to throw any money at us (You crazy person you) can. Any money sent to us goes towards our bad habits and supporting the server :D
+            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                <input type="hidden" name="cmd" value="_s-xclick">
+                <input type="hidden" name="hosted_button_id" value="DGPXKJVSCVTLJ">
+                <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+                <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+            </form>
+		</p>
+		<h2>Can I contribute to the project?</h2>
+		<p>
+			Yes, please do! :D if you understand web design or have experience reverse engineering programs on Mac/Linux, or if you think that you can be helpful in some other way, shoot us an email at <code>support@isaactracker.com</code>
+		</p>
+		<p>We'll make sure to get back to you ASAP.</p>
+{/content}

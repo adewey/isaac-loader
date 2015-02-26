@@ -8,6 +8,10 @@ var mongoose = require('mongoose'),
 mongoose.connect('mongodb://localhost/trackerdb');
 
 var trackerSchema = new Schema({
+    admin: {
+        type: Boolean,
+        default: false,
+    },
     display_name: {
         type: String,
         unique: true,
@@ -49,9 +53,12 @@ var trackerSchema = new Schema({
 mongoose.model('Tracker', trackerSchema);
 var Tracker = connection.model('Tracker', trackerSchema);
 
+function findUsers(callback) {
+    Tracker.find({}, callback);
+};
 
 function findUser(display_name, callback) {
-    Tracker.findOne({display_name: display_name}, callback);
+    Tracker.findOne({display_name: { $regex : new RegExp(display_name, "i") }}, callback);
 };
 
 
@@ -81,13 +88,41 @@ module.exports.regenerateUUID = function(display_name, callback) {
     });
 };
 
-
+module.exports.getUsers = function (callback) {
+    findUsers(function (err, res) {
+        if (res) {
+            return callback(err, res);
+        }
+    });
+}
 module.exports.getOrCreateUser = function(display_name, callback) {
     findUser(display_name, function(err, res) {
         if (res) {
             return callback(err, formatUserData(res));
         }
-        var newUser = new Tracker({display_name: display_name, stream_key: uuid.v4(), created_at: Date.now()});
+        var newUser = new Tracker({
+            display_name: display_name,
+            stream_key: uuid.v4(),
+            created_at: Date.now(),
+            updated_at: Date.now(),
+            run_start: Date.now(),
+            seed: "",
+            floor: 1,
+            altfloor: 0,
+            curse: 0,
+            coins: 0,
+            bombs: 0,
+            charges: 0,
+            keys: 0,
+            guppy: 0,
+            lof: 0,
+            speed: 1,
+            range: 1,
+            shotspeed: 1,
+            tearrate: 1,
+            damage: 1,
+            luck: 1,
+        });
         newUser.save(function(err, res) {
             return callback(err, formatUserData(res));
         });
@@ -193,7 +228,6 @@ module.exports.pickupItem = function(stream_key, data, callback) {
             user.damage = data.damage;
             user.luck = data.luck;
             user.seed = data.seed;
-            console.log(user.floor);
             return user.save(function(err, res) {
                 return callback(err, formatUserData(user));
             });

@@ -213,6 +213,7 @@ namespace { // private module-only namespace
 					closesocket(sockfd);
 					readyState = CLOSED;
 					fputs(ret < 0 ? "Connection error!\n" : "Connection closed!\n", stderr);
+
 					break;
 				}
 				else {
@@ -406,20 +407,14 @@ namespace { // private module-only namespace
 				}
 			}
 			// N.B. - txbuf will keep growing until it can be transmitted over the socket:
-			cout << "Sketch " << endl;
 			txbuf.insert(txbuf.end(), header.begin(), header.end());
-			cout << "Sketch 2" << endl;
 			txbuf.insert(txbuf.end(), message_begin, message_end);
-			cout << "Sketch 3" << endl;
 			if (useMask) {
-				//cout << "mask" << endl;
 				for (size_t i = 0; i != message_size; ++i) {
 					*(txbuf.end() - message_size + i) ^= masking_key[i & 0x3];
 				}
-				//cout << "Phew." << endl;
 			}
 			else{
-				//cout << "No mask" << endl;
 			}
 			
 		}
@@ -449,15 +444,15 @@ namespace { // private module-only namespace
 			return NULL;
 		}
 		if (false) {}
-		else if (sscanf(url.c_str(), "ws://%[^:/]:%d/%s", host, &port, path) == 3) {
+		else if (sscanf_s(url.c_str(), "ws://%[^:/]:%d/%s", host, &port, path) == 3) {
 		}
-		else if (sscanf(url.c_str(), "ws://%[^:/]/%s", host, path) == 2) {
+		else if (sscanf_s(url.c_str(), "ws://%[^:/]/%s", host, path) == 2) {
 			port = 80;
 		}
-		else if (sscanf(url.c_str(), "ws://%[^:/]:%d", host, &port) == 2) {
+		else if (sscanf_s(url.c_str(), "ws://%[^:/]:%d", host, &port) == 2) {
 			path[0] = '\0';
 		}
-		else if (sscanf(url.c_str(), "ws://%[^:/]", host) == 1) {
+		else if (sscanf_s(url.c_str(), "ws://%[^:/]", host) == 1) {
 			port = 80;
 			path[0] = '\0';
 		}
@@ -494,7 +489,7 @@ namespace { // private module-only namespace
 		for (i = 0; i < 2 || (i < 255 && line[i - 2] != '\r' && line[i - 1] != '\n'); ++i) { if (recv(sockfd, line + i, 1, 0) == 0) { return NULL; } }
 		line[i] = 0;
 		if (i == 255) { fprintf(stderr, "ERROR: Got invalid status line connecting to: %s\n", url.c_str()); return NULL; }
-		if (sscanf(line, "HTTP/1.1 %d", &status) != 1 || status != 101) { fprintf(stderr, "ERROR: Got bad status connecting to %s: %s", url.c_str(), line); return NULL; }
+		if (sscanf_s(line, "HTTP/1.1 %d", &status) != 1 || status != 101) { fprintf(stderr, "ERROR: Got bad status connecting to %s: %s", url.c_str(), line); return NULL; }
 		// TODO: verify response headers,
 		while (true) {
 			for (i = 0; i < 2 || (i < 255 && line[i - 2] != '\r' && line[i - 1] != '\n'); ++i) { if (recv(sockfd, line + i, 1, 0) == 0) { return NULL; } }
