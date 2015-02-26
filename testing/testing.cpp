@@ -190,9 +190,6 @@ int __fastcall sub_552A10(char *lower_text, int PlayerManagerUnk, char *upper_te
 	return ret;
 }
 
-
-
-
 int(__fastcall *original_sub_552D10)(int a1, int _EDX, int a2);
 int __fastcall sub_552D10(int a1, int _EDX, int a2)
 {
@@ -307,10 +304,10 @@ PAPI VOID InitPlugin()
 
 
 	DWORD dwsub_552D10 = gdwBaseAddress + 0x152D10;
-	original_sub_552D10 = (int(__fastcall *)(int a1, int _EDX, int a2))DetourFunction((PBYTE)dwsub_552D10, (PBYTE)sub_552D10);
+	//original_sub_552D10 = (int(__fastcall *)(int a1, int _EDX, int a2))DetourFunction((PBYTE)dwsub_552D10, (PBYTE)sub_552D10);
 
 	DWORD dwsub_552A10 = gdwBaseAddress + 0x152A10;
-	original_sub_552A10 = (int(__fastcall *)(char *, int, char *, bool, bool))DetourFunction((PBYTE)dwsub_552A10, (PBYTE)sub_552A10);
+	//original_sub_552A10 = (int(__fastcall *)(char *, int, char *, bool, bool))DetourFunction((PBYTE)dwsub_552A10, (PBYTE)sub_552A10);
 
 	DWORD dwsub_4C99D0 = gdwBaseAddress + 0xC99D0;
 	//original_sub_4C99D0 = (int(__fastcall *)(int, int, bool))DetourFunction((PBYTE)dwsub_4C99D0, (PBYTE)sub_4C99D0);
