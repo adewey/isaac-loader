@@ -38,7 +38,16 @@ typedef struct PlayerManager
 /*0x8AAC*/	char _startSeed[10];
 } PLAYERMANAGER;
 
+GLOBAL DWORD gdwPlayerManager;
+GLOBAL DWORD gdwGetPlayerEntity;
 GLOBAL Player *GetPlayerEntity();
 GLOBAL PlayerManager *GetPlayerManager();
+
+
+//for a one liner use second_line, two liner second_line and first_line, three liner third_line, second_line, and first_line in these orders!
+GLOBAL int(__fastcall *show_fortune_banner)(int pPlayerManager_plus_2A5A4, char *third_line, char *second_line, char *first_line);
+GLOBAL int(__fastcall *show_item_banner)(char *lower_text, int pPlayerManager_plus_2A5A4, char *upper_text, bool is_bottom_banner, bool show_lower_banner);
+
+void InitStatics();
 
 #endif

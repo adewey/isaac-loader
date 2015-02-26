@@ -444,15 +444,15 @@ namespace { // private module-only namespace
 			return NULL;
 		}
 		if (false) {}
-		else if (sscanf_s(url.c_str(), "ws://%[^:/]:%d/%s", host, &port, path) == 3) {
+		else if (sscanf(url.c_str(), "ws://%[^:/]:%d/%s", host, &port, path) == 3) {
 		}
-		else if (sscanf_s(url.c_str(), "ws://%[^:/]/%s", host, path) == 2) {
+		else if (sscanf(url.c_str(), "ws://%[^:/]/%s", host, path) == 2) {
 			port = 80;
 		}
-		else if (sscanf_s(url.c_str(), "ws://%[^:/]:%d", host, &port) == 2) {
+		else if (sscanf(url.c_str(), "ws://%[^:/]:%d", host, &port) == 2) {
 			path[0] = '\0';
 		}
-		else if (sscanf_s(url.c_str(), "ws://%[^:/]", host) == 1) {
+		else if (sscanf(url.c_str(), "ws://%[^:/]", host) == 1) {
 			port = 80;
 			path[0] = '\0';
 		}

@@ -69,6 +69,7 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	sprintf_s(gszINIPath, MAX_PATH, "%s\\settings.ini", gszPluginPath);
 
 	InitPlugins();
+	InitStatics();
 
 #ifdef _DEBUG
 	/* add commands */

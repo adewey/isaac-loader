@@ -1,6 +1,12 @@
 #include "statics.h"
 #include "hooks.h"
 
+
+DWORD gdwPlayerManager = 0;
+DWORD gdwGetPlayerEntity = 0;
+int(__fastcall *show_fortune_banner)(int pPlayerManager_plus_2A5A4, char *third_line, char *second_line, char *first_line) = 0;
+int(__fastcall *show_item_banner)(char *lower_text, int pPlayerManager_plus_2A5A4, char *upper_text, bool is_bottom_banner, bool show_lower_banner) = 0;
+
 PlayerManager *GetPlayerManager()
 {
 	return (PlayerManager *)*(DWORD*)gdwPlayerManager;
@@ -17,7 +23,36 @@ Player *GetPlayerEntity()
 			mov esi, pPlayerManager
 			call gdwGetPlayerEntity
 			mov pPlayer, eax 
-			popad
+		popad
 	}
 	return pPlayer;
+}
+
+void InitStatics()
+{
+	gdwPlayerManager = *(DWORD*)(dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(BYTE*)"\x8b\x0d\x00\x00\x00\x00\x8b\x81\x30\x8a\x00\x00\x2b\x81\x2c\x8a\x00\x00\xc1\xf8\x02\xc3",
+		"xx????xx????xx????xxxx") + 2);
+
+	gdwGetPlayerEntity = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(PBYTE)"\x8B\x86\x00\x00\x00\x00\x2B\x86\x00\x00\x00\x00\xA9\x00\x00\x00\x00\x75\x0F\x68\x00"
+		"\x00\x00\x00\x6A\x00\xE8\x00\x00\x00\x00\x83\xC4\x08\x8B\x8E\x00\x00\x00\x00\x2B\x8E"
+		"\x00\x00\x00\x00\xC1\xF9\x02\x3B\xF9\x73\x0C",
+		"xx????xx????x????xxx????xxx????xxxxx????xx????xxxxxxx");//gdwBaseAddress + 0xFA50;
+
+	DWORD dw_show_fortune_banner = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(PBYTE)"\x55\x8B\xEC\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x00\x00\x00\x00"
+		"\x50\x83\xEC\x54\xA1\x00\x00\x00\x00\x33\xC5\x89\x45\xF0\x53\x56\x57\x50"
+		"\x8D\x45\xF4\x64\xA3\x00\x00\x00\x00\x8B\x45\x08",
+		"xxxxxx????xx????xxxxx????xxxxxxxxxxxxxx????xxx");
+	if (dw_show_fortune_banner)
+		show_fortune_banner = (int(__fastcall *)(int pPlayerManager_plus_2A5A4, char *third_line, char *second_line, char *first_line))dw_show_fortune_banner;
+
+	DWORD dw_show_item_banner = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(PBYTE)"\x55\x8B\xEC\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x00\x00\x00"
+		"\x00\x50\x83\xEC\x50\xA1\x00\x00\x00\x00\x33\xC5\x89\x45\xF0\x53\x56"
+		"\x57\x50\x8D\x45\xF4\x64\xA3\x00\x00\x00\x00\x8B\x45\x08\x89\x45\xA8",
+		"xxxxxx????xx????xxxxx????xxxxxxxxxxxxxx????xxxxxx");
+	if (dw_show_item_banner)
+		show_item_banner = (int(__fastcall *)(char *lower_text, int pPlayerManager_plus_2A5A4, char *upper_text, bool is_bottom_banner, bool show_lower_banner))dw_show_item_banner;
 }

@@ -7,7 +7,6 @@
 
 #define printarg(i, arg) cout << i << ":" << "\t" << (void *)arg << "\t" << (float)arg << endl;
 
-
 typedef struct _PDWORDSTRUCT {
 	union {
 		unsigned long DWord[0x1];
@@ -140,7 +139,7 @@ void showoffsets(int argc, char *argv[])
 
 
 DWORD gdwPlayer0000 = 0;
-int (__fastcall *original_Player0000)(int self, int _EDX, int a2);
+int(__fastcall *original_Player0000)(int self, int _EDX, int a2);
 int  __fastcall Player0000(int self, int _EDX, int a2)
 {
 	printarg("self", self);
@@ -152,10 +151,34 @@ int  __fastcall Player0000(int self, int _EDX, int a2)
 	return ret;
 }
 
+
+//for a one liner use second_line, two liner second_line and first_line, three liner third_line, second_line, and first_line in these orders!
+int(__fastcall *original_show_fortune_banner)(void *pPlayerManager_plus_2A5A4, char *third_line, char *second_line, char *first_line);
+int  __fastcall detour_show_fortune_banner(void *pPlayerManager_plus_2A5A4, char *third_line, char *second_line, char *first_line)
+{
+	printarg("pPlayerManager_plus_2A5A4", (int)pPlayerManager_plus_2A5A4);
+	cout << third_line << endl;
+	cout << second_line << endl;
+	cout << first_line << endl;
+	int ret = original_show_fortune_banner(pPlayerManager_plus_2A5A4, third_line, second_line, first_line);
+	printarg("ret", ret);
+	cout << endl;
+	return ret;
+}
+
 int(__fastcall *original_sub_552A10)(char *lower_text, int PlayerManagerUnk, char *upper_text, bool show_lower_banner, bool is_bottom_banner);
 int __fastcall sub_552A10(char *lower_text, int PlayerManagerUnk, char *upper_text, bool show_lower_banner, bool is_bottom_banner)
 {
+
+	void ** puEBP = NULL;
+	__asm { mov puEBP, ebp };
+	void * pvReturn = puEBP[1]; // this is the caller of my function
+
+	puEBP = (void**)puEBP[0];    // walk back to the previous frame
+	void * pvReturn2 = puEBP[1]; // this is the caller's caller
 	cout << "sub_552A10 start()" << endl;
+	printarg("pvReturn", ((int)pvReturn - (int)gdwBaseAddress));
+	printarg("pvReturn2", ((int)pvReturn2 - (int)gdwBaseAddress));
 	cout << "lower_text:\t" << lower_text << endl;
 	printarg("PlayerManagerUnk", PlayerManagerUnk);
 	cout << "upper_text:\t" << upper_text << endl;
@@ -164,6 +187,19 @@ int __fastcall sub_552A10(char *lower_text, int PlayerManagerUnk, char *upper_te
 	int ret = original_sub_552A10(lower_text, PlayerManagerUnk, "Testing", show_lower_banner, is_bottom_banner);
 	printarg("ret", ret);
 	cout << "sub_552A10 end()" << endl;
+	return ret;
+}
+
+int(__fastcall *original_sub_552D10)(int a1, int _EDX, int a2);
+int __fastcall sub_552D10(int a1, int _EDX, int a2)
+{
+	cout << "sub_552D10 start()" << endl;
+	printarg("a1", a1);
+	printarg("_EDX", _EDX);
+	printarg("a2", a2);
+	int ret = original_sub_552D10(a1, _EDX, a2);
+	printarg("ret", ret);
+	cout << "sub_552D10 end()" << endl;
 	return ret;
 }
 
@@ -208,12 +244,16 @@ int __fastcall Player0004(int self, int _EDX, int a2, int Args, unsigned int a4,
 	return ret;
 }
 
+bool displayBanner = false;
 void testcall(int argc, char *argv[])
 {
 	int frames = 60 * 30;
 	Player *pPlayer = GetPlayerEntity();
 	pPlayer->_freezeFrames = frames;
 	original_sub_446290((int)pPlayer, frames);
+	displayBanner = true;
+
+
 
 	/*
 	char *arg1 = _strdup("test1");
@@ -256,11 +296,15 @@ PAPI VOID InitPlugin()
 	*/
 	//if (gdwFlashText)
 	//{
-		//original_FlashText = (DWORD)DetourFunction((PBYTE)gdwFlashText, (PBYTE)nFlashText);
+	//original_FlashText = (DWORD)DetourFunction((PBYTE)gdwFlashText, (PBYTE)nFlashText);
 	//}
 
 	DWORD gdwPlayer0000 = gdwBaseAddress + 0x4820;
 	//original_Player0000 = (int(__fastcall *)(int self, int _EDX, int a2))DetourFunction((PBYTE)gdwPlayer0000, (PBYTE)Player0000);
+
+
+	DWORD dwsub_552D10 = gdwBaseAddress + 0x152D10;
+	//original_sub_552D10 = (int(__fastcall *)(int a1, int _EDX, int a2))DetourFunction((PBYTE)dwsub_552D10, (PBYTE)sub_552D10);
 
 	DWORD dwsub_552A10 = gdwBaseAddress + 0x152A10;
 	//original_sub_552A10 = (int(__fastcall *)(char *, int, char *, bool, bool))DetourFunction((PBYTE)dwsub_552A10, (PBYTE)sub_552A10);
@@ -269,7 +313,7 @@ PAPI VOID InitPlugin()
 	//original_sub_4C99D0 = (int(__fastcall *)(int, int, bool))DetourFunction((PBYTE)dwsub_4C99D0, (PBYTE)sub_4C99D0);
 
 	DWORD dwsub_446290 = gdwBaseAddress + 0x46290;
-	original_sub_446290 = (int(__fastcall *)(int self, int _EDX))DetourFunction((PBYTE)dwsub_446290, (PBYTE)sub_446290); 
+	original_sub_446290 = (int(__fastcall *)(int self, int _EDX))DetourFunction((PBYTE)dwsub_446290, (PBYTE)sub_446290);
 }
 
 // called when the plugin is removed
@@ -302,4 +346,10 @@ PAPI VOID OnGameUpdate()
 		dwFrameCount = 0;
 	}
 	dwFrameCount++;
+
+	if (displayBanner)
+	{
+		//show_fortune_banner((void *)((int)GetPlayerManager() + 0x2A5A4), "", "", "Line one!");
+		displayBanner = false;
+	}
 }

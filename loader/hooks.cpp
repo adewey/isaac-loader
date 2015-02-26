@@ -73,10 +73,6 @@ void __cdecl gameUpdate()
 	original_gameUpdate();
 }
 
-/* add other global hooks here, and expose them for our events to catch */
-DWORD gdwPlayerManager = 0;
-DWORD gdwGetPlayerEntity = 0;
-
 void InitHooks()
 {
 	/* scan for functions */
@@ -100,20 +96,14 @@ void InitHooks()
 	{
 		original_addCollectible = (int(__fastcall *)(Player *, int, int, int, int))DetourFunction((PBYTE)gdwAddCollectible, (PBYTE)addCollectible);
 	}
-
-	gdwPlayerManager = *(DWORD*)(dwFindPattern(gdwBaseAddress, gdwBaseSize,
-		(BYTE*)"\x8b\x0d\x00\x00\x00\x00\x8b\x81\x30\x8a\x00\x00\x2b\x81\x2c\x8a\x00\x00\xc1\xf8\x02\xc3",
-		"xx????xx????xx????xxxx") + 2);
-
+	
 	dwChangeKeys = gdwBaseAddress + 0xCEBE0;
-
 	if (dwChangeKeys)
 	{
 		original_changeKeys = (int(__fastcall *)(Player *, int, int))DetourFunction((PBYTE)dwChangeKeys, (PBYTE)changeKeys);
 	}
 
 	dwChangeBombs = gdwBaseAddress + 0xCEB90;
-
 	if (dwChangeBombs)
 	{
 		original_changeBombs = (int(__fastcall *)(Player *, int, int))DetourFunction((PBYTE)dwChangeBombs, (PBYTE)changeBombs);
@@ -122,17 +112,10 @@ void InitHooks()
 	dwChangeCoins = dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(PBYTE)"\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x0C\x53\x8B\xD8",
 		"xxxxxxxxxxxx");// gdwBaseAddress + 0xCEAB0;
-
 	if (dwChangeCoins)
 	{
 		original_changeCoins = (DWORD)DetourFunction((PBYTE)dwChangeCoins, (PBYTE)changeCoins);
 	}
-
-	gdwGetPlayerEntity = dwFindPattern(gdwBaseAddress, gdwBaseSize,
-		(PBYTE)"\x8B\x86\x00\x00\x00\x00\x2B\x86\x00\x00\x00\x00\xA9\x00\x00\x00\x00\x75\x0F\x68\x00"
-		"\x00\x00\x00\x6A\x00\xE8\x00\x00\x00\x00\x83\xC4\x08\x8B\x8E\x00\x00\x00\x00\x2B\x8E"
-		"\x00\x00\x00\x00\xC1\xF9\x02\x3B\xF9\x73\x0C",
-		"xx????xx????x????xxx????xxx????xxxxx????xx????xxxxxxx");//gdwBaseAddress + 0xFA50;
 }
 
 void RemoveHooks()
