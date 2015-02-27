@@ -62,7 +62,8 @@ public:
 /*[0x0BFC]*/		char _unk0BFC[0xB8];
 /*[0x0CB4]*/		float _speed;
 /*[0x0CB8]*/		float _luck;
-/*[0x0CBC]*/		char _unk0CBC[0x10];
+/*[0x0CBC]*/		char _unk0CBC[0xC];
+/*[0x0CC8]*/		int _helditemid;
 /*[0x0CCC]*/		int _charges;
 /*[0x0CD0]*/		char _unk0CD0[0x94];
 /*[0x0D64]*/		int _trinket1ID;

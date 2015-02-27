@@ -178,11 +178,17 @@ PAPI VOID PostChangeCoins(int ret)
 	bShouldUpdate = true;
 }
 
-DWORD dwFrameCount = 60 * 5;
+DWORD dwFrameCount = 0;
+bool intro = false;
 PAPI VOID OnGameUpdate()
 {
+	if (dwFrameCount >= (60 * 3) && !intro)
+	{
+		intro = true;
+		show_fortune_banner("", "isaactracker loaded!", "");
+	}
 	/* limit updates to once every 30 frames, then wait to update again until we need to */
-	if (dwFrameCount > (60 * 5) && bShouldUpdate)
+	if (dwFrameCount >= (60 * 5) && bShouldUpdate)
 	{
 		bShouldUpdate = false;
 		dwFrameCount = 0;
