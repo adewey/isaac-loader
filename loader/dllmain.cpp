@@ -52,26 +52,41 @@ LONG WINAPI TopLevelExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
 }
 #endif
 
+bool VerifyIsaac()
+{
+	if (!_stricmp(GetIsaacVersion(), "Binding of Isaac: Rebirth v1.05"))
+		return false;
+	return true;
+}
+
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
+	InitStatics();
+	if (!VerifyIsaac())
+	{
+		gbAttached = false;
+		MessageBoxA(NULL, "Isaac has been updated and isaactracker has not. If there isn't an update posted on the website, there will be shortly.", "isaactracker unable to load", 0);
+		return 0;
+	}
+
 #ifdef _DEBUG
 	/* attach console and hooks */
 	InitConsole();
-	cout << "DLL Attached!" << endl;
 
 	AddVectoredExceptionHandler(1, VectoredExceptionHandler);
 	SetUnhandledExceptionFilter(TopLevelExceptionHandler);
 #endif
 
 	InitHooks();
+
 	/* set our plugin path to the directory our main dll was loaded from */
 	strcpy_s(gszPluginPath, MAX_PATH, (char *)pThreadArgument);
 	sprintf_s(gszINIPath, MAX_PATH, "%s\\settings.ini", gszPluginPath);
 
 	InitPlugins();
-	InitStatics();
 
 #ifdef _DEBUG
+	cout << GetIsaacVersion() << endl;
 	/* add commands */
 	AddCommand("load", PluginLoad);
 	AddCommand("unload", PluginUnload);

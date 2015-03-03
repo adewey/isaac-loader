@@ -152,8 +152,8 @@ void updateServer()
 	pocketbuffer[strlen(pocketbuffer) - 1] = ']';
 
 	char buffer2[2048] = { 0 };
-	sprintf_s(buffer2, 2048 - 1, "{\"stream_key\": \"%s\",\"character\": \"%s\", \"characterid\": \"%d\", \"seed\": \"%s\", \"floor\": \"%d\", \"altfloor\": \"%d\", \"curses\": \"%d\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": %d, \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"range\": \"%0.2f\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s}",
-		gTrackerID, pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_startSeed, pPlayerManager->_floorNo, pPlayerManager->_alternateFloor, pPlayerManager->i_curses, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_range, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer);
+	sprintf_s(buffer2, 2048 - 1, "{\"stream_key\": \"%s\",\"character\": \"%s\", \"characterid\": \"%d\", \"seed\": \"%s\", \"floor\": \"%d\", \"altfloor\": \"%d\", \"curses\": \"%d\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": %d, \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"range\": \"%0.2f\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s, \"hardmode\": %d}",
+		gTrackerID, pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_startSeed, pPlayerManager->_floorNo, pPlayerManager->_alternateFloor, pPlayerManager->i_curses, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_range, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer, pPlayerManager->_hard_mode);
 	SendMessage((string)buffer2);
 }
 
@@ -178,15 +178,27 @@ PAPI VOID PostChangeCoins(int ret)
 	bShouldUpdate = true;
 }
 
-DWORD dwFrameCount = 60 * 5;
+DWORD dwFrameCount = 0;
+bool intro = false;
 PAPI VOID OnGameUpdate()
 {
+	if (dwFrameCount >= (60 * 3) && intro)
+	{
+		intro = false;
+		show_fortune_banner("", "isaactracker loaded!", "");
+	}
 	/* limit updates to once every 30 frames, then wait to update again until we need to */
-	if (dwFrameCount > (60 * 5) && bShouldUpdate)
+	if (dwFrameCount >= (60 * 5) && bShouldUpdate)
 	{
 		bShouldUpdate = false;
 		dwFrameCount = 0;
 		updateServer();
 	}
 	dwFrameCount++;
+}
+
+PAPI VOID PostStartGame(int ret)
+{
+	dwFrameCount = 0;
+	intro = true;
 }

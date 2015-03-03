@@ -35,18 +35,26 @@ typedef struct PlayerManager
 /*0x000D*/	bool _seeForever;
 /*0x000E*/	char _unk000E[0x2]; // to fix alignment
 /*0x0010*/	char _unk0010[0x8A9C];
-/*0x8AAC*/	char _startSeed[10];
+/*0x8AAC*/	char _startSeed[0x10];
+/*0x8ABC*/	char _unk8ABC[0x21AE8];
+/*0x2A5A4*/	void *_banner;
+/*0x2A5A8*/	char _unk2A5A8[0xE3260];
+/*0x10D808*/int _challenge_id;
+/*0x10D80C*/char _unk10D80C[0xB0];
+/*0x10D8BC*/BOOL _disable_achievements;
+/*0x10D8C0*/char unk10D8C0[0x4];
+/*0x10D8C4*/BOOL _hard_mode;
 } PLAYERMANAGER;
 
 GLOBAL DWORD gdwPlayerManager;
 GLOBAL DWORD gdwGetPlayerEntity;
 GLOBAL Player *GetPlayerEntity();
 GLOBAL PlayerManager *GetPlayerManager();
-
+GLOBAL char *GetIsaacVersion();
 
 //for a one liner use second_line, two liner second_line and first_line, three liner third_line, second_line, and first_line in these orders!
-GLOBAL int(__fastcall *show_fortune_banner)(int pPlayerManager_plus_2A5A4, char *third_line, char *second_line, char *first_line);
-GLOBAL int(__fastcall *show_item_banner)(char *lower_text, int pPlayerManager_plus_2A5A4, char *upper_text, bool is_bottom_banner, bool show_lower_banner);
+GLOBAL void show_fortune_banner(char *first_line, char *second_line, char *third_line);
+GLOBAL void show_item_banner(char *first_line, char *second_line, bool style_second_line, bool is_bottom_banner);
 
 void InitStatics();
 

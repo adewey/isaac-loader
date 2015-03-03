@@ -47,6 +47,7 @@ bool LoadPlugin(const char *fn)
 
 	pPlugin->InitPlugin = (fInitPlugin)GetProcAddress(hmod, "InitPlugin");
 	pPlugin->UnInitPlugin = (fUnInitPlugin)GetProcAddress(hmod, "UnInitPlugin");
+	pPlugin->PostStartGame = (fPostStartGame)GetProcAddress(hmod, "PostStartGame");
 	pPlugin->PostAddCollectible = (fPostAddCollectible)GetProcAddress(hmod, "PostAddCollectible");
 	pPlugin->PostChangeKeys = (fPostChangeKeys)GetProcAddress(hmod, "PostChangeKeys");
 	pPlugin->PostChangeBombs = (fPostChangeBombs)GetProcAddress(hmod, "PostChangeBombs");
@@ -130,6 +131,18 @@ void InitPlugins()
 	/* load them */
 	for (int o = 0; o < nPlugins; o++)
 		LoadPlugin(szPluginList[o]);
+}
+
+void PostStartGame(int ret)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->PostStartGame){
+			pPlugin->PostStartGame(ret);
+		}
+		pPlugin = pPlugin->pNext;
+	}
 }
 
 void PostAddCollectible(int ret)

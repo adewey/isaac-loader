@@ -244,17 +244,8 @@ int __fastcall Player0004(int self, int _EDX, int a2, int Args, unsigned int a4,
 	return ret;
 }
 
-bool displayBanner = false;
 void testcall(int argc, char *argv[])
 {
-	int frames = 60 * 30;
-	Player *pPlayer = GetPlayerEntity();
-	pPlayer->_freezeFrames = frames;
-	original_sub_446290((int)pPlayer, frames);
-	displayBanner = true;
-
-
-
 	/*
 	char *arg1 = _strdup("test1");
 	DWORD arg2 = (DWORD)GetPlayerManager() + 0x2A5A4;
@@ -263,6 +254,7 @@ void testcall(int argc, char *argv[])
 	bool arg5 = false;
 	int ret = sub_552A10(arg1, arg2, arg3, arg4, arg5);
 	//original_sub_552A10(arg1, arg2, arg3, 0, 0);
+	*/
 
 	/*
 	DWORD dwResource = (*(DWORD*)(gdwBaseAddress + 0x21BCFC));
@@ -313,7 +305,8 @@ PAPI VOID InitPlugin()
 	//original_sub_4C99D0 = (int(__fastcall *)(int, int, bool))DetourFunction((PBYTE)dwsub_4C99D0, (PBYTE)sub_4C99D0);
 
 	DWORD dwsub_446290 = gdwBaseAddress + 0x46290;
-	original_sub_446290 = (int(__fastcall *)(int self, int _EDX))DetourFunction((PBYTE)dwsub_446290, (PBYTE)sub_446290);
+	//original_sub_446290 = (int(__fastcall *)(int self, int _EDX))DetourFunction((PBYTE)dwsub_446290, (PBYTE)sub_446290);
+
 }
 
 // called when the plugin is removed
@@ -346,10 +339,4 @@ PAPI VOID OnGameUpdate()
 		dwFrameCount = 0;
 	}
 	dwFrameCount++;
-
-	if (displayBanner)
-	{
-		//show_fortune_banner((void *)((int)GetPlayerManager() + 0x2A5A4), "", "", "Line one!");
-		displayBanner = false;
-	}
 }
