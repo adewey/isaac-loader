@@ -38,6 +38,12 @@ typedef struct PlayerManager
 /*0x8AAC*/	char _startSeed[0x10];
 /*0x8ABC*/	char _unk8ABC[0x21AE8];
 /*0x2A5A4*/	void *_banner;
+/*0x2A5A8*/	char _unk2A5A8[0xE3260];
+/*0x10D808*/int _challenge_id;
+/*0x10D80C*/char _unk10D80C[0xB0];
+/*0x10D8BC*/BOOL _disable_achievements;
+/*0x10D8C0*/char unk10D8C0[0x4];
+/*0x10D8C4*/BOOL _hard_mode;
 } PLAYERMANAGER;
 
 GLOBAL DWORD gdwPlayerManager;

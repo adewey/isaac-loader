@@ -17,7 +17,9 @@ public:
 /*[0x0078]*/	char _unk0078[0x23C];
 /*[0x02B4]*/	float _scaleX;
 /*[0x02B8]*/	float _scaleY;
-/*[0x02BC]*/	char _unk02BC[0x52];
+/*[0x02BC]*/	char _unk02BC[0x4C];
+/*[0x0308]*/	DWORD keymap; // >> 14 bomb key?
+/*[0x030C]*/	char _unk030C[2];
 /*[0x030E]*/	bool _unk030E;
 /*[0x030F]*/	bool _unk030F;
 /*[0x0310]*/	char _unk0310[0xE4];
@@ -33,8 +35,8 @@ public:
 class Player : Entity
 {
 public:
-/*[0x076C]*/		char _unk76C[0x4];
-/*[0x0770]*/		int _freezeFrames; //setting this > 0 will freeze the character in place until x frames have passed. _freezeFrames--; every frame.
+/*[0x076C]*/		char _unk76C[0x4]; // triggerbomb: cmp     byte ptr [esi+76Ch], 0
+/*[0x0770]*/		int _freezeFrames; // setting this > 0 will freeze the character in place until x frames have passed. _freezeFrames--; every frame.
 /*[0x0774]*/		char _unk774[0x3DC];
 /*[0x0B50]*/		int _maxHearts;
 /*[0x0B54]*/		int _hearts;
@@ -46,9 +48,9 @@ public:
 /*[0x0B6C]*/		int _hasGoldenKey;
 /*[0x0B70]*/		int _numBombs;
 /*[0x0B74]*/		int _numCoins;
-/*[0x0B78]*/		char _unk0B78[0x8];
-/*[0x0B80]*/		int _attackingOrMoving;
-/*[0x0B84]*/		char _unk0B84[0x14];
+/*[0x0B78]*/		char _unk0B78[0xC];
+/*[0x0B84]*/		int _attackingOrMoving;
+/*[0x0B8C]*/		char _unk0B8C[0x10];
 /*[0x0B98]*/		int _charID;
 /*[0x0B9C]*/		char* _characterName;
 /*[0x0BA0]*/		char _unk0BA0[0x40];
@@ -65,7 +67,9 @@ public:
 /*[0x0CBC]*/		char _unk0CBC[0xC];
 /*[0x0CC8]*/		int _helditemid;
 /*[0x0CCC]*/		int _charges;
-/*[0x0CD0]*/		char _unk0CD0[0x94];
+/*[0x0CD0]*/		char _unk0CD0[0x94]; // CE4 <= 0 bomb cooldown time
+										// CF4 facing .. 0 = left, 1 = up, 2 = right, 3 = down
+										// CD8 && CD4 != 0 spacebar press
 /*[0x0D64]*/		int _trinket1ID;
 /*[0x0D68]*/		int _trinket2ID;
 /*[0x0D6C]*/		char _unk0D6C[0x4];
