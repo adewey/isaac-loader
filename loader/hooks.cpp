@@ -42,37 +42,37 @@ int __fastcall addCollectible(Player *pPlayer, int relatedID, int itemID, int ch
 	return ret;
 }
 
-DWORD dwChangeKeys = 0;
-int(__fastcall *original_changeKeys)(Player *pPlayer, int _EDX, int nKeys);
-int __fastcall changeKeys(Player *pPlayer, int _EDX, int nKeys)
+DWORD dwAddKeys = 0;
+int(__fastcall *original_AddKeys)(Player *pPlayer, int _EDX, int nKeys);
+int __fastcall AddKeys(Player *pPlayer, int _EDX, int nKeys)
 {
-	int	ret = original_changeKeys(pPlayer, _EDX, nKeys);
-	PostChangeKeys(ret);
+	int	ret = original_AddKeys(pPlayer, _EDX, nKeys);
+	PostAddKeys(ret);
 	return ret;
 }
 
-DWORD dwChangeBombs = 0;
-int(__fastcall *original_changeBombs)(Player *pPlayer, int _EDX, int nBombs);
-int __fastcall changeBombs(Player *pPlayer, int _EDX, int nBombs)
+DWORD dwAddBombs = 0;
+int(__fastcall *original_AddBombs)(Player *pPlayer, int _EDX, int nBombs);
+int __fastcall AddBombs(Player *pPlayer, int _EDX, int nBombs)
 {
-	int	ret = original_changeBombs(pPlayer, _EDX, nBombs);
-	PostChangeBombs(ret);
+	int	ret = original_AddBombs(pPlayer, _EDX, nBombs);
+	PostAddBombs(ret);
 	return ret;
 }
 
-DWORD dwChangeCoins = 0;
-DWORD original_changeCoins = 0;
-__declspec(naked) char changeCoins()
+DWORD dwAddCoins = 0;
+DWORD original_AddCoins = 0;
+__declspec(naked) char AddCoins()
 {
 	_asm
 	{
 #ifndef _DEBUG
 		call nullstub
 #endif
-		jmp original_changeCoins
+		jmp original_AddCoins
 			push eax
 			push eax
-			call PostChangeCoins
+			call PostAddCoins
 			add esp, 4
 		pop eax
 	}
@@ -86,18 +86,6 @@ void __cdecl gameUpdate()
 	OnGameUpdate();
 	original_gameUpdate();
 }
-
-
-DWORD dwsub_56AC00 = 0;
-int(__fastcall *original_sub_56AC00)(int a1);
-int __fastcall sub_56AC00(int a1)
-{
-	cout << (void *)a1 << endl;
-	int ret = original_sub_56AC00(a1);
-	cout << (void*)ret << endl;
-	return ret;
-}
-
 
 void InitHooks()
 {
@@ -125,31 +113,27 @@ void InitHooks()
 	if (gdwAddCollectible)
 		original_addCollectible = (int(__fastcall *)(Player *, int, int, int, int))DetourFunction((PBYTE)gdwAddCollectible, (PBYTE)addCollectible);
 
-	dwChangeKeys = gdwBaseAddress + 0xCEBE0;
-	if (dwChangeKeys)
-		original_changeKeys = (int(__fastcall *)(Player *, int, int))DetourFunction((PBYTE)dwChangeKeys, (PBYTE)changeKeys);
+	dwAddKeys = gdwBaseAddress + 0xCEBE0;
+	if (dwAddKeys)
+		original_AddKeys = (int(__fastcall *)(Player *, int, int))DetourFunction((PBYTE)dwAddKeys, (PBYTE)AddKeys);
 
-	dwChangeBombs = gdwBaseAddress + 0xCEB90;
-	if (dwChangeBombs)
-		original_changeBombs = (int(__fastcall *)(Player *, int, int))DetourFunction((PBYTE)dwChangeBombs, (PBYTE)changeBombs);
+	dwAddBombs = gdwBaseAddress + 0xCEB90;
+	if (dwAddBombs)
+		original_AddBombs = (int(__fastcall *)(Player *, int, int))DetourFunction((PBYTE)dwAddBombs, (PBYTE)AddBombs);
 
-	dwChangeCoins = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+	dwAddCoins = dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(PBYTE)"\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x0C\x53\x8B\xD8",
 		"xxxxxxxxxxxx");
-	if (dwChangeCoins)
-		original_changeCoins = (DWORD)DetourFunction((PBYTE)dwChangeCoins, (PBYTE)changeCoins);
-
-	DWORD dwsub_56AC00 = gdwBaseAddress + 0x16AC00;
-	if (dwsub_56AC00)
-		original_sub_56AC00 = (int(__fastcall *)(int))DetourFunction((PBYTE)dwsub_56AC00, (PBYTE)sub_56AC00);
+	if (dwAddCoins)
+		original_AddCoins = (DWORD)DetourFunction((PBYTE)dwAddCoins, (PBYTE)AddCoins);
 }
 
 void RemoveHooks()
 {
 	/* un-detour functions */
-	DetourRemove((PBYTE)original_changeKeys, (PBYTE)addCollectible);
+	DetourRemove((PBYTE)original_AddKeys, (PBYTE)addCollectible);
 	DetourRemove((PBYTE)original_gameUpdate, (PBYTE)gameUpdate);
-	DetourRemove((PBYTE)original_addCollectible, (PBYTE)changeKeys);
-	DetourRemove((PBYTE)original_changeBombs, (PBYTE)changeBombs);
-	DetourRemove((PBYTE)original_changeCoins, (PBYTE)changeCoins);
+	DetourRemove((PBYTE)original_addCollectible, (PBYTE)AddKeys);
+	DetourRemove((PBYTE)original_AddBombs, (PBYTE)AddBombs);
+	DetourRemove((PBYTE)original_AddCoins, (PBYTE)AddCoins);
 }

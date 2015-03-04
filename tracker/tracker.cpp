@@ -163,17 +163,17 @@ PAPI VOID PostAddCollectible(int ret)
 	bShouldUpdate = true;
 }
 
-PAPI VOID PostChangeKeys(int ret)
+PAPI VOID PostAddKeys(int ret)
 {
 	bShouldUpdate = true;
 }
 
-PAPI VOID PostChangeBombs(int ret)
+PAPI VOID PostAddBombs(int ret)
 {
 	bShouldUpdate = true;
 }
 
-PAPI VOID PostChangeCoins(int ret)
+PAPI VOID PostAddCoins(int ret)
 {
 	bShouldUpdate = true;
 }

@@ -25,29 +25,30 @@ enum Curses {
 
 typedef struct PlayerManager
 {
-/*0x0000*/	int _floorNo;
-/*0x0004*/	bool _alternateFloor;
-/*0x0008*/	union {
-				Curses _curses;
-				int i_curses;
-			};
-/*0x000C*/	char _unk000C;
-/*0x000D*/	bool _seeForever;
-/*0x000E*/	char _unk000E[0x2]; // to fix alignment
-/*0x0010*/	char _unk0010[0x8A9C];
-/*0x8AAC*/	char _startSeed[0x10];
-/*0x8ABC*/	char _unk8ABC[0x21AE8];
-/*0x2A5A4*/	void *_banner;
-/*0x2A5A8*/	char _unk2A5A8[0xE3260];
-/*0x10D808*/int _challenge_id;
-/*0x10D80C*/char _unk10D80C[0xB0];
-/*0x10D8BC*/BOOL _disable_achievements;
-/*0x10D8C0*/char unk10D8C0[0x4];
-/*0x10D8C4*/BOOL _hard_mode;
+/*0x000000*/	int _floorNo;
+/*0x000004*/	BOOL _alternateFloor;
+/*0x000008*/	union {
+					Curses _curses;
+					int i_curses;
+				};
+/*0x00000C*/	char _unk000C;
+/*0x00000D*/	bool _seeForever;
+/*0x00000E*/	char _unk000E[0x2]; // to fix alignment
+/*0x000010*/	char _unk0010[0x8A9C];
+/*0x008AAC*/	char _startSeed[0x10];
+/*0x008ABC*/	char _unk8ABC[0x21AE8];
+/*0x02A5A4*/	void *_banner;
+/*0x02A5A8*/	char _unk2A5A8[0xE3260];
+/*0x10D808*/	int _challenge_id;
+/*0x10D80C*/	char _unk10D80C[0xB0];
+/*0x10D8BC*/	BOOL _disable_achievements;
+/*0x10D8C0*/	char unk10D8C0[0x4];
+/*0x10D8C4*/	BOOL _hard_mode;
 } PLAYERMANAGER;
 
 GLOBAL DWORD gdwPlayerManager;
 GLOBAL DWORD gdwGetPlayerEntity;
+GLOBAL void ToggleCurseOfTheBlind();
 GLOBAL Player *GetPlayerEntity();
 GLOBAL PlayerManager *GetPlayerManager();
 GLOBAL char *GetIsaacVersion();

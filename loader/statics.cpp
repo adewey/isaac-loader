@@ -5,6 +5,20 @@
 DWORD gdwPlayerManager = 0;
 DWORD gdwGetPlayerEntity = 0;
 DWORD gdwVersion = 0;
+DWORD gdwCurseOfTheBlind = 0;
+
+
+DWORD original_curse_of_the_blind = 0x90909090;
+void ToggleCurseOfTheBlind()
+{
+	DWORD d, ds;
+	DWORD temp = gdwCurseOfTheBlind; //save what is at that address
+	VirtualProtect((LPVOID)gdwCurseOfTheBlind, 0x4, PAGE_EXECUTE_READWRITE, &d);
+	*(DWORD*)gdwCurseOfTheBlind = original_curse_of_the_blind; //set address to whatever is in original (our value, or the value we saved if we have run this before)
+	VirtualProtect((LPVOID)gdwCurseOfTheBlind, 0x4, d, &ds);
+	original_curse_of_the_blind = temp; //set original to what used to be at the address
+}
+
 
 int(__fastcall *o_show_fortune_banner)(int pPlayerManager_plus_2A5A4, char *third_line, char *second_line, char *first_line) = 0;
 void show_fortune_banner(char *first_line, char *second_line, char *third_line)
@@ -75,4 +89,7 @@ void InitStatics()
 		"xxxxxx????xx????xxxxx????xxxxxxxxxxxxxx????xxxxxx");
 	if (dw_show_item_banner)
 		o_show_item_banner = (int(__fastcall *)(char *lower_text, int pPlayerManager_plus_2A5A4, char *upper_text, bool is_bottom_banner, bool show_lower_banner))dw_show_item_banner;
+
+	/* curse of the blind setter */
+	gdwCurseOfTheBlind = dwFindPattern(gdwBaseAddress, gdwBaseSize, (PBYTE)"\x83\x4E\x08\x40\x68", "xxxxx");
 }
