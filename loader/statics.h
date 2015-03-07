@@ -23,6 +23,9 @@ enum Curses {
 	Blind = 64,
 };
 
+
+
+
 typedef struct PlayerManager
 {
 /*0x000000*/	int _floorNo;
@@ -37,7 +40,7 @@ typedef struct PlayerManager
 /*0x000010*/	char _unk0010[0x8A9C];
 /*0x008AAC*/	char _startSeed[0x10];
 /*0x008ABC*/	char _unk8ABC[0x21AE8];
-/*0x02A5A4*/	void *_banner;
+/*0x02A5A4*/	int _HUD;
 /*0x02A5A8*/	char _unk2A5A8[0xE3260];
 /*0x10D808*/	int _challenge_id;
 /*0x10D80C*/	char _unk10D80C[0xB0];

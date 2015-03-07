@@ -20,16 +20,16 @@ void ToggleCurseOfTheBlind()
 }
 
 
-int(__fastcall *o_show_fortune_banner)(int pPlayerManager_plus_2A5A4, char *third_line, char *second_line, char *first_line) = 0;
+int(__fastcall *o_show_fortune_banner)(int *HUD, char const *third_line, char const *second_line, char const *first_line) = 0;
 void show_fortune_banner(char *first_line, char *second_line, char *third_line)
 {
-	o_show_fortune_banner((int)&GetPlayerManager()->_banner, third_line, second_line, first_line);
+	o_show_fortune_banner(&GetPlayerManager()->_HUD, third_line, second_line, first_line);
 }
 
-int(__fastcall *o_show_item_banner)(char *second_line, int pPlayerManager_plus_2A5A4, char *first_line, bool is_bottom_banner, bool style_second_line) = 0;
+int(__fastcall *o_show_item_banner)(char const *second_line, int *HUD, char const *first_line, bool is_bottom_banner, bool style_second_line) = 0;
 void show_item_banner(char *first_line, char *second_line, bool style_second_line, bool is_bottom_banner)
 {
-	o_show_item_banner(second_line, (int)&GetPlayerManager()->_banner, first_line, is_bottom_banner, style_second_line);
+	o_show_item_banner(second_line, &GetPlayerManager()->_HUD, first_line, is_bottom_banner, style_second_line);
 }
 
 PlayerManager *GetPlayerManager()
@@ -80,7 +80,7 @@ void InitStatics()
 		"\x8D\x45\xF4\x64\xA3\x00\x00\x00\x00\x8B\x45\x08",
 		"xxxxxx????xx????xxxxx????xxxxxxxxxxxxxx????xxx");
 	if (dw_show_fortune_banner)
-		o_show_fortune_banner = (int(__fastcall *)(int pPlayerManager_plus_2A5A4, char *third_line, char *second_line, char *first_line))dw_show_fortune_banner;
+		o_show_fortune_banner = (int(__fastcall *)(int *HUD, char const *third_line, char const *second_line, char const *first_line))dw_show_fortune_banner;
 
 	DWORD dw_show_item_banner = dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(PBYTE)"\x55\x8B\xEC\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x00\x00\x00"
@@ -88,7 +88,7 @@ void InitStatics()
 		"\x57\x50\x8D\x45\xF4\x64\xA3\x00\x00\x00\x00\x8B\x45\x08\x89\x45\xA8",
 		"xxxxxx????xx????xxxxx????xxxxxxxxxxxxxx????xxxxxx");
 	if (dw_show_item_banner)
-		o_show_item_banner = (int(__fastcall *)(char *lower_text, int pPlayerManager_plus_2A5A4, char *upper_text, bool is_bottom_banner, bool show_lower_banner))dw_show_item_banner;
+		o_show_item_banner = (int(__fastcall *)(char const *lower_text, int *HUD, char const *upper_text, bool is_bottom_banner, bool show_lower_banner))dw_show_item_banner;
 
 	/* curse of the blind setter */
 	gdwCurseOfTheBlind = dwFindPattern(gdwBaseAddress, gdwBaseSize, (PBYTE)"\x83\x4E\x08\x40\x68", "xxxxx");

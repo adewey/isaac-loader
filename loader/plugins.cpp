@@ -52,6 +52,7 @@ bool LoadPlugin(const char *fn)
 	pPlugin->PostAddKeys = (fPostAddKeys)GetProcAddress(hmod, "PostAddKeys");
 	pPlugin->PostAddBombs = (fPostAddBombs)GetProcAddress(hmod, "PostAddBombs");
 	pPlugin->PostAddCoins = (fPostAddCoins)GetProcAddress(hmod, "PostAddCoins");
+	pPlugin->PostTriggerBossDeath = (fPostTriggerBossDeath)GetProcAddress(hmod, "PostTriggerBossDeath");
 	pPlugin->OnGameUpdate = (fOnGameUpdate)GetProcAddress(hmod, "OnGameUpdate");
 
 	if (pPlugin->InitPlugin)
@@ -188,6 +189,18 @@ void PostAddCoins(int ret)
 	{
 		if (pPlugin->PostAddCoins){
 			pPlugin->PostAddCoins(ret);
+		}
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+void PostTriggerBossDeath(int ret)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->PostTriggerBossDeath){
+			pPlugin->PostTriggerBossDeath(ret);
 		}
 		pPlugin = pPlugin->pNext;
 	}

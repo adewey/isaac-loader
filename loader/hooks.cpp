@@ -16,10 +16,6 @@ DWORD gdwStartGame = 0;
 int(__fastcall *original_startGame)(int challenge_id, bool disable_achievements, int character_id, int a4, int a5, int a6, int a7, int seed_length, unsigned int max_length, int a10, bool hard);
 int __fastcall startGame(int challenge_id, bool disable_achievements, int character_id, int a4, int a5, int a6, int a7, int seed_length, unsigned int max_length, int a10, bool hard)
 {
-	cout << "char* a4 " << (char *)&a4 << endl;
-	cout << "a7: " << (void*)a7 << " " << a7 << endl;
-	cout << "a10: " << (void*)a10 << " " << a10 << endl;
-
 	int ret = original_startGame(challenge_id, disable_achievements, character_id, a4, a5, a6, a7, seed_length, max_length, a10, hard);
 	PostStartGame(ret);
 	return ret;
@@ -78,6 +74,22 @@ __declspec(naked) char AddCoins()
 	}
 }
 
+
+DWORD dwTriggerBossDeath = 0;
+DWORD original_TriggerBossDeath = 0;
+__declspec(naked) char TriggerBossDeath()
+{
+	_asm
+	{
+		push eax
+			push eax
+			call PostTriggerBossDeath
+			add esp, 4
+		pop eax
+		jmp original_TriggerBossDeath
+	}
+}
+
 /* GameUpdate Function */
 DWORD gdwGameUpdate = 0;
 void(__cdecl *original_gameUpdate)();
@@ -126,6 +138,12 @@ void InitHooks()
 		"xxxxxxxxxxxx");
 	if (dwAddCoins)
 		original_AddCoins = (DWORD)DetourFunction((PBYTE)dwAddCoins, (PBYTE)AddCoins);
+
+	dwTriggerBossDeath = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(PBYTE)"\x80\x7E\x01\x00\x0F\x85",
+		"xxxxxx");
+	if (dwTriggerBossDeath)
+		original_TriggerBossDeath = (DWORD)DetourFunction((PBYTE)dwTriggerBossDeath, (PBYTE)TriggerBossDeath);
 }
 
 void RemoveHooks()

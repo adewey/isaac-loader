@@ -11,8 +11,9 @@ GLOBAL typedef void(__cdecl *fUnInitPlugin)();
 GLOBAL typedef void(__cdecl *fPostStartGame)(int);
 GLOBAL typedef void(__cdecl *fPostAddCollectible)(int);
 GLOBAL typedef void(__cdecl *fPostAddKeys)(int);
-GLOBAL typedef void(__cdecl *fPostAddBombs)(int );
+GLOBAL typedef void(__cdecl *fPostAddBombs)(int);
 GLOBAL typedef void(__cdecl *fPostAddCoins)(int);
+GLOBAL typedef void(__cdecl *fPostTriggerBossDeath)(int);
 GLOBAL typedef void(__cdecl *fOnGameUpdate)();
 
 typedef struct _Plugin
@@ -27,6 +28,7 @@ typedef struct _Plugin
 	fPostAddKeys PostAddKeys;
 	fPostAddBombs PostAddBombs;
 	fPostAddCoins PostAddCoins;
+	fPostTriggerBossDeath PostTriggerBossDeath;
 	fOnGameUpdate OnGameUpdate;
 
 	struct _Plugin* pLast;
@@ -45,6 +47,7 @@ GLOBAL void PostAddCollectible(int);
 GLOBAL void PostAddKeys(int);
 GLOBAL void PostAddBombs(int);
 GLOBAL void PostAddCoins(int);
+GLOBAL void PostTriggerBossDeath(int);
 GLOBAL void OnGameUpdate();
 
 #endif
