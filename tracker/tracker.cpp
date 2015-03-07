@@ -202,3 +202,9 @@ PAPI VOID PostStartGame(int ret)
 	dwFrameCount = 0;
 	intro = true;
 }
+
+/* ret = boss id found in bossportraits.xml */
+PAPI VOID PostTriggerBossDeath(int ret)
+{
+
+}
