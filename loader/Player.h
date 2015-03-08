@@ -6,9 +6,9 @@ class Entity
 public:
 /*[0x0000]*/	void *vftable;
 /*[0x0004]*/	char _unk0000[0x8];
-/*[0x000C]*/	int _id;
+/*[0x000C]*/	int _type;
 /*[0x0010]*/	unsigned int _variant;
-/*[0x0014]*/	int _subtype;
+/*[0x0014]*/	int _id;
 /*[0x0018]*/	int _parentID;
 /*[0x001C]*/	unsigned int _parentVariant;
 /*[0x0020]*/	int _parentSubtype;

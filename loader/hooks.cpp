@@ -74,19 +74,80 @@ __declspec(naked) char AddCoins()
 	}
 }
 
-
 DWORD dwTriggerBossDeath = 0;
 DWORD original_TriggerBossDeath = 0;
 __declspec(naked) char TriggerBossDeath()
 {
 	_asm
 	{
-		push eax
+#ifndef _DEBUG
+		call nullstub
+#endif
+		jmp original_TriggerBossDeath
+			push eax
 			push eax
 			call PostTriggerBossDeath
 			add esp, 4
 		pop eax
-		jmp original_TriggerBossDeath
+	}
+}
+
+DWORD dwLevel__Init = 0;
+int(__fastcall *original_Level__Init)(Player *pPlayer, int _EDX);
+int __fastcall Level__Init(Player *pPlayer, int _EDX)
+{
+	int	ret = original_Level__Init(pPlayer, _EDX);
+	PostLevel__Init(ret);
+	return ret;
+}
+
+#define printarg(i, arg) cout << i << ":" << "\t" << (void *)arg << "\t" << (float)arg << endl;
+DWORD dwEntity_Pickup__Init = 0;
+int(__fastcall *original_Entity_Pickup__Init)(Entity *pItem, int _EDX, int type, int variant, int subtype, int unkown);
+int __fastcall Entity_Pickup__Init(Entity *pItem, int _EDX, int type, int variant, int subtype, int unkown)
+{
+	printarg("pItem", (int)pItem);
+	printarg("type", type);
+	printarg("variant", variant);
+	printarg("subtype", subtype);
+	printarg("unkown", unkown);
+	DWORD ret = 0;
+
+	bool shopitem = type == 0x05 && variant == 0x64 && subtype != 0x00;
+	bool pedistalitem = type == 0x05 && variant == 0x64 && subtype == 0x00;
+	/*
+	if (shopitem)
+	{
+		do
+			ret = original_Entity_Pickup__Init(pItem, _EDX, type, variant, subtype, unkown);
+		while (!PostEntity_Shop_Pickup__Init(subtype)); // make sure we are a pedistal item before rerolling this. we could also use this function to reroll other ground items..
+	}
+	else */
+	do
+		ret = original_Entity_Pickup__Init(pItem, _EDX, type, variant, subtype, unkown);
+	while (pedistalitem && !PostEntity_Pickup__Init(pItem->_id)); // make sure we are a pedistal item before rerolling this. we could also use this function to reroll other ground items..
+	return ret;
+}
+
+DWORD dwEntity_Pickup__Morph = 0;
+DWORD original_Entity_Pickup__Morph = 0;
+__declspec(naked) char Entity_Pickup__Morph()
+{
+	_asm
+	{
+		push ebp
+			mov ebp, esp
+			push ebx
+			push dword ptr[ebp + 0x14]
+			push dword ptr[ebp + 0x10]
+			push dword ptr[ebp + 0x0C]
+			push dword ptr[ebp + 0x08]
+			push ebx
+			call OnEntity_Pickup__Morph
+			add esp, 20
+		pop ebx
+		pop ebp
+		jmp original_Entity_Pickup__Morph
 	}
 }
 
@@ -144,6 +205,31 @@ void InitHooks()
 		"xxxxxx");
 	if (dwTriggerBossDeath)
 		original_TriggerBossDeath = (DWORD)DetourFunction((PBYTE)dwTriggerBossDeath, (PBYTE)TriggerBossDeath);
+
+	dwLevel__Init = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(PBYTE)"\x55\x8B\xEC\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1"
+		"\x00\x00\x00\x00\x50\x81\xEC\x00\x00\x00\x00\xA1\x00\x00"
+		"\x00\x00\x33\xC5\x89\x45\xF0\x53\x56\x57\x50\x8D\x45\xF4"
+		"\x64\xA3\x00\x00\x00\x00\xA1\x00\x00\x00\x00\x8B\xF1",
+		"xxxxxx????xx????xxx????x????xxxxxxxxxxxxxx????x????xx");
+	if (dwLevel__Init)
+		original_Level__Init = (int(__fastcall *)(Player *, int))DetourFunction((PBYTE)dwLevel__Init, (PBYTE)Level__Init);
+
+	dwEntity_Pickup__Init = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(PBYTE)"\x55\x8B\xEC\x83\xE4\xF8\x6A\xFF\x68\x00\x00\x00"
+		"\x00\x64\xA1\x00\x00\x00\x00\x50\x81\xEC\x00\x00\x00\x00"
+		"\xA1\x00\x00\x00\x00\x33\xC4\x89\x44\x24\x78",
+		"xxxxxxxxx????xx????xxx????x????xxxxxx");
+	if (dwEntity_Pickup__Init)
+		original_Entity_Pickup__Init = (int(__fastcall *)(Entity *, int, int, int, int, int))DetourFunction((PBYTE)dwEntity_Pickup__Init, (PBYTE)Entity_Pickup__Init);
+
+	dwEntity_Pickup__Morph = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(PBYTE)"\x55\x8B\xEC\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1"
+		"\x00\x00\x00\x00\x50\x83\xEC\x78\xA1\x00\x00\x00\x00\x33"
+		"\xC5\x89\x45\xF0\x56",
+		"xxxxxx????xx????xxxxx????xxxxxx");
+	if (dwEntity_Pickup__Morph)
+		original_Entity_Pickup__Morph = (DWORD)DetourFunction((PBYTE)dwEntity_Pickup__Morph, (PBYTE)Entity_Pickup__Morph);
 }
 
 void RemoveHooks()

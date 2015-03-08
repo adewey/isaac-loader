@@ -28,8 +28,9 @@ enum Curses {
 
 typedef struct PlayerManager
 {
-/*0x000000*/	int _floorNo;
-/*0x000004*/	BOOL _alternateFloor;
+/*0x000000*/	int m_Stage;
+/*0x000004*/	bool m_AltStage;
+/*0x000005*/	char unk0005[0x3]; // to fix alignment
 /*0x000008*/	union {
 					Curses _curses;
 					int i_curses;
@@ -57,8 +58,8 @@ GLOBAL PlayerManager *GetPlayerManager();
 GLOBAL char *GetIsaacVersion();
 
 //for a one liner use second_line, two liner second_line and first_line, three liner third_line, second_line, and first_line in these orders!
-GLOBAL void show_fortune_banner(char *first_line, char *second_line, char *third_line);
-GLOBAL void show_item_banner(char *first_line, char *second_line, bool style_second_line, bool is_bottom_banner);
+GLOBAL void show_fortune_banner(char const *first_line, char const *second_line, char const *third_line);
+GLOBAL void show_item_banner(char const *first_line, char const *second_line, bool style_second_line, bool is_bottom_banner);
 
 void InitStatics();
 
