@@ -21,13 +21,13 @@ void ToggleCurseOfTheBlind()
 
 
 int(__fastcall *o_show_fortune_banner)(int *HUD, char const *third_line, char const *second_line, char const *first_line) = 0;
-void show_fortune_banner(char *first_line, char *second_line, char *third_line)
+void show_fortune_banner(char const *first_line, char const *second_line, char const *third_line)
 {
 	o_show_fortune_banner(&GetPlayerManager()->_HUD, third_line, second_line, first_line);
 }
 
 int(__fastcall *o_show_item_banner)(char const *second_line, int *HUD, char const *first_line, bool is_bottom_banner, bool style_second_line) = 0;
-void show_item_banner(char *first_line, char *second_line, bool style_second_line, bool is_bottom_banner)
+void show_item_banner(char const *first_line, char const *second_line, bool style_second_line, bool is_bottom_banner)
 {
 	o_show_item_banner(second_line, &GetPlayerManager()->_HUD, first_line, is_bottom_banner, style_second_line);
 }

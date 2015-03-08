@@ -153,7 +153,7 @@ void updateServer()
 
 	char buffer2[2048] = { 0 };
 	sprintf_s(buffer2, 2048 - 1, "{\"stream_key\": \"%s\",\"character\": \"%s\", \"characterid\": \"%d\", \"seed\": \"%s\", \"floor\": \"%d\", \"altfloor\": \"%d\", \"curses\": \"%d\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": %d, \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"range\": \"%0.2f\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s, \"hardmode\": %d}",
-		gTrackerID, pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_startSeed, pPlayerManager->_floorNo, pPlayerManager->_alternateFloor, pPlayerManager->i_curses, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_range, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer, pPlayerManager->_hard_mode);
+		gTrackerID, pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_startSeed, pPlayerManager->m_Stage, pPlayerManager->m_AltStage, pPlayerManager->i_curses, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_range, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer, pPlayerManager->_hard_mode);
 	SendMessage((string)buffer2);
 }
 
@@ -205,6 +205,33 @@ PAPI VOID PostStartGame(int ret)
 
 /* ret = boss id found in bossportraits.xml */
 PAPI VOID PostTriggerBossDeath(int ret)
+{
+
+}
+
+PAPI VOID PostLevelInit(int ret)
+{
+
+}
+
+PAPI VOID OnEntity_Pickup__Morph(Entity *pEntity, int id, int variant, int subtype, BOOL unknown)
+{
+}
+
+//returning false here rerolls the item before the player has a chance to see it..
+PAPI bool PostEntity_Pickup__Init(int id)
+{
+	return true;
+}
+
+//returning false here rerolls the shop item before the player has a chance to see it..
+PAPI bool PostEntity_Shop_Pickup__Init(int id)
+{
+	/* currently not working */
+	return true;
+}
+
+PAPI VOID PostEntity_Pickup__Morph(int ret)
 {
 
 }

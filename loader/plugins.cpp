@@ -53,6 +53,11 @@ bool LoadPlugin(const char *fn)
 	pPlugin->PostAddBombs = (fPostAddBombs)GetProcAddress(hmod, "PostAddBombs");
 	pPlugin->PostAddCoins = (fPostAddCoins)GetProcAddress(hmod, "PostAddCoins");
 	pPlugin->PostTriggerBossDeath = (fPostTriggerBossDeath)GetProcAddress(hmod, "PostTriggerBossDeath");
+	pPlugin->PostLevel__Init = (fPostLevel__Init)GetProcAddress(hmod, "PostLevel__Init");
+	pPlugin->PostEntity_Pickup__Init = (fPostEntity_Pickup__Init)GetProcAddress(hmod, "PostEntity_Pickup__Init");
+	pPlugin->PostEntity_Shop_Pickup__Init = (fPostEntity_Shop_Pickup__Init)GetProcAddress(hmod, "PostEntity_Shop_Pickup__Init");
+	pPlugin->OnEntity_Pickup__Morph = (fOnEntity_Pickup__Morph)GetProcAddress(hmod, "OnEntity_Pickup__Morph");
+	pPlugin->PostEntity_Pickup__Morph = (fPostEntity_Pickup__Morph)GetProcAddress(hmod, "PostEntity_Pickup__Morph");
 	pPlugin->OnGameUpdate = (fOnGameUpdate)GetProcAddress(hmod, "OnGameUpdate");
 
 	if (pPlugin->InitPlugin)
@@ -201,6 +206,71 @@ void PostTriggerBossDeath(int ret)
 	{
 		if (pPlugin->PostTriggerBossDeath){
 			pPlugin->PostTriggerBossDeath(ret);
+		}
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+void PostLevel__Init(int ret)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->PostLevel__Init){
+			pPlugin->PostLevel__Init(ret);
+		}
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+bool PostEntity_Pickup__Init(int id)
+{
+	PPLUGIN pPlugin = pPluginList;
+	bool ret = true;
+	while (pPlugin)
+	{
+		if (pPlugin->PostEntity_Pickup__Init){
+			if (!pPlugin->PostEntity_Pickup__Init(id))
+				ret = false;
+		}
+		pPlugin = pPlugin->pNext;
+	}
+	return ret;
+}
+
+bool PostEntity_Shop_Pickup__Init(int id)
+{
+	PPLUGIN pPlugin = pPluginList;
+	bool ret = true;
+	while (pPlugin)
+	{
+		if (pPlugin->PostEntity_Shop_Pickup__Init){
+			if (!pPlugin->PostEntity_Shop_Pickup__Init(id))
+				ret = false;
+		}
+		pPlugin = pPlugin->pNext;
+	}
+	return ret;
+}
+
+void OnEntity_Pickup__Morph(Entity *pEntity, int id, int variant, int subtype, BOOL unknown)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->OnEntity_Pickup__Morph)
+			pPlugin->OnEntity_Pickup__Morph(pEntity, id, variant, subtype, unknown);
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+void PostEntity_Pickup__Morph(int ret)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->PostEntity_Pickup__Morph){
+			pPlugin->PostEntity_Pickup__Morph(ret);
 		}
 		pPlugin = pPlugin->pNext;
 	}

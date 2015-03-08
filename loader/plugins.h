@@ -14,6 +14,11 @@ GLOBAL typedef void(__cdecl *fPostAddKeys)(int);
 GLOBAL typedef void(__cdecl *fPostAddBombs)(int);
 GLOBAL typedef void(__cdecl *fPostAddCoins)(int);
 GLOBAL typedef void(__cdecl *fPostTriggerBossDeath)(int);
+GLOBAL typedef void(__cdecl *fPostLevel__Init)(int);
+GLOBAL typedef bool(__cdecl *fPostEntity_Pickup__Init)(int);
+GLOBAL typedef bool(__cdecl *fPostEntity_Shop_Pickup__Init)(int);
+GLOBAL typedef void(__cdecl *fOnEntity_Pickup__Morph)(Entity *, int, int, int, BOOL);
+GLOBAL typedef void(__cdecl *fPostEntity_Pickup__Morph)(int);
 GLOBAL typedef void(__cdecl *fOnGameUpdate)();
 
 typedef struct _Plugin
@@ -29,6 +34,11 @@ typedef struct _Plugin
 	fPostAddBombs PostAddBombs;
 	fPostAddCoins PostAddCoins;
 	fPostTriggerBossDeath PostTriggerBossDeath;
+	fPostLevel__Init PostLevel__Init;
+	fPostEntity_Pickup__Init PostEntity_Pickup__Init;
+	fPostEntity_Pickup__Init PostEntity_Shop_Pickup__Init;
+	fOnEntity_Pickup__Morph OnEntity_Pickup__Morph;
+	fPostEntity_Pickup__Morph PostEntity_Pickup__Morph;
 	fOnGameUpdate OnGameUpdate;
 
 	struct _Plugin* pLast;
@@ -48,6 +58,11 @@ GLOBAL void PostAddKeys(int);
 GLOBAL void PostAddBombs(int);
 GLOBAL void PostAddCoins(int);
 GLOBAL void PostTriggerBossDeath(int);
+GLOBAL void PostLevel__Init(int);
+GLOBAL bool PostEntity_Pickup__Init(int);
+GLOBAL bool PostEntity_Shop_Pickup__Init(int);
+GLOBAL void OnEntity_Pickup__Morph(Entity *pEntity, int id, int variant, int subtype, BOOL unknown);
+GLOBAL void PostEntity_Pickup__Morph(int);
 GLOBAL void OnGameUpdate();
 
 #endif
