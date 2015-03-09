@@ -214,24 +214,8 @@ PAPI VOID PostLevelInit(int ret)
 
 }
 
-PAPI VOID OnEntity_Pickup__Morph(Entity *pEntity, int id, int variant, int subtype, BOOL unknown)
-{
-}
-
 //returning false here rerolls the item before the player has a chance to see it..
-PAPI bool PostEntity_Pickup__Init(int id)
+PAPI bool PostItemPool__GetCollectible(int id)
 {
 	return true;
-}
-
-//returning false here rerolls the shop item before the player has a chance to see it..
-PAPI bool PostEntity_Shop_Pickup__Init(int id)
-{
-	/* currently not working */
-	return true;
-}
-
-PAPI VOID PostEntity_Pickup__Morph(int ret)
-{
-
 }

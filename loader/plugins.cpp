@@ -55,6 +55,7 @@ bool LoadPlugin(const char *fn)
 	pPlugin->PostTriggerBossDeath = (fPostTriggerBossDeath)GetProcAddress(hmod, "PostTriggerBossDeath");
 	pPlugin->PostLevel__Init = (fPostLevel__Init)GetProcAddress(hmod, "PostLevel__Init");
 	pPlugin->PostEntity_Pickup__Init = (fPostEntity_Pickup__Init)GetProcAddress(hmod, "PostEntity_Pickup__Init");
+	pPlugin->PostItemPool__GetCollectible = (fPostItemPool__GetCollectible)GetProcAddress(hmod, "PostItemPool__GetCollectible");
 	pPlugin->PostEntity_Shop_Pickup__Init = (fPostEntity_Shop_Pickup__Init)GetProcAddress(hmod, "PostEntity_Shop_Pickup__Init");
 	pPlugin->OnEntity_Pickup__Morph = (fOnEntity_Pickup__Morph)GetProcAddress(hmod, "OnEntity_Pickup__Morph");
 	pPlugin->PostEntity_Pickup__Morph = (fPostEntity_Pickup__Morph)GetProcAddress(hmod, "PostEntity_Pickup__Morph");
@@ -238,14 +239,14 @@ bool PostEntity_Pickup__Init(int id)
 	return ret;
 }
 
-bool PostEntity_Shop_Pickup__Init(int id)
+bool PostItemPool__GetCollectible(int id)
 {
 	PPLUGIN pPlugin = pPluginList;
 	bool ret = true;
 	while (pPlugin)
 	{
-		if (pPlugin->PostEntity_Shop_Pickup__Init){
-			if (!pPlugin->PostEntity_Shop_Pickup__Init(id))
+		if (pPlugin->PostItemPool__GetCollectible){
+			if (!pPlugin->PostItemPool__GetCollectible(id))
 				ret = false;
 		}
 		pPlugin = pPlugin->pNext;
