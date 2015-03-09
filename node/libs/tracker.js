@@ -312,3 +312,20 @@ module.exports.updateBombs = function (stream_key, data, callback) {
         }
     });
 };
+
+mdoule.exports.updateItems = function (stream_key, data, callback) {
+    findUserByKey(stream_key,function(err,res){
+        if(res){
+            user = res;
+            user.updated_at = Date.now();
+            user.items = data.items;
+            user.seen_items = data.seen_items;
+            user.damage = data.damage;
+            user.speed = data.speed;
+            user.shotspeed = data.shotspeed;
+            user.tearrate = data.tearrate;
+            user.range = data.range;
+            user.luck = data.luck;
+        }
+    }
+}

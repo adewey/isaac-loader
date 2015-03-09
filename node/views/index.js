@@ -64,6 +64,7 @@ trackerView.asView = function(req, res) {
 
 websockets.on('connection', function (ws) {
     var user = ws.upgradeReq.headers.origin;
+    ws.send("{ \"action\" : \"fortune\" , \"line1\" : \"\" , \"line2\" : \"Isaac Tracker Connected!\" , \"line3\" : \"\" }");
     ws.on('message', function (rdata, flags) {
         if (flags.binary) { return; }
         if (ws.upgradeReq.headers.origin == "Client") {
@@ -78,26 +79,19 @@ websockets.on('connection', function (ws) {
                 sockets.to(data.display_name).emit('update', trackerView.formatData(data));
             });
         } else { //So this is the new code, that no one will hit except Brett right now :D
-            var endAction = rdata.indexOf("&");
-            if (endAction != -1) {
-                var action = rdata.substring(0, endAction);
-                var actionData = rdata.substring(endAction + 1);
-                actionData = JSON.parse(actionData);
-                console.log(action);
-                console.log(actionData);
-                if (action == "updateKeys") {
-                    tracker.updateKeys(user, actionData, function (err, data) {
-                        sockets.to(data.display_name).emit('update', actionData);
+            console.log(rdata);
+            var updateData = JSON.parse(rdata);
+            if (updateData) {
+                if (updateData.action == "updateKeys") {
+                    tracker.updateKeys(user, updateData, function (err, data) {
+                        sockets.to(data.display_name).emit('update', trackerView.formatData(data));
                     });
-                } else if (action == "updateBombs") {
-                    tracker.updateBombs(user, actionData, function (err, data) {
-                        sockets.to(data.display_name).emit('update', actionData);
+                } else if (updateData.action == "updateBombs") {
+                    tracker.updateBombs(user, updateData, function (err, data) {
+                        sockets.to(data.display_name).emit('update', trackerView.formatData(data));
                     });
                 }
-            } else {
-                //ws.send("No Valid Action");
             }
-            
         }
     });
     ws.on('close', function close() {
