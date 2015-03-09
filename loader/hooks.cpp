@@ -106,26 +106,21 @@ DWORD dwEntity_Pickup__Init = 0;
 int(__fastcall *original_Entity_Pickup__Init)(Entity *pItem, int _EDX, int type, int variant, int subtype, int unkown);
 int __fastcall Entity_Pickup__Init(Entity *pItem, int _EDX, int type, int variant, int subtype, int unkown)
 {
-	printarg("pItem", (int)pItem);
-	printarg("type", type);
-	printarg("variant", variant);
-	printarg("subtype", subtype);
-	printarg("unkown", unkown);
-	DWORD ret = 0;
+	DWORD ret = original_Entity_Pickup__Init(pItem, _EDX, type, variant, subtype, unkown);
+	//while (pedistalitem && !PostEntity_Pickup__Init(pItem->_id)); // make sure we are a pedistal item before rerolling this. we could also use this function to reroll other ground items..
+	return ret;
+}
 
-	bool shopitem = type == 0x05 && variant == 0x64 && subtype != 0x00;
-	bool pedistalitem = type == 0x05 && variant == 0x64 && subtype == 0x00;
-	/*
-	if (shopitem)
-	{
-		do
-			ret = original_Entity_Pickup__Init(pItem, _EDX, type, variant, subtype, unkown);
-		while (!PostEntity_Shop_Pickup__Init(subtype)); // make sure we are a pedistal item before rerolling this. we could also use this function to reroll other ground items..
-	}
-	else */
+DWORD dwItemPool__GetCollectible = 0;
+int(__fastcall *original_ItemPool__GetCollectible)(int itempool, int _EDX, int pool_index, int always1, int seed);
+int __fastcall ItemPool__GetCollectible(int itempool, int _EDX, int pool_index, int always1, int seed)
+{
+	DWORD ret = 0;
 	do
-		ret = original_Entity_Pickup__Init(pItem, _EDX, type, variant, subtype, unkown);
-	while (pedistalitem && !PostEntity_Pickup__Init(pItem->_id)); // make sure we are a pedistal item before rerolling this. we could also use this function to reroll other ground items..
+	{
+		ret = original_ItemPool__GetCollectible(itempool, _EDX, pool_index, always1, seed);
+	}
+	while (!PostItemPool__GetCollectible(ret));
 	return ret;
 }
 
@@ -215,6 +210,12 @@ void InitHooks()
 	if (dwLevel__Init)
 		original_Level__Init = (int(__fastcall *)(Player *, int))DetourFunction((PBYTE)dwLevel__Init, (PBYTE)Level__Init);
 
+	dwItemPool__GetCollectible = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(PBYTE)"\x55\x8B\xEC\x83\xEC\x28\x8B\x45\x08","xxxxxxxxx");
+	if (dwItemPool__GetCollectible)
+		original_ItemPool__GetCollectible = (int(__fastcall *)(int, int, int, int, int))DetourFunction((PBYTE)dwItemPool__GetCollectible, (PBYTE)ItemPool__GetCollectible);
+
+	/*
 	dwEntity_Pickup__Init = dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(PBYTE)"\x55\x8B\xEC\x83\xE4\xF8\x6A\xFF\x68\x00\x00\x00"
 		"\x00\x64\xA1\x00\x00\x00\x00\x50\x81\xEC\x00\x00\x00\x00"
@@ -230,6 +231,7 @@ void InitHooks()
 		"xxxxxx????xx????xxxxx????xxxxxx");
 	if (dwEntity_Pickup__Morph)
 		original_Entity_Pickup__Morph = (DWORD)DetourFunction((PBYTE)dwEntity_Pickup__Morph, (PBYTE)Entity_Pickup__Morph);
+	*/
 }
 
 void RemoveHooks()
