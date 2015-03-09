@@ -63,29 +63,51 @@ trackerView.asView = function(req, res) {
 };
 
 websockets.on('connection', function (ws) {
-    console.log("User Connected");
-    var user = "0";
+    var user = ws.upgradeReq.headers.origin;
     ws.on('message', function (rdata, flags) {
         if (flags.binary) { return; }
-        var jsonObj = JSON.parse(rdata);
-        var stream_key = jsonObj.stream_key;
-        if (user == "0") {
-            user = stream_key;
-            console.log("User Sent First Message: " + user);
+        if (ws.upgradeReq.headers.origin == "Client") {
+            var jsonObj = JSON.parse(rdata);
+            var stream_key = jsonObj.stream_key;
+            if (user == null) {
+                user = stream_key;
+                console.log("Connected: " + Date(), user);
+            }
+            console.log("Message: " + rdata, user);
+            tracker.pickupItem(stream_key, jsonObj, function (err, data) {
+                sockets.to(data.display_name).emit('update', trackerView.formatData(data));
+            });
+        } else { //So this is the new code, that no one will hit except Brett right now :D
+            var endAction = rdata.indexOf("&");
+            if (endAction != -1) {
+                var action = rdata.substring(0, endAction);
+                var actionData = rdata.substring(endAction + 1);
+                actionData = JSON.parse(actionData);
+                console.log(action);
+                console.log(actionData);
+                if (action == "updateKeys") {
+                    tracker.updateKeys(user, actionData, function (err, data) {
+                        sockets.to(data.display_name).emit('update', actionData);
+                    });
+                } else if (action == "updateBombs") {
+                    tracker.updateBombs(user, actionData, function (err, data) {
+                        sockets.to(data.display_name).emit('update', actionData);
+                    });
+                }
+            } else {
+                //ws.send("No Valid Action");
+            }
+            
         }
-        tracker.pickupItem(stream_key, jsonObj, function (err, data) {
-            sockets.to(data.display_name).emit('update', trackerView.formatData(data));
-        });
     });
     ws.on('close', function close() {
-        if (user == "0") {
-            console.log("User disconnected before sending any messages.");
-        } else {
-            console.log("User Disconnected: " + user);
+        if (user != null) {
+            console.log("Disconnected: " + Date(), user);
         }
     });
     ws.on('error', function (e) {
-        console.log(e)
+        console.log(e, user)
+        console.log(e);
     });
 });
 
@@ -233,7 +255,14 @@ trackerView.formatData = function (data) {
     }
     data.luck = barsUsed;
     
-    
+    //number of people in this room
+    try {
+	var s = sockets.nsps['/'].adapter.rooms[data.display_name];
+	var o = Object.keys(s).length;
+        data.room_count = o; 
+    } catch (err) {
+        //console.log('Error getting room count');
+    }
     return {
         display_name: data.display_name,
         items: items.list(data.items),
@@ -258,6 +287,7 @@ trackerView.formatData = function (data) {
         luck: data.luck,
         seed: data.seed,
         updated_at: data.updated_at,
+        room_count: data.room_count,
     };
 };
  

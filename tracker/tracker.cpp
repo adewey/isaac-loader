@@ -19,6 +19,7 @@ ofstream trackerLogFile;
 using easywsclient::WebSocket;
 static WebSocket::pointer websocket = NULL;
 vector<string> SendToServer;
+vector<string> ShowWithBanner;
 
 
 void Log(string message){
@@ -31,6 +32,8 @@ void handle_message(const std::string & message)
 {
 	string messageLog = "Received Message from server: ";
 	messageLog.append(message);
+	char recv = (char)message.c_str();
+	ShowWithBanner.push_back(message);
 	Log(messageLog);
 }
 
@@ -45,7 +48,7 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 			Log("WSAStartup Failed.");
 		}
 #endif
-		websocket = from_url(gIsaacUrl, false, "Client");;
+		websocket = from_url(gIsaacUrl, false, gTrackerID);;
 		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
 			Log("Websocket Could not Connect.");
 		}
@@ -165,12 +168,20 @@ PAPI VOID PostAddCollectible(int ret)
 
 PAPI VOID PostAddKeys(int ret)
 {
-	bShouldUpdate = true;
+	string msg = "";
+	msg.append("updateKeys&{\"keys\":");
+	msg.append(to_string(ret));
+	msg.append("}");
+	SendMessage(msg);
 }
 
 PAPI VOID PostAddBombs(int ret)
 {
-	bShouldUpdate = true;
+	string msg = "";
+	msg.append("updateBombs&{\"bombs\":");
+	msg.append(to_string(ret));
+	msg.append("}");
+	SendMessage(msg);
 }
 
 PAPI VOID PostAddCoins(int ret)
@@ -182,10 +193,8 @@ DWORD dwFrameCount = 0;
 bool intro = false;
 PAPI VOID OnGameUpdate()
 {
-	if (dwFrameCount >= (60 * 3) && intro)
+	if (dwFrameCount >= (60 * 3))
 	{
-		intro = false;
-		show_fortune_banner("", "isaactracker loaded!", "");
 	}
 	/* limit updates to once every 30 frames, then wait to update again until we need to */
 	if (dwFrameCount >= (60 * 5) && bShouldUpdate)
@@ -194,13 +203,16 @@ PAPI VOID OnGameUpdate()
 		dwFrameCount = 0;
 		updateServer();
 	}
+	if (!ShowWithBanner.empty()){
+		show_fortune_banner("", (char *)ShowWithBanner.back().c_str(), "");
+		ShowWithBanner.pop_back();
+	}
 	dwFrameCount++;
 }
 
 PAPI VOID PostStartGame(int ret)
 {
 	dwFrameCount = 0;
-	intro = true;
 }
 
 /* ret = boss id found in bossportraits.xml */
@@ -211,7 +223,7 @@ PAPI VOID PostTriggerBossDeath(int ret)
 
 PAPI VOID PostLevelInit(int ret)
 {
-
+	ShowWithBanner.push_back("Isaac Tracker Loaded!");
 }
 
 //returning false here rerolls the item before the player has a chance to see it..

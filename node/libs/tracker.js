@@ -54,7 +54,7 @@ mongoose.model('Tracker', trackerSchema);
 var Tracker = connection.model('Tracker', trackerSchema);
 
 function findUsers(callback) {
-    Tracker.find({}, callback);
+    Tracker.find({}).sort('-updated_at').exec(callback);
 };
 
 function findUser(display_name, callback) {
@@ -123,6 +123,7 @@ module.exports.getOrCreateUser = function(display_name, callback) {
             damage: 1,
             luck: 1,
         });
+        console.log('\nNew User: ' + newUser.display_name);
         newUser.save(function(err, res) {
             return callback(err, formatUserData(res));
         });
@@ -281,5 +282,33 @@ module.exports.updateCurse = function(stream_key, data, callback) {
             });
         }
         return callback(err, formatUserData(user));
+    });
+};
+
+module.exports.updateKeys = function (stream_key, data, callback) {
+    findUserByKey(stream_key, function (err, res) {
+        var user = undefined;
+        if (res) {
+            user = res;
+            user.updated_at = Date.now();
+            user.keys = data.keys;
+            return user.save(function (err, res) {
+                return callback(err, formatUserData(user));
+            });
+        }
+    });
+};
+
+module.exports.updateBombs = function (stream_key, data, callback) {
+    findUserByKey(stream_key, function (err, res) {
+        var user = undefined;
+        if (res) {
+            user = res;
+            user.updated_at = Date.now();
+            user.bombs = data.bombs;
+            return user.save(function (err, res) {
+                return callback(err, formatUserData(user));
+            });
+        }
     });
 };
