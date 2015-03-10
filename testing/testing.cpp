@@ -135,8 +135,22 @@ void showoffsets(int argc, char *argv[])
 
 }
 
-
-
+DWORD ItemPool__GetCollectible_Original = 0;
+int __stdcall ItemPool__GetCollectible_Payload(int a1)
+{
+	printarg('a1', a1);
+	return a1;
+}
+__declspec(naked) void ItemPool__GetCollectible_Hook()
+{
+	_asm
+	{
+		jmp ItemPool__GetCollectible_Original
+			push eax
+			call ItemPool__GetCollectible_Payload
+			pop eax
+	}
+}
 
 DWORD gdwPlayer0000 = 0;
 int(__fastcall *original_Player0000)(int self, int _EDX, int a2);
@@ -190,6 +204,27 @@ int __fastcall sub_552A10(char *lower_text, int PlayerManagerUnk, char *upper_te
 	return ret;
 }
 
+int(__stdcall *original_sub_4ACA20)(int a1);
+int __stdcall sub_4ACA20(int a1)
+{
+	cout << "sub_4ACA20 start()" << endl;
+	printarg("a1", a1);
+	int ret = original_sub_4ACA20(a1);
+	printarg("ret", ret);
+	cout << "sub_4ACA20 end()" << endl;
+	return ret;
+}
+
+int(__cdecl *original_sub_52E1F0)();
+int sub_52E1F0()
+{
+	cout << "sub_52E1F0 start()" << endl;
+	int ret = original_sub_52E1F0();
+	printarg("ret", ret);
+	cout << "sub_52E1F0 end()" << endl;
+	return ret;
+}
+
 int(__fastcall *original_sub_552D10)(int a1, int _EDX, int a2);
 int __fastcall sub_552D10(int a1, int _EDX, int a2)
 {
@@ -216,17 +251,25 @@ int __fastcall sub_4C99D0(int a1, int _EDX, bool a2)
 	return ret;
 }
 
-int(__fastcall *original_sub_446290)(int a1, int _EDX);
-int __fastcall sub_446290(int a1, int _EDX)
+
+int(__stdcall *original_sub_4ACE00)(signed int a1, char a2, unsigned int a3, int a4, int a5, int a6, int a7, unsigned int a8, int a9);
+int __stdcall sub_4ACE00(signed int a1, char a2, unsigned int a3, int a4, int a5, int a6, int a7, unsigned int a8, int a9)
 {
-	cout << "sub_4C99D0 start()" << endl;
 	printarg("a1", a1);
-	printarg("_EDX", _EDX);
-	int ret = original_sub_446290(a1, _EDX);
+	printarg("a2", a2);
+	printarg("a3", a3);
+	printarg("a4", a4);
+	printarg("a5", a5);
+	printarg("a6", a6);
+	printarg("a7", a7);
+	printarg("a8", a8);
+	printarg("a9", a9);
+	int ret = original_sub_4ACE00(a1, a2, a3, a4, a5, a6, a7, a8, a9);
 	printarg("ret", ret);
-	cout << "sub_4C99D0 end()" << endl;
+	cout << endl;
 	return ret;
 }
+
 
 DWORD gdwPlayer0004 = 0;
 int(__fastcall *original_Player0004)(int self, int _EDX, int a2, int Args, unsigned int a4, int a5);
@@ -302,10 +345,18 @@ PAPI VOID InitPlugin()
 	//original_sub_552A10 = (int(__fastcall *)(char *, int, char *, bool, bool))DetourFunction((PBYTE)dwsub_552A10, (PBYTE)sub_552A10);
 
 	DWORD dwsub_4C99D0 = gdwBaseAddress + 0xC99D0;
-	//original_sub_4C99D0 = (int(__fastcall *)(int, int, bool))DetourFunction((PBYTE)dwsub_4C99D0, (PBYTE)sub_4C99D0);
+	//original_sub_4C99D0 = (int(__fastcall *)(int, int, bool))DetourFunction((PBYTE)dwsub_4C99D0, (PBYTE)sub_4C99D0)
+	
+	DWORD dwsub_4ACE00 = gdwBaseAddress + 0xACE00;
+	//original_sub_4ACE00 = (int(__stdcall *)(signed int a1, char a2, unsigned int a3, int a4, int a5, int a6, int a7, unsigned int a8, int a9))DetourFunction((PBYTE)dwsub_4ACE00, (PBYTE)sub_4ACE00);
 
-	DWORD dwsub_446290 = gdwBaseAddress + 0x46290;
-	//original_sub_446290 = (int(__fastcall *)(int self, int _EDX))DetourFunction((PBYTE)dwsub_446290, (PBYTE)sub_446290);
+	DWORD dwsub_4ACA20 = gdwBaseAddress + 0xACA20;
+	//original_sub_4ACA20 = (int(__stdcall *)(int a1))DetourFunction((PBYTE)dwsub_4ACA20, (PBYTE)sub_4ACA20);
+
+	//DWORD dwsub_52E1F0 = gdwBaseAddress + 0x12E1F0;
+	//original_sub_52E1F0 = (int(__cdecl *)())DetourFunction((PBYTE)dwsub_52E1F0, (PBYTE)sub_52E1F0);
+	DWORD dwGetCollectible = gdwBaseAddress + 0xF7EE0;
+	//ItemPool__GetCollectible_Original = (DWORD)DetourFunction((PBYTE)dwGetCollectible, (PBYTE)ItemPool__GetCollectible_Hook);
 
 }
 
@@ -328,6 +379,11 @@ PAPI VOID UnInitPlugin(VOID)
 PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
 {
 }
+
+PAPI VOID OnChangePickup(Entity *pEntity, int id, int variant, int subtype, BOOL unknown)
+{
+}
+
 
 DWORD dwFrameCount = 0;
 PAPI VOID OnGameUpdate()
