@@ -211,7 +211,7 @@ PAPI VOID PostAddCollectible(int ret)
 	StringBuffer s;
 
 	Writer<StringBuffer> writer(s);
-		writer.StartObject();
+	writer.StartObject();
 		writer.String("action");
 		writer.String("updateItems");
 		writer.String("items");
@@ -252,8 +252,8 @@ PAPI VOID PostAddCollectible(int ret)
 		writer.Int(pPlayer->_speed);
 		writer.String("trinkets");
 		writer.StartArray();
-		writer.Int(pPlayer->_trinket1ID);
-		writer.Int(pPlayer->_trinket2ID);
+			writer.Int(pPlayer->_trinket1ID);
+			writer.Int(pPlayer->_trinket2ID);
 		writer.EndArray();
 	writer.EndObject();
 
@@ -346,14 +346,16 @@ PAPI VOID PostLevel__Init(int ret)
 
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
-	writer.String("action");
-	writer.String("updateFloor");
-	writer.String("floor");
-	writer.Int(pPlayerManager->m_Stage);
-	writer.String("altfloor");
-	writer.Int(pPlayerManager->m_AltStage);
-	writer.String("curse");
-	writer.Int(pPlayerManager->_curses);
+		writer.String("action");
+		writer.String("updateFloor");
+		writer.String("floor");
+		writer.Int(pPlayerManager->m_Stage);
+		writer.String("altfloor");
+		writer.Int(pPlayerManager->m_AltStage);
+		writer.String("curse");
+		writer.Int(pPlayerManager->_curses);
+		writer.String("seed");
+		writer.String(pPlayerManager->_startSeed);
 	writer.EndObject();
 	cout << s.GetString() << endl;
 	SendMessage(s.GetString());
@@ -380,8 +382,12 @@ PAPI VOID PostStartGame(int ret)
 		writer.String(pPlayer->_characterName);
 		writer.String("characterid");
 		writer.Int(pPlayer->_charID);
-		writer.String("seed");
-		writer.String(pPlayerManager->_startSeed);
+		writer.String("floor");
+		writer.Int(pPlayerManager->m_Stage);
+		writer.String("altfloor");
+		writer.Int(pPlayerManager->m_AltStage);
+		writer.String("curse");
+		writer.Int(pPlayerManager->_curses);
 	writer.EndObject();
 	cout << s.GetString() << endl;
 	SendMessage(s.GetString());
