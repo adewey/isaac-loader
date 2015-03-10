@@ -58,6 +58,7 @@ int __fastcall AddBombs(Player *pPlayer, int _EDX, int nBombs)
 
 DWORD dwAddCoins = 0;
 DWORD original_AddCoins = 0;
+DWORD ret_AddCoins = 0;
 __declspec(naked) char AddCoins()
 {
 	_asm
@@ -65,12 +66,15 @@ __declspec(naked) char AddCoins()
 #ifndef _DEBUG
 		call nullstub
 #endif
-		jmp original_AddCoins
-			push eax
+		pop ret_AddCoins
+		call original_AddCoins
+		push eax
 			push eax
 			call PostAddCoins
 			add esp, 4
 		pop eax
+		push ret_AddCoins
+		ret
 	}
 }
 

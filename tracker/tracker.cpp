@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string>
+#include <deque>
 #include <iostream>
 #include <fstream>
 char gTrackerID[MAX_STRING] = { 0 };
@@ -118,7 +119,7 @@ void handle_message(const std::string & message)
 	string action = "";
 	for (MessageMap::const_iterator itr = messages.begin(); itr != messages.end(); ++itr){
 		if (itr->first == "action"){
-			cout << "Action: " << itr->second << endl;
+			//cout << "Action: " << itr->second << endl;
 			action = itr->second;
 		}
 	} //End initial loop to get action
@@ -155,21 +156,18 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 			Log("WSAStartup Failed.");
 		}
 #endif
-		websocket = from_url(gIsaacUrl, false, gTrackerID);;
+		websocket = from_url(gIsaacUrl, false, gTrackerID);
 		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
 			Log("Websocket Could not Connect.");
 		}
 		else{
 			Log("Websocket Connected.");
-			while (websocket->getReadyState() != WebSocket::CLOSED) {
+			while (websocket->getReadyState() != WebSocket::CLOSED && bAttached) {
 				websocket->poll();
 				websocket->dispatch(handle_message);
-				if (!SendToServer.empty()){
+				if (SendToServer.size() > 0){
 					websocket->send(SendToServer.back());
 					SendToServer.pop_back();
-				}
-				if (!bAttached){
-					break;
 				}
 			}
 			websocket->close();
@@ -207,66 +205,6 @@ PAPI VOID UnInitPlugin(VOID)
 	trackerLogFile.close();
 }
 
-
-
-void updateServer()
-{
-	PlayerManager *pPlayerManager = GetPlayerManager();
-	if (!pPlayerManager) return;
-	Player *pPlayer = GetPlayerEntity();
-	if (!pPlayer) return;
-	/* craft our json object to send to the server */
-	/* craft our item array */
-	char itembuffer[1024] = { 0 };
-	strcat_s(itembuffer, 1024 - 1, "[");
-	char itemidbuffer[0x32];
-	for (int i = 0; i < 0x15A; i++)
-	{
-		ZeroMemory(itemidbuffer, 0x32);
-		if (pPlayer->_items[i])
-		{
-			sprintf_s(itemidbuffer, 0x32, "%d,", i + 1);
-			strcat_s(itembuffer, 1024 - 1, itemidbuffer);
-		}
-	}
-	/* replace our trailing comma with a closing bracket */
-	itembuffer[strlen(itembuffer) - 1] = ']';
-	if (strlen(itembuffer) == 1){
-		itembuffer[0] = '[';
-		itembuffer[1] = ']';
-	}
-	/* craft our trinket array */
-	char trinketbuffer[1024] = { 0 };
-	strcat_s(trinketbuffer, 1024, "[");
-	char trinketidbuffer[0x32];
-	ZeroMemory(trinketidbuffer, 0x32 - 1);
-	sprintf_s(trinketidbuffer, 0x32 - 1, "%d,", pPlayer->_trinket1ID);
-	strcat_s(trinketbuffer, 1024 - 1, trinketidbuffer);
-	ZeroMemory(trinketidbuffer, 0x32 - 1);
-	sprintf_s(trinketidbuffer, 0x32 - 1, "%d,", pPlayer->_trinket2ID);
-	strcat_s(trinketbuffer, 1024 - 1, trinketidbuffer);
-	/* replace our trailing comma with a closing bracket */
-	trinketbuffer[strlen(trinketbuffer) - 1] = ']';
-
-	/* craft our pocket array */
-	char pocketbuffer[1024] = { 0 };
-	strcat_s(pocketbuffer, 1024 - 1, "[");
-	char pocketidbuffer[0x32];
-	ZeroMemory(pocketidbuffer, 0x32 - 1);
-	sprintf_s(pocketidbuffer, 0x32 - 1, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket1ID, pPlayer->_pocket1isCard);
-	strcat_s(pocketbuffer, 1024 - 1, pocketidbuffer);
-	ZeroMemory(pocketidbuffer, 0x32 - 1);
-	sprintf_s(pocketidbuffer, 0x32 - 1, "{\"id\": %d, \"is_card\": %d},", pPlayer->_pocket2ID, pPlayer->_pocket2isCard);
-	strcat_s(pocketbuffer, 1024 - 1, pocketidbuffer);
-	/* replace our trailing comma with a closing bracket */
-	pocketbuffer[strlen(pocketbuffer) - 1] = ']';
-
-	char buffer2[2048] = { 0 };
-	sprintf_s(buffer2, 2048 - 1, "{\"stream_key\": \"%s\",\"character\": \"%s\", \"characterid\": \"%d\", \"seed\": \"%s\", \"floor\": \"%d\", \"altfloor\": \"%d\", \"curses\": \"%d\", \"guppy\": \"%d\", \"lof\": \"%d\", \"charges\": \"%d\", \"speed\": \"%0.2f\", \"shotspeed\": \"%0.2f\", \"tearrate\": %d, \"damage\": \"%0.2f\", \"luck\": \"%0.2f\", \"range\": \"%0.2f\", \"coins\": \"%d\", \"bombs\": \"%d\", \"keys\": \"%d\", \"items\": %s, \"trinkets\": %s, \"pockets\": %s, \"hardmode\": %d}",
-		gTrackerID, pPlayer->_characterName, pPlayer->_charID, pPlayerManager->_startSeed, pPlayerManager->m_Stage, pPlayerManager->m_AltStage, pPlayerManager->i_curses, pPlayer->_nGuppyItems, pPlayer->_nFlyItems, pPlayer->_charges, pPlayer->_speed, pPlayer->_shotspeed, pPlayer->_tearrate, pPlayer->_damage, pPlayer->_luck, pPlayer->_range, pPlayer->_numCoins, pPlayer->_numBombs, pPlayer->_numKeys, itembuffer, trinketbuffer, pocketbuffer, pPlayerManager->_hard_mode);
-	SendMessage((string)buffer2);
-}
-
 bool bShouldUpdate = false;
 PAPI VOID PostAddCollectible(int ret)
 {
@@ -294,8 +232,12 @@ PAPI VOID PostAddCollectible(int ret)
 		writer.EndArray();
 		writer.String("heldItemID");
 		writer.Int(pPlayer->_helditemid);
-		writer.String("numCharges");
+		writer.String("charges");
 		writer.Int(pPlayer->_charges);
+		writer.String("guppy");
+		writer.Int(pPlayer->_nGuppyItems);
+		writer.String("lof");
+		writer.Int(pPlayer->_nFlyItems);
 		writer.String("luck");
 		writer.Int(pPlayer->_luck);
 		writer.String("damage");
@@ -353,7 +295,6 @@ PAPI VOID PostAddBombs(int ret)
 
 PAPI VOID PostAddCoins(int ret)
 {
-	cout << "...." << endl;
 	StringBuffer s;
 
 	Writer<StringBuffer> writer(s);
@@ -392,6 +333,38 @@ PAPI VOID OnGameUpdate()
 	framesToNextBanner--;
 }
 
+/* ret = boss id found in bossportraits.xml */
+PAPI VOID PostTriggerBossDeath(int ret)
+{
+
+}
+
+PAPI VOID PostLevel__Init(int ret)
+{
+	PlayerManager *pPlayerManager = GetPlayerManager();
+	StringBuffer s;
+
+	Writer<StringBuffer> writer(s);
+	writer.StartObject();
+	writer.String("action");
+	writer.String("updateFloor");
+	writer.String("floor");
+	writer.Int(pPlayerManager->m_Stage);
+	writer.String("altfloor");
+	writer.Int(pPlayerManager->m_AltStage);
+	writer.String("curse");
+	writer.Int(pPlayerManager->_curses);
+	writer.EndObject();
+	cout << s.GetString() << endl;
+	SendMessage(s.GetString());
+}
+
+//returning false here rerolls the item before the player has a chance to see it..
+PAPI bool PostItemPool__GetCollectible(int id)
+{
+	return true;
+}
+
 PAPI VOID PostStartGame(int ret)
 {
 	Player *pPlayer = GetPlayerEntity();
@@ -413,39 +386,5 @@ PAPI VOID PostStartGame(int ret)
 	cout << s.GetString() << endl;
 	SendMessage(s.GetString());
 
-	PostAddCollectible(0);
-	PostAddCoins(pPlayer->_numCoins);
-	PostAddKeys(pPlayer->_numKeys);
-	PostAddBombs(pPlayer->_numBombs);
 	dwFrameCount = 0;
-}
-
-/* ret = boss id found in bossportraits.xml */
-PAPI VOID PostTriggerBossDeath(int ret)
-{
-
-}
-
-PAPI VOID PostLevelInit(int ret)
-{
-	PlayerManager *pPlayerManager = GetPlayerManager();
-	StringBuffer s;
-
-	Writer<StringBuffer> writer(s);
-	writer.StartObject();
-	writer.String("floor");
-	writer.Int(pPlayerManager->m_Stage);
-	writer.String("altfloor");
-	writer.Int(pPlayerManager->m_AltStage);
-	writer.String("curse");
-	writer.Int(pPlayerManager->_curses);
-	writer.EndObject();
-	cout << s.GetString() << endl;
-	SendMessage(s.GetString());
-}
-
-//returning false here rerolls the item before the player has a chance to see it..
-PAPI bool PostItemPool__GetCollectible(int id)
-{
-	return true;
 }
