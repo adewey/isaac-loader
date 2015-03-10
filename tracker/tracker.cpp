@@ -284,7 +284,7 @@ PAPI VOID PostAddCollectible(int ret)
 			for (int i = 0; i < 0x15A; i++)
 			{
 				if (pPlayer->_items[i]){
-					writer.Int(i+1);
+					writer.Int(i);
 					noItems = false;
 				}
 			}
@@ -308,6 +308,11 @@ PAPI VOID PostAddCollectible(int ret)
 		writer.Int(pPlayer->_tearrate);
 		writer.String("speed");
 		writer.Int(pPlayer->_speed);
+		writer.String("trinkets");
+		writer.StartArray();
+		writer.Int(pPlayer->_trinket1ID);
+		writer.Int(pPlayer->_trinket2ID);
+		writer.EndArray();
 	writer.EndObject();
 
 	cout << s.GetString() << endl;
@@ -348,6 +353,7 @@ PAPI VOID PostAddBombs(int ret)
 
 PAPI VOID PostAddCoins(int ret)
 {
+	cout << "...." << endl;
 	StringBuffer s;
 
 	Writer<StringBuffer> writer(s);
@@ -403,12 +409,6 @@ PAPI VOID PostStartGame(int ret)
 		writer.Int(pPlayer->_charID);
 		writer.String("seed");
 		writer.String(pPlayerManager->_startSeed);
-		writer.String("floor");
-		writer.Int(pPlayerManager->m_Stage);
-		writer.String("altfloor");
-		writer.Int(pPlayerManager->m_AltStage);
-		writer.String("curse");
-		writer.Int(pPlayerManager->_curses);
 	writer.EndObject();
 	cout << s.GetString() << endl;
 	SendMessage(s.GetString());
@@ -428,6 +428,20 @@ PAPI VOID PostTriggerBossDeath(int ret)
 
 PAPI VOID PostLevelInit(int ret)
 {
+	PlayerManager *pPlayerManager = GetPlayerManager();
+	StringBuffer s;
+
+	Writer<StringBuffer> writer(s);
+	writer.StartObject();
+	writer.String("floor");
+	writer.Int(pPlayerManager->m_Stage);
+	writer.String("altfloor");
+	writer.Int(pPlayerManager->m_AltStage);
+	writer.String("curse");
+	writer.Int(pPlayerManager->_curses);
+	writer.EndObject();
+	cout << s.GetString() << endl;
+	SendMessage(s.GetString());
 }
 
 //returning false here rerolls the item before the player has a chance to see it..
