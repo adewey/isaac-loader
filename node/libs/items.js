@@ -8,3 +8,5 @@ module.exports.list = function(items) {
         list.push(itemlist[items[i]]);
     return list;
 };
+
+module.exports.items = itemlist;
