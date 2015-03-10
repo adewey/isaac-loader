@@ -1,4 +1,9 @@
 #include "..\loader\plugin.h"
+#include "rapidjson/reader.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/error/en.h"
+#include <map>
 #include "easywsclient.hpp"
 #include "easywsclient.cpp" // <-- include only if you don't want compile separately
 #ifdef _WIN32
@@ -12,18 +17,93 @@
 #include <fstream>
 char gTrackerID[MAX_STRING] = { 0 };
 char *gIsaacUrl = "ws://ws.isaactracker.com";
-
+using namespace rapidjson;
 bool bAttached = false;
 bool bUpdateRequired = false;
 ofstream trackerLogFile;
 using easywsclient::WebSocket;
 static WebSocket::pointer websocket = NULL;
 vector<string> SendToServer;
+vector<vector<string>> ShowWithBanner;
 
+typedef map<string, string> MessageMap;
+struct MessageHandler
+	: public BaseReaderHandler<UTF8<>, MessageHandler> {
+	MessageHandler() : messages_(), state_(kExpectObjectStart), name_() {}
+
+	bool StartObject() {
+		switch (state_) {
+		case kExpectObjectStart:
+			state_ = kExpectNameOrObjectEnd;
+			//cout << "Expected start, starting" << endl;
+			return true;
+		default:
+			//cout << "start, not expected. end" <<endl;
+			return false;
+		}
+	}
+
+	bool String(const char* str, SizeType length, bool) {
+		switch (state_) {
+		case kExpectNameOrObjectEnd:
+			name_ = string(str, length);
+			//cout << "String, Expected name or obj end" << endl;
+			state_ = kExpectValue;
+			return true;
+		case kExpectValue:
+			//cout << "String, Expected value" << endl;
+			messages_.insert(MessageMap::value_type(name_, string(str, length)));
+			state_ = kExpectNameOrObjectEnd;
+			return true;
+		default:
+			//cout << "String, Not Expected" << endl;
+			return false;
+		}
+	}
+	bool Int(int i){
+		switch (state_){
+		case kExpectValue:
+			//cout << "int, expected value " << endl;
+			messages_.insert(MessageMap::value_type(name_,to_string(i)));
+
+			state_ = kExpectNameOrObjectEnd;
+			return true;
+		default:
+			//cout << "int, not expected" << endl;
+			return false;
+		}
+	}
+
+	bool EndObject(SizeType) { return state_ == kExpectNameOrObjectEnd; }
+
+	bool Default() { return false; } // All other events are invalid.
+
+	MessageMap messages_;
+	enum State {
+		kExpectObjectStart,
+		kExpectNameOrObjectEnd,
+		kExpectValue,
+	}state_;
+	std::string name_;
+};
 
 void Log(string message){
 	if (trackerLogFile.is_open()){
 		trackerLogFile << "LOG: " << message << endl;
+	}
+}
+
+void ParseMessages(const char* json, MessageMap& messages) {
+	Reader reader;
+	MessageHandler handler;
+	StringStream ss(json);
+	if (reader.Parse(ss, handler))
+		messages.swap(handler.messages_);   // Only change it if success.
+	else {
+		ParseErrorCode e = reader.GetParseErrorCode();
+		size_t o = reader.GetErrorOffset();
+		//cout << "Error: " << GetParseError_En(e) << endl;;
+		//cout << " at offset " << o << " near '" << string(json).substr(o, 10) << "...'" << endl;
 	}
 }
 
@@ -32,6 +112,36 @@ void handle_message(const std::string & message)
 	string messageLog = "Received Message from server: ";
 	messageLog.append(message);
 	Log(messageLog);
+
+	MessageMap messages;
+	ParseMessages(message.c_str(), messages);
+	string action = "";
+	for (MessageMap::const_iterator itr = messages.begin(); itr != messages.end(); ++itr){
+		if (itr->first == "action"){
+			cout << "Action: " << itr->second << endl;
+			action = itr->second;
+		}
+	} //End initial loop to get action
+	if (action == ""){
+		Log("No action, doing nothing."); 
+	}
+	else if (action == "fortune"){
+		vector<string> lines;
+		for (MessageMap::const_iterator itr = messages.begin(); itr != messages.end(); ++itr){
+			if (itr->first == "line1"){
+				lines.push_back(itr->second);
+			}
+			else if (itr->first == "line2"){
+				lines.push_back(itr->second);
+			}
+			else if (itr->first == "line3"){
+				lines.push_back(itr->second);
+			}
+		} //End loop to get vals
+		//can't actually handle 3 lines yet.... AARON!
+
+		ShowWithBanner.push_back(lines);
+	}
 }
 
 DWORD WINAPI socketHandler(void *pThreadArgument){
@@ -45,7 +155,7 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 			Log("WSAStartup Failed.");
 		}
 #endif
-		websocket = from_url(gIsaacUrl, false, "Client");;
+		websocket = from_url(gIsaacUrl, false, gTrackerID);;
 		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
 			Log("Websocket Could not Connect.");
 		}
@@ -160,47 +270,154 @@ void updateServer()
 bool bShouldUpdate = false;
 PAPI VOID PostAddCollectible(int ret)
 {
-	bShouldUpdate = true;
+	StringBuffer s;
+
+	Writer<StringBuffer> writer(s);
+		writer.StartObject();
+		writer.String("action");
+		writer.String("updateItems");
+		writer.String("items");
+		Player *pPlayer = GetPlayerEntity();
+		if (!pPlayer){ return; }
+		writer.StartArray();
+		bool noItems = true;
+			for (int i = 0; i < 0x15A; i++)
+			{
+				if (pPlayer->_items[i]){
+					writer.Int(i+1);
+					noItems = false;
+				}
+			}
+			if (noItems){
+				writer.Int(0);
+			}
+		writer.EndArray();
+		writer.String("heldItemID");
+		writer.Int(pPlayer->_helditemid);
+		writer.String("numCharges");
+		writer.Int(pPlayer->_charges);
+		writer.String("luck");
+		writer.Int(pPlayer->_luck);
+		writer.String("damage");
+		writer.Int(pPlayer->_damage);
+		writer.String("range");
+		writer.Int(pPlayer->_range);
+		writer.String("shotspeed");
+		writer.Int(pPlayer->_shotspeed);
+		writer.String("tearrate");
+		writer.Int(pPlayer->_tearrate);
+		writer.String("speed");
+		writer.Int(pPlayer->_speed);
+	writer.EndObject();
+
+	cout << s.GetString() << endl;
+	SendMessage(s.GetString());
 }
 
 PAPI VOID PostAddKeys(int ret)
 {
-	bShouldUpdate = true;
+	StringBuffer s;
+
+	Writer<StringBuffer> writer(s);
+	writer.StartObject();
+		writer.String("action");
+		writer.String("updateKeys");
+		writer.String("keys");
+		writer.Int(ret);
+	writer.EndObject();
+	
+	cout << s.GetString() << endl;
+	SendMessage(s.GetString());
 }
 
 PAPI VOID PostAddBombs(int ret)
 {
-	bShouldUpdate = true;
+	StringBuffer s;
+
+	Writer<StringBuffer> writer(s);
+	writer.StartObject();
+		writer.String("action");
+		writer.String("updateBombs");
+		writer.String("bombs");
+		writer.Int(ret);
+	writer.EndObject();
+
+	cout << s.GetString() << endl;
+	SendMessage(s.GetString());
 }
 
 PAPI VOID PostAddCoins(int ret)
 {
-	bShouldUpdate = true;
+	StringBuffer s;
+
+	Writer<StringBuffer> writer(s);
+	writer.StartObject();
+		writer.String("action");
+		writer.String("updateCoins");
+		writer.String("coins");
+		writer.Int(ret);
+	writer.EndObject();
+
+	cout << s.GetString() << endl;
+	SendMessage(s.GetString());
 }
 
 DWORD dwFrameCount = 0;
+int framesToNextBanner = 120;
 bool intro = false;
 PAPI VOID OnGameUpdate()
 {
-	if (dwFrameCount >= (60 * 3) && intro)
+	if (dwFrameCount >= (60 * 3))
 	{
-		intro = false;
-		show_fortune_banner("", "isaactracker loaded!", "");
 	}
 	/* limit updates to once every 30 frames, then wait to update again until we need to */
 	if (dwFrameCount >= (60 * 5) && bShouldUpdate)
 	{
 		bShouldUpdate = false;
 		dwFrameCount = 0;
-		updateServer();
+		//updateServer();
+	}
+	if (!(ShowWithBanner.empty()) && (framesToNextBanner <= 0)){
+		show_fortune_banner(ShowWithBanner.back().at(0).c_str(), ShowWithBanner.back().at(1).c_str(), ShowWithBanner.back().at(2).c_str());
+		ShowWithBanner.pop_back();
+		framesToNextBanner = 60;
 	}
 	dwFrameCount++;
+	framesToNextBanner--;
 }
 
 PAPI VOID PostStartGame(int ret)
 {
+	Player *pPlayer = GetPlayerEntity();
+	PlayerManager *pPlayerManager = GetPlayerManager();
+
+	StringBuffer s;
+
+	Writer<StringBuffer> writer(s);
+	writer.StartObject();
+		writer.String("action");
+		writer.String("newGame");
+		writer.String("character");
+		writer.String(pPlayer->_characterName);
+		writer.String("characterid");
+		writer.Int(pPlayer->_charID);
+		writer.String("seed");
+		writer.String(pPlayerManager->_startSeed);
+		writer.String("floor");
+		writer.Int(pPlayerManager->m_Stage);
+		writer.String("altfloor");
+		writer.Int(pPlayerManager->m_AltStage);
+		writer.String("curse");
+		writer.Int(pPlayerManager->_curses);
+	writer.EndObject();
+	cout << s.GetString() << endl;
+	SendMessage(s.GetString());
+
+	PostAddCollectible(0);
+	PostAddCoins(pPlayer->_numCoins);
+	PostAddKeys(pPlayer->_numKeys);
+	PostAddBombs(pPlayer->_numBombs);
 	dwFrameCount = 0;
-	intro = true;
 }
 
 /* ret = boss id found in bossportraits.xml */
@@ -211,7 +428,6 @@ PAPI VOID PostTriggerBossDeath(int ret)
 
 PAPI VOID PostLevelInit(int ret)
 {
-
 }
 
 //returning false here rerolls the item before the player has a chance to see it..

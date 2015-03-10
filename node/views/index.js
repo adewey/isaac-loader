@@ -7,6 +7,7 @@ var View = require('../libs/views'),
     pockets = require('../libs/pockets'),
     sockets = require('../libs/sockets'),
     websockets = require('../libs/websockets'),
+    _ = require('underscore'),
     zipper = require('../libs/zipper');
 
 /*
@@ -63,29 +64,54 @@ trackerView.asView = function(req, res) {
 };
 
 websockets.on('connection', function (ws) {
-    console.log("User Connected");
-    var user = "0";
+    var user = ws.upgradeReq.headers.origin;
+    ws.send("{ \"action\" : \"fortune\" , \"line1\" : \"Isaac Tracker Connected!\" , \"line2\" : \"" + user + "\" , \"line3\" : \"\" }");
     ws.on('message', function (rdata, flags) {
         if (flags.binary) { return; }
-        var jsonObj = JSON.parse(rdata);
-        var stream_key = jsonObj.stream_key;
-        if (user == "0") {
-            user = stream_key;
-            console.log("User Sent First Message: " + user);
+        if (ws.upgradeReq.headers.origin == "Client") {
+            var jsonObj = JSON.parse(rdata);
+            var stream_key = jsonObj.stream_key;
+            if (user == null) {
+                user = stream_key;
+                console.log("Connected: " + Date(), user);
+            }
+            console.log("Message: " + rdata, user);
+            tracker.pickupItem(stream_key, jsonObj, function (err, data) {
+                if (err || !data) return console.log('Error: ' + err, user);
+                sockets.to(data.display_name).emit('update', trackerView.formatData(data));
+            });
+        } else { //So this is the new code, that no one will hit except Brett right now :D
+            console.log(rdata);
+            var updateData = JSON.parse(rdata);
+            if (updateData) {
+                if (updateData.action == "updateKeys") {
+                    tracker.updateKeys(user, updateData, function (err, data) {
+                        if (err || !data) return console.log('Error: ' + err, user);
+                        sockets.to(data.display_name).emit('update', trackerView.formatData(data));
+                    });
+                } else if (updateData.action == "updateBombs") {
+                    tracker.updateBombs(user, updateData, function (err, data) {
+                        if (err || !data) return console.log('Error: ' + err, user);
+                        sockets.to(data.display_name).emit('update', trackerView.formatData(data));
+                    });
+                } else if (updateData.action == "updateItems") {
+                    tracker.updateItems(user, updateData, function (err, data) {
+                        if (err || !data) return console.log('ERROR: ' + err, user);
+                        console.log("THIS SHOULD WORK!\n\n")
+                        sockets.to(data.display_name).emit('update', trackerView.formatData(data));
+                    });
+                }
+            }
         }
-        tracker.pickupItem(stream_key, jsonObj, function (err, data) {
-            sockets.to(data.display_name).emit('update', trackerView.formatData(data));
-        });
     });
     ws.on('close', function close() {
-        if (user == "0") {
-            console.log("User disconnected before sending any messages.");
-        } else {
-            console.log("User Disconnected: " + user);
+        if (user != null) {
+            console.log("Disconnected: " + Date(), user);
         }
     });
     ws.on('error', function (e) {
-        console.log(e)
+        console.log(e, user)
+        console.log(e);
     });
 });
 
@@ -233,10 +259,27 @@ trackerView.formatData = function (data) {
     }
     data.luck = barsUsed;
     
+    //number of people in this room
+    try {
+	var s = sockets.nsps['/'].adapter.rooms[data.display_name];
+	var o = Object.keys(s).length;
+        data.room_count = o; 
+    } catch (err) {
+        //console.log('Error getting room count');
+    }
     
+    data.seen_items = _.uniq(data.seen_items);
+    for (var i = 0; i < data.seen_items.length; i++) {
+        console.log("Seen Item: " + data.seen_items[i]);
+    }
+    for (var i = 0; i < data.items.length; i++) {
+        console.log("Seen Item: " + data.items[i]);
+    }
+    data.seen_items = _.difference((data.seen_items), (data.items));
     return {
         display_name: data.display_name,
         items: items.list(data.items),
+        seenItems: items.list(data.seen_items),
         trinkets: trinkets.list(data.trinkets),
         pockets: pockets.list(data.pockets),
         character: data.character,
@@ -258,6 +301,7 @@ trackerView.formatData = function (data) {
         luck: data.luck,
         seed: data.seed,
         updated_at: data.updated_at,
+        room_count: data.room_count,
     };
 };
  

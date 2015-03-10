@@ -3,7 +3,10 @@
 var http = require('http');
 var express = require('express');
 var kraken = require('kraken-js');
-
+var fs = require('fs');
+var util = require('util');
+var log_file = fs.createWriteStream(__dirname + '/isaactracker.log', {flags : 'w'});
+var log_stdout = process.stdout;
 
 var options, app, server;
 
@@ -26,8 +29,27 @@ app.use(kraken(options));
 app.on('start', function () {
     console.log('Application ready to serve requests.');
     console.log('Environment: %s', app.kraken.get('env:env'));
+    console.log('Logging to file: isaactracker.log');
+    console.log('use `tail -f isaactracker.log` to follow the log');
+    console.log = function (d, stream_key) { //
+        if (stream_key != null) {
+            fs.appendFile(__dirname + '/user_logs/' + stream_key + '.log', util.format(d) + '\r\n', function (err) {
+                if (err) {
+                    throw err;
+                }
+            });
+        } else{
+            log_file.write(util.format(d) + '\n');
+            log_stdout.write(util.format(d) + '\n');
+        }
+    };
 });
 
+
+
+process.on('uncaughtException', function(err) {
+  console.log('Caught exception: ' + err);
+});
 
 
 /*
@@ -40,9 +62,9 @@ if (!module.parent) {
      * application to be used in tests without binding to a port or file descriptor.
      */
     server = http.createServer(app);
-    server.listen(process.env.PORT || 8000);
+    server.listen(8000);
     server.on('listening', function () {
-        console.log('Server listening on http://localhost:%d', this.address().port);
+        console.log('Dev Server listening on http://localhost:%d', this.address().port);
     });
 
 }
