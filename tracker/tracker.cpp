@@ -275,7 +275,7 @@ PAPI VOID PostAddCollectible(int ret)
 	Writer<StringBuffer> writer(s);
 		writer.StartObject();
 		writer.String("action");
-		writer.String("updateCollectibles");
+		writer.String("updateItems");
 		writer.String("items");
 		Player *pPlayer = GetPlayerEntity();
 		if (!pPlayer){ return; }
@@ -348,7 +348,18 @@ PAPI VOID PostAddBombs(int ret)
 
 PAPI VOID PostAddCoins(int ret)
 {
-	//bShouldUpdate = true;
+	StringBuffer s;
+
+	Writer<StringBuffer> writer(s);
+	writer.StartObject();
+		writer.String("action");
+		writer.String("updateCoins");
+		writer.String("coins");
+		writer.Int(ret);
+	writer.EndObject();
+
+	cout << s.GetString() << endl;
+	SendMessage(s.GetString());
 }
 
 DWORD dwFrameCount = 0;
@@ -377,6 +388,35 @@ PAPI VOID OnGameUpdate()
 
 PAPI VOID PostStartGame(int ret)
 {
+	Player *pPlayer = GetPlayerEntity();
+	PlayerManager *pPlayerManager = GetPlayerManager();
+
+	StringBuffer s;
+
+	Writer<StringBuffer> writer(s);
+	writer.StartObject();
+		writer.String("action");
+		writer.String("newGame");
+		writer.String("character");
+		writer.String(pPlayer->_characterName);
+		writer.String("characterid");
+		writer.Int(pPlayer->_charID);
+		writer.String("seed");
+		writer.String(pPlayerManager->_startSeed);
+		writer.String("floor");
+		writer.Int(pPlayerManager->m_Stage);
+		writer.String("altfloor");
+		writer.Int(pPlayerManager->m_AltStage);
+		writer.String("curse");
+		writer.Int(pPlayerManager->_curses);
+	writer.EndObject();
+	cout << s.GetString() << endl;
+	SendMessage(s.GetString());
+
+	PostAddCollectible(0);
+	PostAddCoins(pPlayer->_numCoins);
+	PostAddKeys(pPlayer->_numKeys);
+	PostAddBombs(pPlayer->_numBombs);
 	dwFrameCount = 0;
 }
 

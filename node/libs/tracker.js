@@ -3,7 +3,9 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     connection = mongoose.connection,
-    uuid = require('node-uuid');
+    uuid = require('node-uuid'),
+    items = require('../libs/items'),
+    _ = require('underscore');
 
 mongoose.connect('mongodb://localhost/trackerdb');
 
@@ -41,6 +43,7 @@ var trackerSchema = new Schema({
     trinkets: [Number],
     pockets: [Schema.Types.Mixed],
     items: [Number],
+    seen_items: [Number],
     guppy: Number,
     lof: Number,
     speed: Number,
@@ -49,6 +52,7 @@ var trackerSchema = new Schema({
     tearrate: Number,
     damage: Number,
     luck: Number,
+    killedbosses: [Number] //0 means not encountered/killed,1+ == boss entity ID
 })
 mongoose.model('Tracker', trackerSchema);
 var Tracker = connection.model('Tracker', trackerSchema);
@@ -60,7 +64,6 @@ function findUsers(callback) {
 function findUser(display_name, callback) {
     Tracker.findOne({display_name: { $regex : new RegExp(display_name, "i") }}, callback);
 };
-
 
 function findUserByKey(stream_key, callback) {
     Tracker.findOne({stream_key: stream_key}, callback);
@@ -75,6 +78,7 @@ function formatUserData(user) {
 
 module.exports.regenerateUUID = function(display_name, callback) {
     findUser(display_name, function(err, res) {
+        if (err) return callback(err);
         var user = undefined;
         if (res) {
             user = res;
@@ -90,6 +94,7 @@ module.exports.regenerateUUID = function(display_name, callback) {
 
 module.exports.getUsers = function (callback) {
     findUsers(function (err, res) {
+        if (err) return callback(err);
         if (res) {
             return callback(err, res);
         }
@@ -97,6 +102,7 @@ module.exports.getUsers = function (callback) {
 }
 module.exports.getOrCreateUser = function(display_name, callback) {
     findUser(display_name, function(err, res) {
+        if (err) return callback(err);
         if (res) {
             return callback(err, formatUserData(res));
         }
@@ -107,7 +113,7 @@ module.exports.getOrCreateUser = function(display_name, callback) {
             updated_at: Date.now(),
             run_start: Date.now(),
             seed: "",
-            floor: 1,
+            floor: [Number], //0:NotStarted,1:StartedNormal,2:StartedAlt,3:ClearedNormal,4:ClearedAlt//
             altfloor: 0,
             curse: 0,
             coins: 0,
@@ -133,6 +139,7 @@ module.exports.getOrCreateUser = function(display_name, callback) {
 
 module.exports.getUserData = function(display_name, callback) {
     findUser(display_name, function(err, res) {
+        if (err || !res) return callback("unknown user: " + stream_key);
         var user = undefined;
         if (res)
             user = res;
@@ -143,6 +150,7 @@ module.exports.getUserData = function(display_name, callback) {
 
 module.exports.newGame = function(stream_key, data, callback) {
     findUserByKey(stream_key, function(err, res) {
+        if (err || !res) return callback("unknown user: " + stream_key);
         var user = undefined;
         if (res) {
             user = res;
@@ -152,11 +160,26 @@ module.exports.newGame = function(stream_key, data, callback) {
             user.character = data.character;
             user.characterid = data.characterid;
             user.seed = data.seed;
-            user.floor = data.floor;
-            user.altfloor = data.altfloor;
+            for (var i = 0; i < 10; i++) {
+                user.floor[i] = 0;
+            }
+            if (data.altfloor) {
+                user.floor[data.floor] = 1;
+            } else {
+                user.floor[data.floor] = 2;
+            }
             user.curse = data.curse;
             user.items = data.items;
             user.seen_items = data.items;
+            user.damage = data.damage;
+            user.speed = data.speed;
+            user.shotspeed = data.shotspeed;
+            user.tearrate = data.tearrate;
+            user.range = data.range;
+            user.luck = data.luck;
+            for (var i = 0; i < 10; i++) {
+                user.killedbosses[i] = 0;
+            }
             return user.save(function(err, res) {
                 return callback(err, formatUserData(user));
             });
@@ -168,6 +191,7 @@ module.exports.newGame = function(stream_key, data, callback) {
 
 module.exports.lostGame = function(stream_key, data, callback) {
     findUserByKey(stream_key, function(err, res) {
+        if (err || !res) return callback("unknown user: " + stream_key);
         var user = undefined;
         if (res) {
             user = res;
@@ -182,25 +206,27 @@ module.exports.lostGame = function(stream_key, data, callback) {
 };
 
 
-module.exports.seenItem = function(stream_key, data, callback) {
-    findUserByKey(stream_key, function(err, res) {
-        var user = undefined;
-        if (res) {
-            user = res;
-            user.updated_at = Date.now();
-            user.seen_items.append(data.item);
-            user.markModified('seen_items');
-            return user.save(function(err, res) {
-                return callback(err, formatUserData(user));
-            });
-        }
-        return callback(err, formatUserData(user));
-    });
-};
+//module.exports.seenItem = function(stream_key, data, callback) {
+//    findUserByKey(stream_key, function(err, res) {
+//        if (err || !res) return callback(err);
+//        var user = undefined;
+//        if (res) {
+//            user = res;
+//            user.updated_at = Date.now();
+//            user.seen_items.append(data.item);
+//            user.markModified('seen_items');
+//            return user.save(function(err, res) {
+//                return callback(err, formatUserData(user));
+//            });
+//        }
+//        return callback(err, formatUserData(user));
+//    });
+//};
 
 
 module.exports.pickupItem = function(stream_key, data, callback) {
     findUserByKey(stream_key, function(err, res) {
+        if (err || !res) return callback("unknown user: " + stream_key);
         var user = undefined;
         if (res) {
             user = res;
@@ -240,6 +266,7 @@ module.exports.pickupItem = function(stream_key, data, callback) {
 
 module.exports.changeCharacter = function(stream_key, data, callback) {
     findUserByKey(stream_key, function(err, res) {
+        if (err || !res) return callback("unknown user: " + stream_key);
         var user = undefined;
         if (res) {
             user = res;
@@ -256,6 +283,7 @@ module.exports.changeCharacter = function(stream_key, data, callback) {
 
 module.exports.updateFloor = function(stream_key, data, callback) {
     findUserByKey(stream_key, function(err, res) {
+        if (err || !res) return callback("unknown user: " + stream_key);
         var user = undefined;
         if (res) {
             user = res;
@@ -272,6 +300,7 @@ module.exports.updateFloor = function(stream_key, data, callback) {
 
 module.exports.updateCurse = function(stream_key, data, callback) {
     findUserByKey(stream_key, function(err, res) {
+        if (err || !res) return callback("unknown user: " + stream_key);
         var user = undefined;
         if (res) {
             user = res;
@@ -287,6 +316,7 @@ module.exports.updateCurse = function(stream_key, data, callback) {
 
 module.exports.updateKeys = function (stream_key, data, callback) {
     findUserByKey(stream_key, function (err, res) {
+        if (err || !res) return callback(err);
         var user = undefined;
         if (res) {
             user = res;
@@ -301,6 +331,7 @@ module.exports.updateKeys = function (stream_key, data, callback) {
 
 module.exports.updateBombs = function (stream_key, data, callback) {
     findUserByKey(stream_key, function (err, res) {
+        if (err || !res) return callback(err);
         var user = undefined;
         if (res) {
             user = res;
@@ -313,19 +344,27 @@ module.exports.updateBombs = function (stream_key, data, callback) {
     });
 };
 
-mdoule.exports.updateItems = function (stream_key, data, callback) {
-    findUserByKey(stream_key,function(err,res){
-        if(res){
+module.exports.updateItems = function (stream_key, data, callback) {
+    findUserByKey(stream_key, function (err, res) {
+        if (err || !res) return callback(err);
+        var user = undefined;
+        if (res) {
             user = res;
             user.updated_at = Date.now();
             user.items = data.items;
-            user.seen_items = data.seen_items;
+            user.seen_items = _.union(user.seen_items, user.items);
+            for (var i; i < user.seen_items.length; i++){
+                console.log("seenItems" + user.seen_items[i]);
+            }
             user.damage = data.damage;
             user.speed = data.speed;
             user.shotspeed = data.shotspeed;
             user.tearrate = data.tearrate;
             user.range = data.range;
             user.luck = data.luck;
+            return user.save(function (err, res) {
+                return callback(err, formatUserData(user));
+            });
         }
-    }
+    });
 }

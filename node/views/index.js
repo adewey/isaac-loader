@@ -7,6 +7,7 @@ var View = require('../libs/views'),
     pockets = require('../libs/pockets'),
     sockets = require('../libs/sockets'),
     websockets = require('../libs/websockets'),
+    _ = require('underscore'),
     zipper = require('../libs/zipper');
 
 /*
@@ -64,7 +65,7 @@ trackerView.asView = function(req, res) {
 
 websockets.on('connection', function (ws) {
     var user = ws.upgradeReq.headers.origin;
-    ws.send("{ \"action\" : \"fortune\" , \"line1\" : \"\" , \"line2\" : \"Isaac Tracker Connected!\" , \"line3\" : \"\" }");
+    ws.send("{ \"action\" : \"fortune\" , \"line1\" : \"Isaac Tracker Connected!\" , \"line2\" : \"" + user + "\" , \"line3\" : \"\" }");
     ws.on('message', function (rdata, flags) {
         if (flags.binary) { return; }
         if (ws.upgradeReq.headers.origin == "Client") {
@@ -76,6 +77,7 @@ websockets.on('connection', function (ws) {
             }
             console.log("Message: " + rdata, user);
             tracker.pickupItem(stream_key, jsonObj, function (err, data) {
+                if (err || !data) return console.log('Error: ' + err, user);
                 sockets.to(data.display_name).emit('update', trackerView.formatData(data));
             });
         } else { //So this is the new code, that no one will hit except Brett right now :D
@@ -84,10 +86,18 @@ websockets.on('connection', function (ws) {
             if (updateData) {
                 if (updateData.action == "updateKeys") {
                     tracker.updateKeys(user, updateData, function (err, data) {
+                        if (err || !data) return console.log('Error: ' + err, user);
                         sockets.to(data.display_name).emit('update', trackerView.formatData(data));
                     });
                 } else if (updateData.action == "updateBombs") {
                     tracker.updateBombs(user, updateData, function (err, data) {
+                        if (err || !data) return console.log('Error: ' + err, user);
+                        sockets.to(data.display_name).emit('update', trackerView.formatData(data));
+                    });
+                } else if (updateData.action == "updateItems") {
+                    tracker.updateItems(user, updateData, function (err, data) {
+                        if (err || !data) return console.log('ERROR: ' + err, user);
+                        console.log("THIS SHOULD WORK!\n\n")
                         sockets.to(data.display_name).emit('update', trackerView.formatData(data));
                     });
                 }
@@ -257,9 +267,19 @@ trackerView.formatData = function (data) {
     } catch (err) {
         //console.log('Error getting room count');
     }
+    
+    data.seen_items = _.uniq(data.seen_items);
+    for (var i = 0; i < data.seen_items.length; i++) {
+        console.log("Seen Item: " + data.seen_items[i]);
+    }
+    for (var i = 0; i < data.items.length; i++) {
+        console.log("Seen Item: " + data.items[i]);
+    }
+    data.seen_items = _.difference((data.seen_items), (data.items));
     return {
         display_name: data.display_name,
         items: items.list(data.items),
+        seenItems: items.list(data.seen_items),
         trinkets: trinkets.list(data.trinkets),
         pockets: pockets.list(data.pockets),
         character: data.character,

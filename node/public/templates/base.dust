@@ -48,6 +48,7 @@
                     </li>
                     {/user}
                 </ul>
+				<h1 class="alert-warning">Database upgrades! Redownload! (Read News)</h1>
             </div>
         </header>
 		<!-- /header -->
@@ -55,6 +56,7 @@
 		<!-- body -->
         <section class="container">
             <div class="col-xs-10 col-xs-push-1">
+                <!--<div class="alert alert-warning text-center" role="alert"><a href="/download/">Please download the newest version of isaactracker. This will prevent problems if and when Isaac is updated.</a></div>-->
                 {+content /}
             </div>
         </section>
