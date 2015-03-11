@@ -38,46 +38,6 @@ int __fastcall addCollectible(Player *pPlayer, int relatedID, int itemID, int ch
 	return ret;
 }
 
-DWORD dwAddKeys = 0;
-int(__fastcall *original_AddKeys)(Player *pPlayer, int _EDX, int nKeys);
-int __fastcall AddKeys(Player *pPlayer, int _EDX, int nKeys)
-{
-	int	ret = original_AddKeys(pPlayer, _EDX, nKeys);
-	PostAddKeys(ret);
-	return ret;
-}
-
-DWORD dwAddBombs = 0;
-int(__fastcall *original_AddBombs)(Player *pPlayer, int _EDX, int nBombs);
-int __fastcall AddBombs(Player *pPlayer, int _EDX, int nBombs)
-{
-	int	ret = original_AddBombs(pPlayer, _EDX, nBombs);
-	PostAddBombs(ret);
-	return ret;
-}
-
-DWORD dwAddCoins = 0;
-DWORD original_AddCoins = 0;
-DWORD ret_AddCoins = 0;
-__declspec(naked) char AddCoins()
-{
-	_asm
-	{
-#ifndef _DEBUG
-		call nullstub
-#endif
-		pop ret_AddCoins
-		call original_AddCoins
-		push eax
-			push eax
-			call PostAddCoins
-			add esp, 4
-		pop eax
-		push ret_AddCoins
-		ret
-	}
-}
-
 DWORD dwTriggerBossDeath = 0;
 DWORD original_TriggerBossDeath = 0;
 __declspec(naked) char TriggerBossDeath()
@@ -185,20 +145,6 @@ void InitHooks()
 	if (gdwAddCollectible)
 		original_addCollectible = (int(__fastcall *)(Player *, int, int, int, int))DetourFunction((PBYTE)gdwAddCollectible, (PBYTE)addCollectible);
 
-	dwAddKeys = gdwBaseAddress + 0xCEBE0;
-	if (dwAddKeys)
-		original_AddKeys = (int(__fastcall *)(Player *, int, int))DetourFunction((PBYTE)dwAddKeys, (PBYTE)AddKeys);
-
-	dwAddBombs = gdwBaseAddress + 0xCEB90;
-	if (dwAddBombs)
-		original_AddBombs = (int(__fastcall *)(Player *, int, int))DetourFunction((PBYTE)dwAddBombs, (PBYTE)AddBombs);
-
-	dwAddCoins = dwFindPattern(gdwBaseAddress, gdwBaseSize,
-		(PBYTE)"\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x0C\x53\x8B\xD8",
-		"xxxxxxxxxxxx");
-	if (dwAddCoins)
-		original_AddCoins = (DWORD)DetourFunction((PBYTE)dwAddCoins, (PBYTE)AddCoins);
-
 	dwTriggerBossDeath = dwFindPattern(gdwBaseAddress, gdwBaseSize,
 		(PBYTE)"\x80\x7E\x01\x00\x0F\x85",
 		"xxxxxx");
@@ -241,9 +187,6 @@ void InitHooks()
 void RemoveHooks()
 {
 	/* un-detour functions */
-	DetourRemove((PBYTE)original_AddKeys, (PBYTE)addCollectible);
 	DetourRemove((PBYTE)original_gameUpdate, (PBYTE)gameUpdate);
-	DetourRemove((PBYTE)original_addCollectible, (PBYTE)AddKeys);
-	DetourRemove((PBYTE)original_AddBombs, (PBYTE)AddBombs);
-	DetourRemove((PBYTE)original_AddCoins, (PBYTE)AddCoins);
+	DetourRemove((PBYTE)original_addCollectible, (PBYTE)addCollectible);
 }

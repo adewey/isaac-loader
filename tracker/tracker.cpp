@@ -20,7 +20,7 @@ char gTrackerID[MAX_STRING] = { 0 };
 char *gIsaacUrl = "ws://ws.isaactracker.com";
 using namespace rapidjson;
 bool bAttached = false;
-bool bUpdateRequired = false;
+bool bSendUpdate = false;
 ofstream trackerLogFile;
 using easywsclient::WebSocket;
 static WebSocket::pointer websocket = NULL;
@@ -146,7 +146,8 @@ void handle_message(const std::string & message)
 }
 
 DWORD WINAPI socketHandler(void *pThreadArgument){
-	while (bAttached){
+	while (bAttached)
+	{
 #ifdef _WIN32
 		INT rc;
 		WSADATA wsaData;
@@ -157,17 +158,21 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 		}
 #endif
 		websocket = from_url(gIsaacUrl, false, gTrackerID);
-		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED){
+		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED) {
 			Log("Websocket Could not Connect.");
 		}
-		else{
+		else {
 			Log("Websocket Connected.");
-			while (websocket->getReadyState() != WebSocket::CLOSED && bAttached) {
+			while (websocket->getReadyState() != WebSocket::CLOSED && bAttached)
+			{
 				websocket->poll();
 				websocket->dispatch(handle_message);
-				if (SendToServer.size() > 0){
+				if (SendToServer.size() > 0 && bSendUpdate)
+				{
 					websocket->send(SendToServer.back());
+					cout << SendToServer.back().c_str() << endl;
 					SendToServer.pop_back();
+					bSendUpdate = false;
 				}
 			}
 			websocket->close();
@@ -205,11 +210,9 @@ PAPI VOID UnInitPlugin(VOID)
 	trackerLogFile.close();
 }
 
-bool bShouldUpdate = false;
 PAPI VOID PostAddCollectible(int ret)
 {
 	StringBuffer s;
-
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
 		writer.String("action");
@@ -256,15 +259,14 @@ PAPI VOID PostAddCollectible(int ret)
 			writer.Int(pPlayer->_trinket2ID);
 		writer.EndArray();
 	writer.EndObject();
-
-	cout << s.GetString() << endl;
 	SendMessage(s.GetString());
 }
 
+int curKeys = 0;
 PAPI VOID PostAddKeys(int ret)
 {
+	curKeys = ret;
 	StringBuffer s;
-
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
 		writer.String("action");
@@ -272,15 +274,14 @@ PAPI VOID PostAddKeys(int ret)
 		writer.String("keys");
 		writer.Int(ret);
 	writer.EndObject();
-	
-	cout << s.GetString() << endl;
 	SendMessage(s.GetString());
 }
 
+int curBombs = 0;
 PAPI VOID PostAddBombs(int ret)
 {
+	curBombs = ret;
 	StringBuffer s;
-
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
 		writer.String("action");
@@ -288,15 +289,14 @@ PAPI VOID PostAddBombs(int ret)
 		writer.String("bombs");
 		writer.Int(ret);
 	writer.EndObject();
-
-	cout << s.GetString() << endl;
 	SendMessage(s.GetString());
 }
 
+int curCoins = 0;
 PAPI VOID PostAddCoins(int ret)
 {
+	curCoins = ret;
 	StringBuffer s;
-
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
 		writer.String("action");
@@ -304,27 +304,30 @@ PAPI VOID PostAddCoins(int ret)
 		writer.String("coins");
 		writer.Int(ret);
 	writer.EndObject();
-
-	cout << s.GetString() << endl;
 	SendMessage(s.GetString());
 }
 
 DWORD dwFrameCount = 0;
 int framesToNextBanner = 120;
-bool intro = false;
 PAPI VOID OnGameUpdate()
 {
-	if (dwFrameCount >= (60 * 3))
+	if (dwFrameCount >= 60 * 3 && !bSendUpdate)
 	{
-	}
-	/* limit updates to once every 30 frames, then wait to update again until we need to */
-	if (dwFrameCount >= (60 * 5) && bShouldUpdate)
-	{
-		bShouldUpdate = false;
 		dwFrameCount = 0;
-		//updateServer();
+		bSendUpdate = true;
 	}
-	if (!(ShowWithBanner.empty()) && (framesToNextBanner <= 0)){
+	if (dwFrameCount >= 60 * 10)
+	{
+		Player *pPlayer = GetPlayerEntity();
+		if (curBombs != pPlayer->_numBombs)
+			PostAddBombs(pPlayer->_numBombs);
+		if (curCoins != pPlayer->_numCoins)
+			PostAddCoins(pPlayer->_numCoins);
+		if (curKeys != pPlayer->_numKeys)
+			PostAddKeys(pPlayer->_numKeys);
+		dwFrameCount = 0;
+	}
+	if (!ShowWithBanner.empty() && framesToNextBanner <= 0){
 		show_fortune_banner(ShowWithBanner.back().at(0).c_str(), ShowWithBanner.back().at(1).c_str(), ShowWithBanner.back().at(2).c_str());
 		ShowWithBanner.pop_back();
 		framesToNextBanner = 60;
@@ -343,7 +346,6 @@ PAPI VOID PostLevel__Init(int ret)
 {
 	PlayerManager *pPlayerManager = GetPlayerManager();
 	StringBuffer s;
-
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
 		writer.String("action");
@@ -357,7 +359,6 @@ PAPI VOID PostLevel__Init(int ret)
 		writer.String("seed");
 		writer.String(pPlayerManager->_startSeed);
 	writer.EndObject();
-	cout << s.GetString() << endl;
 	SendMessage(s.GetString());
 }
 
@@ -373,7 +374,6 @@ PAPI VOID PostStartGame(int ret)
 	PlayerManager *pPlayerManager = GetPlayerManager();
 
 	StringBuffer s;
-
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
 		writer.String("action");
@@ -389,8 +389,8 @@ PAPI VOID PostStartGame(int ret)
 		writer.String("curse");
 		writer.Int(pPlayerManager->_curses);
 	writer.EndObject();
-	cout << s.GetString() << endl;
 	SendMessage(s.GetString());
 
 	dwFrameCount = 0;
+	bSendUpdate = true;
 }
