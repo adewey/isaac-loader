@@ -49,9 +49,6 @@ bool LoadPlugin(const char *fn)
 	pPlugin->UnInitPlugin = (fUnInitPlugin)GetProcAddress(hmod, "UnInitPlugin");
 	pPlugin->PostStartGame = (fPostStartGame)GetProcAddress(hmod, "PostStartGame");
 	pPlugin->PostAddCollectible = (fPostAddCollectible)GetProcAddress(hmod, "PostAddCollectible");
-	pPlugin->PostAddKeys = (fPostAddKeys)GetProcAddress(hmod, "PostAddKeys");
-	pPlugin->PostAddBombs = (fPostAddBombs)GetProcAddress(hmod, "PostAddBombs");
-	pPlugin->PostAddCoins = (fPostAddCoins)GetProcAddress(hmod, "PostAddCoins");
 	pPlugin->PostTriggerBossDeath = (fPostTriggerBossDeath)GetProcAddress(hmod, "PostTriggerBossDeath");
 	pPlugin->PostLevel__Init = (fPostLevel__Init)GetProcAddress(hmod, "PostLevel__Init");
 	pPlugin->PostEntity_Pickup__Init = (fPostEntity_Pickup__Init)GetProcAddress(hmod, "PostEntity_Pickup__Init");
@@ -159,42 +156,6 @@ void PostAddCollectible(int ret)
 	{
 		if (pPlugin->PostAddCollectible){
 			pPlugin->PostAddCollectible(ret);
-		}
-		pPlugin = pPlugin->pNext;
-	}
-}
-
-void PostAddKeys(int ret)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->PostAddKeys){
-			pPlugin->PostAddKeys(ret);
-		}
-		pPlugin = pPlugin->pNext;
-	}
-}
-
-void PostAddBombs(int ret)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->PostAddBombs){
-			pPlugin->PostAddBombs(ret);
-		}
-		pPlugin = pPlugin->pNext;
-	}
-}
-
-void PostAddCoins(int ret)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->PostAddCoins){
-			pPlugin->PostAddCoins(ret);
 		}
 		pPlugin = pPlugin->pNext;
 	}
