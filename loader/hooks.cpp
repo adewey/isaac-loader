@@ -38,6 +38,7 @@ int __fastcall addCollectible(Player *pPlayer, int relatedID, int itemID, int ch
 	return ret;
 }
 
+
 DWORD dwTriggerBossDeath = 0;
 DWORD original_TriggerBossDeath = 0;
 __declspec(naked) char TriggerBossDeath()
@@ -47,12 +48,12 @@ __declspec(naked) char TriggerBossDeath()
 #ifndef _DEBUG
 		call nullstub
 #endif
-		jmp original_TriggerBossDeath
+			jmp original_TriggerBossDeath
 			push eax
 			push eax
 			call PostTriggerBossDeath
 			add esp, 4
-		pop eax
+			pop eax
 	}
 }
 
@@ -65,7 +66,6 @@ int __fastcall Level__Init(Player *pPlayer, int _EDX)
 	return ret;
 }
 
-#define printarg(i, arg) cout << i << ":" << "\t" << (void *)arg << "\t" << (float)arg << endl;
 DWORD dwEntity_Pickup__Init = 0;
 int(__fastcall *original_Entity_Pickup__Init)(Entity *pItem, int _EDX, int type, int variant, int subtype, int unkown);
 int __fastcall Entity_Pickup__Init(Entity *pItem, int _EDX, int type, int variant, int subtype, int unkown)
@@ -117,6 +117,30 @@ void __cdecl gameUpdate()
 {
 	OnGameUpdate();
 	original_gameUpdate();
+}
+
+
+#define printarg(i, arg) cout << i << ":" << "\t" << (void *)arg << "\t" << (float)arg << endl;
+DWORD gdw576270 = 0;
+bool(__fastcall *original_576270)(int a1, int _EDX, int a2, int a3, int a4);
+bool __fastcall sub_576270(int a1, int _EDX, int a2, int a3, int a4)
+{
+	/*
+	if (!*(DWORD *)(a1 + 0x10))
+	{
+		DWORD v2 = *(DWORD *)(a1 + 0xCEC);
+	}
+	cout << "576270: " << (void *) << endl;
+	*/
+
+	bool rTriggerHeld = false;
+	bool ret = original_576270(a1, _EDX, a2, a3, a4);
+	if (a2 == 11 && rTriggerHeld && ret)
+		cout << "Dropping Trinkets and PocketItems" << endl;
+	if (ret) {
+		//printarg("a2", a2);
+	}
+	return ret;
 }
 
 void InitHooks()
@@ -182,6 +206,22 @@ void InitHooks()
 	if (dwEntity_Pickup__Morph)
 		original_Entity_Pickup__Morph = (DWORD)DetourFunction((PBYTE)dwEntity_Pickup__Morph, (PBYTE)Entity_Pickup__Morph);
 	*/
+
+	/*
+	gdw576270 = gdwBaseAddress + 0x176270;
+		/*
+		dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(PBYTE)"\x55\x8B\xEC\x8B\x45\x0C\x53\x32\xDB\x56\x8B"
+		"\xF1\x83\xF8\xFF\x75\x7D\x8B\x46\x38\x8B\x50\x08\x8D"
+		"\x4E\x38\x57\x6A\xFF\x89\x4D\x0C\xFF\xD2\x8B\x46\x08"
+		"\x2B\x46\x04\x33\xFF\xC1\xF8\x02\x85\xC0\x74\x4A\x8B"
+		"\x4E\x04\x8B\x0C\xB9\x8B\x11\x8B\x45\x08\x8B\x52\x20",
+		"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+	if (gdw576270)
+	{
+		cout << "gdw576270: " << (void *)(gdw576270 - gdwBaseAddress) << endl;
+		original_576270 = (bool(__fastcall *)(int a1, int _EDX, int a2, int a3, int a4))DetourFunction((PBYTE)gdw576270, (PBYTE)sub_576270);
+	}*/
 }
 
 void RemoveHooks()

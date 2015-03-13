@@ -78,7 +78,7 @@ public:
 /*[0x2F98]*/		BOOL _pocket1isCard;
 /*[0x2F9C]*/		int _pocket2ID;
 /*[0x2FA0]*/		BOOL _pocket2isCard;
-/*[0x2FA4]*/		char _unk2FA4[0x10];
+/*[0x2FA4]*/		char _unk2FA4[0x10];// this offset is related to right trigger being held down
 /*[0x2FB4]*/		int _nGuppyItems;
 /*[0x2FB8]*/		int _nFlyItems;
 };

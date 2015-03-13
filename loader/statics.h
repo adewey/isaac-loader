@@ -50,6 +50,14 @@ typedef struct PlayerManager
 /*0x10D8C4*/	BOOL _hard_mode;
 } PLAYERMANAGER;
 
+/*
+if ( v10 == 7 ) //trinket rosary beads
+{
+v16 = PlayerManager;
+*(_DWORD *)(LODWORD(v16) + 0x6F74) -= 5;
+*(_DWORD *)(LODWORD(v16) + 0x6E5C) -= 5;
+*/
+
 GLOBAL DWORD gdwPlayerManager;
 GLOBAL DWORD gdwGetPlayerEntity;
 GLOBAL void ToggleCurseOfTheBlind();

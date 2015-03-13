@@ -167,7 +167,7 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 			{
 				websocket->poll();
 				websocket->dispatch(handle_message);
-				if (SendToServer.size() > 0 && bSendUpdate)
+				if (SendToServer.size() > 0)// && bSendUpdate)
 				{
 					websocket->send(SendToServer.back());
 					cout << SendToServer.back().c_str() << endl;
@@ -253,11 +253,6 @@ PAPI VOID PostAddCollectible(int ret)
 		writer.Int(pPlayer->_tearrate);
 		writer.String("speed");
 		writer.Int(pPlayer->_speed);
-		writer.String("trinkets");
-		writer.StartArray();
-			writer.Int(pPlayer->_trinket1ID);
-			writer.Int(pPlayer->_trinket2ID);
-		writer.EndArray();
 	writer.EndObject();
 	SendMessage(s.GetString());
 }
@@ -299,22 +294,48 @@ PAPI VOID PostAddCoins(int ret)
 	StringBuffer s;
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
-		writer.String("action");
-		writer.String("updateCoins");
-		writer.String("coins");
-		writer.Int(ret);
+	writer.String("action");
+	writer.String("updateCoins");
+	writer.String("coins");
+	writer.Int(ret);
+	writer.EndObject();
+	SendMessage(s.GetString());
+}
+
+int trinket1id = 0;
+int trinket2id = 0;
+PAPI VOID UpdateTrinkets(int id1, int id2)
+{
+	trinket1id = id1;
+	trinket2id = id2;
+	StringBuffer s;
+	Writer<StringBuffer> writer(s);
+	writer.StartObject();
+	writer.String("action");
+	writer.String("updateTrinkets");
+	writer.String("trinkets");
+	writer.StartArray();
+		writer.Int(id2);
+		writer.Int(id1);
+	writer.EndArray();
 	writer.EndObject();
 	SendMessage(s.GetString());
 }
 
 DWORD dwFrameCount = 0;
 int framesToNextBanner = 120;
+bool intro = false;
 PAPI VOID OnGameUpdate()
 {
+	if (dwFrameCount >= (60 * 3) && intro)
+	{
+		intro = false;
+		show_fortune_banner("", "isaactracker loaded!", "");
+	}
 	if (dwFrameCount >= 60 * 3 && !bSendUpdate)
 	{
-		dwFrameCount = 0;
 		bSendUpdate = true;
+		dwFrameCount = 0;
 	}
 	if (dwFrameCount >= 60 * 10)
 	{
@@ -325,6 +346,8 @@ PAPI VOID OnGameUpdate()
 			PostAddCoins(pPlayer->_numCoins);
 		if (curKeys != pPlayer->_numKeys)
 			PostAddKeys(pPlayer->_numKeys);
+		if (trinket1id != pPlayer->_trinket1ID || trinket2id != pPlayer->_trinket2ID)
+			UpdateTrinkets(pPlayer->_trinket1ID, pPlayer->_trinket2ID);
 		dwFrameCount = 0;
 	}
 	if (!ShowWithBanner.empty() && framesToNextBanner <= 0){
@@ -388,9 +411,11 @@ PAPI VOID PostStartGame(int ret)
 		writer.Int(pPlayerManager->m_AltStage);
 		writer.String("curse");
 		writer.Int(pPlayerManager->_curses);
+		writer.String("hardmode");
+		writer.Int(pPlayerManager->_hard_mode);
 	writer.EndObject();
 	SendMessage(s.GetString());
 
-	dwFrameCount = 0;
 	bSendUpdate = true;
+	intro = true;
 }
