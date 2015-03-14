@@ -47,15 +47,23 @@ bool LoadPlugin(const char *fn)
 
 	pPlugin->InitPlugin = (fInitPlugin)GetProcAddress(hmod, "InitPlugin");
 	pPlugin->UnInitPlugin = (fUnInitPlugin)GetProcAddress(hmod, "UnInitPlugin");
-	pPlugin->PostStartGame = (fPostStartGame)GetProcAddress(hmod, "PostStartGame");
-	pPlugin->PostAddCollectible = (fPostAddCollectible)GetProcAddress(hmod, "PostAddCollectible");
+
+	pPlugin->PreGame__Start = (fPreGame__Start)GetProcAddress(hmod, "PreGame__Start");
+	pPlugin->OnGame__Start = (fOnGame__Start)GetProcAddress(hmod, "OnGame__Start");
+	pPlugin->PostGame__Start = (fPostGame__Start)GetProcAddress(hmod, "PostGame__Start");
+
+	pPlugin->PrePlayer_Entity__AddCollectible = (fPrePlayer_Entity__AddCollectible)GetProcAddress(hmod, "PrePlayer_Entity__AddCollectible");
+	pPlugin->OnPlayer_Entity__AddCollectible = (fOnPlayer_Entity__AddCollectible)GetProcAddress(hmod, "OnPlayer_Entity__AddCollectible");
+	pPlugin->PostPlayer_Entity__AddCollectible = (fPostPlayer_Entity__AddCollectible)GetProcAddress(hmod, "PostPlayer_Entity__AddCollectible");
+
 	pPlugin->PostTriggerBossDeath = (fPostTriggerBossDeath)GetProcAddress(hmod, "PostTriggerBossDeath");
+
+	pPlugin->OnLevel__Init = (fOnLevel__Init)GetProcAddress(hmod, "OnLevel__Init");
 	pPlugin->PostLevel__Init = (fPostLevel__Init)GetProcAddress(hmod, "PostLevel__Init");
-	pPlugin->PostEntity_Pickup__Init = (fPostEntity_Pickup__Init)GetProcAddress(hmod, "PostEntity_Pickup__Init");
+
+	pPlugin->PreItemPool__GetCollectible = (fPreItemPool__GetCollectible)GetProcAddress(hmod, "PreItemPool__GetCollectible");
 	pPlugin->PostItemPool__GetCollectible = (fPostItemPool__GetCollectible)GetProcAddress(hmod, "PostItemPool__GetCollectible");
-	pPlugin->PostEntity_Shop_Pickup__Init = (fPostEntity_Shop_Pickup__Init)GetProcAddress(hmod, "PostEntity_Shop_Pickup__Init");
-	pPlugin->OnEntity_Pickup__Morph = (fOnEntity_Pickup__Morph)GetProcAddress(hmod, "OnEntity_Pickup__Morph");
-	pPlugin->PostEntity_Pickup__Morph = (fPostEntity_Pickup__Morph)GetProcAddress(hmod, "PostEntity_Pickup__Morph");
+
 	pPlugin->OnGameUpdate = (fOnGameUpdate)GetProcAddress(hmod, "OnGameUpdate");
 
 	if (pPlugin->InitPlugin)
@@ -137,29 +145,83 @@ void InitPlugins()
 		LoadPlugin(szPluginList[o]);
 }
 
-void PostStartGame(int ret)
+
+
+void PreGame__Start(int *challenge_id, bool *disable_achievements, int *character_id, char *seed, bool *hard_mode)
 {
 	PPLUGIN pPlugin = pPluginList;
 	while (pPlugin)
 	{
-		if (pPlugin->PostStartGame){
-			pPlugin->PostStartGame(ret);
+		if (pPlugin->PreGame__Start){
+			pPlugin->PreGame__Start(challenge_id, disable_achievements, character_id, seed, hard_mode);
 		}
 		pPlugin = pPlugin->pNext;
 	}
 }
 
-void PostAddCollectible(int ret)
+void OnGame__Start(int challenge_id, bool disable_achievements, int character_id, char *seed, bool hard_mode)
 {
 	PPLUGIN pPlugin = pPluginList;
 	while (pPlugin)
 	{
-		if (pPlugin->PostAddCollectible){
-			pPlugin->PostAddCollectible(ret);
+		if (pPlugin->OnGame__Start){
+			pPlugin->OnGame__Start(challenge_id, disable_achievements, character_id, seed, hard_mode);
 		}
 		pPlugin = pPlugin->pNext;
 	}
 }
+
+void PostGame__Start(int ret)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->PostGame__Start){
+			pPlugin->PostGame__Start(ret);
+		}
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+
+
+void PrePlayer_Entity__AddCollectible(Player *pPlayer, int *item_id, int *charges)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->PrePlayer_Entity__AddCollectible){
+			pPlugin->PrePlayer_Entity__AddCollectible(pPlayer, item_id, charges);
+		}
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+void OnPlayer_Entity__AddCollectible(Player *pPlayer, int item_id, int charges)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->OnPlayer_Entity__AddCollectible){
+			pPlugin->OnPlayer_Entity__AddCollectible(pPlayer, item_id, charges);
+		}
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+void PostPlayer_Entity__AddCollectible(int ret)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->PostPlayer_Entity__AddCollectible){
+			pPlugin->PostPlayer_Entity__AddCollectible(ret);
+		}
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+
 
 void PostTriggerBossDeath(int ret)
 {
@@ -168,6 +230,19 @@ void PostTriggerBossDeath(int ret)
 	{
 		if (pPlugin->PostTriggerBossDeath){
 			pPlugin->PostTriggerBossDeath(ret);
+		}
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+
+void OnLevel__Init(int level)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->OnLevel__Init){
+			pPlugin->OnLevel__Init(level);
 		}
 		pPlugin = pPlugin->pNext;
 	}
@@ -185,14 +260,16 @@ void PostLevel__Init(int ret)
 	}
 }
 
-bool PostEntity_Pickup__Init(int id)
+
+
+bool PreItemPool__GetCollectible(int id)
 {
 	PPLUGIN pPlugin = pPluginList;
 	bool ret = true;
 	while (pPlugin)
 	{
-		if (pPlugin->PostEntity_Pickup__Init){
-			if (!pPlugin->PostEntity_Pickup__Init(id))
+		if (pPlugin->PreItemPool__GetCollectible){
+			if (!pPlugin->PreItemPool__GetCollectible(id))
 				ret = false;
 		}
 		pPlugin = pPlugin->pNext;
@@ -200,43 +277,21 @@ bool PostEntity_Pickup__Init(int id)
 	return ret;
 }
 
-bool PostItemPool__GetCollectible(int id)
+void PostItemPool__GetCollectible(int id)
 {
 	PPLUGIN pPlugin = pPluginList;
 	bool ret = true;
 	while (pPlugin)
 	{
 		if (pPlugin->PostItemPool__GetCollectible){
-			if (!pPlugin->PostItemPool__GetCollectible(id))
-				ret = false;
+			pPlugin->PostItemPool__GetCollectible(id);
 		}
 		pPlugin = pPlugin->pNext;
 	}
-	return ret;
+	return;
 }
 
-void OnEntity_Pickup__Morph(Entity *pEntity, int id, int variant, int subtype, BOOL unknown)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->OnEntity_Pickup__Morph)
-			pPlugin->OnEntity_Pickup__Morph(pEntity, id, variant, subtype, unknown);
-		pPlugin = pPlugin->pNext;
-	}
-}
 
-void PostEntity_Pickup__Morph(int ret)
-{
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
-	{
-		if (pPlugin->PostEntity_Pickup__Morph){
-			pPlugin->PostEntity_Pickup__Morph(ret);
-		}
-		pPlugin = pPlugin->pNext;
-	}
-}
 
 void OnGameUpdate()
 {

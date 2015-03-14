@@ -31,3 +31,15 @@ PAPI VOID OnGameUpdate()
 	}
 	dwFrameCount++;
 }
+
+
+//returning false here rerolls the item before the player has a chance to see it..
+PAPI bool PreItemPool__GetCollectible(int id)
+{
+	return true;
+}
+//this is called when an item is initialized and the itempool gives us a random item
+PAPI void PostItemPool__GetCollectible(int id)
+{
+
+}
