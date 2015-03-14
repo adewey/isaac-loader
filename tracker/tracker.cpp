@@ -16,6 +16,10 @@
 #include <deque>
 #include <iostream>
 #include <fstream>
+
+
+double dTrackerVersion = 1.2;
+
 char gTrackerID[MAX_STRING] = { 0 };
 char *gIsaacUrl = "ws://ws.isaactracker.com";
 using namespace rapidjson;
@@ -24,8 +28,11 @@ bool bSendUpdate = false;
 ofstream trackerLogFile;
 using easywsclient::WebSocket;
 static WebSocket::pointer websocket = NULL;
-vector<string> SendToServer;
+deque<string> SendToServer;
 vector<vector<string>> ShowWithBanner;
+DWORD dwFrameCount = 0;
+int framesToNextBanner = 120;
+bool intro = false;
 
 typedef map<string, string> MessageMap;
 struct MessageHandler
@@ -167,11 +174,11 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 			{
 				websocket->poll();
 				websocket->dispatch(handle_message);
-				if (SendToServer.size() > 0)// && bSendUpdate)
+				if (SendToServer.size() > 0 && bSendUpdate)
 				{
-					websocket->send(SendToServer.back());
-					cout << SendToServer.back().c_str() << endl;
-					SendToServer.pop_back();
+					websocket->send(SendToServer.front());
+					cout << SendToServer.front().c_str() << endl;
+					SendToServer.pop_front();
 					bSendUpdate = false;
 				}
 			}
@@ -188,8 +195,12 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 	return 0;
 }
 
-void SendMessage(string message){
+void send_message(string message){
 	SendToServer.push_back(message);
+}
+
+void clear_messages(){
+	SendToServer.clear();
 }
 
 PAPI VOID InitPlugin()
@@ -210,30 +221,24 @@ PAPI VOID UnInitPlugin(VOID)
 	trackerLogFile.close();
 }
 
-PAPI VOID PostAddCollectible(int ret)
+PAPI VOID PostPlayer_Entity__AddCollectible(int ret)
 {
+	Player *pPlayer = GetPlayerEntity();
+	if (!pPlayer){ return; }
 	StringBuffer s;
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
 		writer.String("action");
 		writer.String("updateItems");
 		writer.String("items");
-		Player *pPlayer = GetPlayerEntity();
-		if (!pPlayer){ return; }
 		writer.StartArray();
-		bool noItems = true;
 			for (int i = 0; i < 0x15A; i++)
 			{
-				if (pPlayer->_items[i]){
+				if (pPlayer->_items[i])
 					writer.Int(i);
-					noItems = false;
-				}
-			}
-			if (noItems){
-				writer.Int(0);
 			}
 		writer.EndArray();
-		writer.String("heldItemID");
+		writer.String("helditemid");
 		writer.Int(pPlayer->_helditemid);
 		writer.String("charges");
 		writer.Int(pPlayer->_charges);
@@ -253,8 +258,12 @@ PAPI VOID PostAddCollectible(int ret)
 		writer.Int(pPlayer->_tearrate);
 		writer.String("speed");
 		writer.Int(pPlayer->_speed);
+		writer.String("character");
+		writer.String(pPlayer->_characterName);
+		writer.String("characterid");
+		writer.Int(pPlayer->_charID);
 	writer.EndObject();
-	SendMessage(s.GetString());
+	send_message(s.GetString());
 }
 
 int curKeys = 0;
@@ -269,7 +278,7 @@ PAPI VOID PostAddKeys(int ret)
 		writer.String("keys");
 		writer.Int(ret);
 	writer.EndObject();
-	SendMessage(s.GetString());
+	send_message(s.GetString());
 }
 
 int curBombs = 0;
@@ -284,7 +293,7 @@ PAPI VOID PostAddBombs(int ret)
 		writer.String("bombs");
 		writer.Int(ret);
 	writer.EndObject();
-	SendMessage(s.GetString());
+	send_message(s.GetString());
 }
 
 int curCoins = 0;
@@ -294,12 +303,12 @@ PAPI VOID PostAddCoins(int ret)
 	StringBuffer s;
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
-	writer.String("action");
-	writer.String("updateCoins");
-	writer.String("coins");
-	writer.Int(ret);
+		writer.String("action");
+		writer.String("updateCoins");
+		writer.String("coins");
+		writer.Int(ret);
 	writer.EndObject();
-	SendMessage(s.GetString());
+	send_message(s.GetString());
 }
 
 int trinket1id = 0;
@@ -311,52 +320,15 @@ PAPI VOID UpdateTrinkets(int id1, int id2)
 	StringBuffer s;
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
-	writer.String("action");
-	writer.String("updateTrinkets");
-	writer.String("trinkets");
-	writer.StartArray();
-		writer.Int(id2);
-		writer.Int(id1);
-	writer.EndArray();
+		writer.String("action");
+		writer.String("updateTrinkets");
+		writer.String("trinkets");
+		writer.StartArray();
+			writer.Int(id2);
+			writer.Int(id1);
+		writer.EndArray();
 	writer.EndObject();
-	SendMessage(s.GetString());
-}
-
-DWORD dwFrameCount = 0;
-int framesToNextBanner = 120;
-bool intro = false;
-PAPI VOID OnGameUpdate()
-{
-	if (dwFrameCount >= (60 * 3) && intro)
-	{
-		intro = false;
-		show_fortune_banner("", "isaactracker loaded!", "");
-	}
-	if (dwFrameCount >= 60 * 3 && !bSendUpdate)
-	{
-		bSendUpdate = true;
-		dwFrameCount = 0;
-	}
-	if (dwFrameCount >= 60 * 10)
-	{
-		Player *pPlayer = GetPlayerEntity();
-		if (curBombs != pPlayer->_numBombs)
-			PostAddBombs(pPlayer->_numBombs);
-		if (curCoins != pPlayer->_numCoins)
-			PostAddCoins(pPlayer->_numCoins);
-		if (curKeys != pPlayer->_numKeys)
-			PostAddKeys(pPlayer->_numKeys);
-		if (trinket1id != pPlayer->_trinket1ID || trinket2id != pPlayer->_trinket2ID)
-			UpdateTrinkets(pPlayer->_trinket1ID, pPlayer->_trinket2ID);
-		dwFrameCount = 0;
-	}
-	if (!ShowWithBanner.empty() && framesToNextBanner <= 0){
-		show_fortune_banner(ShowWithBanner.back().at(0).c_str(), ShowWithBanner.back().at(1).c_str(), ShowWithBanner.back().at(2).c_str());
-		ShowWithBanner.pop_back();
-		framesToNextBanner = 60;
-	}
-	dwFrameCount++;
-	framesToNextBanner--;
+	send_message(s.GetString());
 }
 
 /* ret = boss id found in bossportraits.xml */
@@ -379,43 +351,68 @@ PAPI VOID PostLevel__Init(int ret)
 		writer.Int(pPlayerManager->m_AltStage);
 		writer.String("curse");
 		writer.Int(pPlayerManager->_curses);
-		writer.String("seed");
-		writer.String(pPlayerManager->_startSeed);
 	writer.EndObject();
-	SendMessage(s.GetString());
+	send_message(s.GetString());
 }
 
-//returning false here rerolls the item before the player has a chance to see it..
-PAPI bool PostItemPool__GetCollectible(int id)
+PAPI VOID OnGame__Start(int challenge_id, bool disable_achievements, int character_id, char *seed, bool hard_mode)
 {
-	return true;
-}
+	intro = true;
+	bSendUpdate = true;
+	dwFrameCount = 0;
 
-PAPI VOID PostStartGame(int ret)
-{
-	Player *pPlayer = GetPlayerEntity();
-	PlayerManager *pPlayerManager = GetPlayerManager();
-
+	clear_messages();
 	StringBuffer s;
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
 		writer.String("action");
 		writer.String("newGame");
-		writer.String("character");
-		writer.String(pPlayer->_characterName);
+		writer.String("challenge_id");
+		writer.Int(character_id);
+		writer.String("disable_achievements");
+		writer.Int(disable_achievements);
 		writer.String("characterid");
-		writer.Int(pPlayer->_charID);
-		writer.String("floor");
-		writer.Int(pPlayerManager->m_Stage);
-		writer.String("altfloor");
-		writer.Int(pPlayerManager->m_AltStage);
-		writer.String("curse");
-		writer.Int(pPlayerManager->_curses);
+		writer.Int(character_id);
 		writer.String("hardmode");
-		writer.Int(pPlayerManager->_hard_mode);
+		writer.Bool(hard_mode);
+		writer.String("seed");
+		writer.String(seed);
+		writer.String("version");
+		writer.Double(dTrackerVersion);
 	writer.EndObject();
-	SendMessage(s.GetString());
+	send_message(s.GetString());
+}
 
-	bSendUpdate = true;
-	intro = true;
+PAPI VOID OnGameUpdate()
+{
+	if (dwFrameCount >= 30 && !bSendUpdate)
+	{
+		bSendUpdate = true;
+		dwFrameCount = 0;
+	}
+	if (dwFrameCount >= 60 * 10)
+	{
+		Player *pPlayer = GetPlayerEntity();
+		if (curBombs != pPlayer->_numBombs)
+			PostAddBombs(pPlayer->_numBombs);
+		if (curCoins != pPlayer->_numCoins)
+			PostAddCoins(pPlayer->_numCoins);
+		if (curKeys != pPlayer->_numKeys)
+			PostAddKeys(pPlayer->_numKeys);
+		if (trinket1id != pPlayer->_trinket1ID || trinket2id != pPlayer->_trinket2ID)
+			UpdateTrinkets(pPlayer->_trinket1ID, pPlayer->_trinket2ID);
+		dwFrameCount = 0;
+	}
+	if (dwFrameCount >= (60 * 3) && intro)
+	{
+		intro = false;
+		show_fortune_banner("", "isaactracker loaded!", "");
+	}
+	if (!ShowWithBanner.empty() && framesToNextBanner <= 0){
+		show_fortune_banner(ShowWithBanner.back().at(0).c_str(), ShowWithBanner.back().at(1).c_str(), ShowWithBanner.back().at(2).c_str());
+		ShowWithBanner.pop_back();
+		framesToNextBanner = 60;
+	}
+	dwFrameCount++;
+	framesToNextBanner--;
 }

@@ -6,7 +6,7 @@
 GLOBAL DWORD gdwBaseAddress;
 GLOBAL DWORD gdwBaseSize;
 GLOBAL DWORD gdwGameUpdate;
-GLOBAL DWORD gdwAddCollectible;
+GLOBAL DWORD gdwPlayer_Entity__AddCollectible;
 
 void InitHooks();
 void RemoveHooks();
