@@ -59,8 +59,8 @@ public:
 /*[0x0BE8]*/		char _unk0BE8[0x4];
 /*[0x0BEC]*/		int _ntearsfired;
 /*[0x0BF0]*/		float _damage;
-/*[0x0BF4]*/		char _unk0BF4[0x4];
-/*[0x0BF8]*/		float _range;
+/*[0x0BF4]*/		float _range;
+/*[0x0BF8]*/		float _shotheight;
 /*[0x0BFC]*/		char _unk0BFC[0xB8];
 /*[0x0CB4]*/		float _speed;
 /*[0x0CB8]*/		float _luck;
@@ -72,7 +72,7 @@ public:
 										// CD8 && CD4 != 0 spacebar press
 /*[0x0D64]*/		int _trinket1ID;
 /*[0x0D68]*/		int _trinket2ID;
-/*[0x0D6C]*/		int _items[0x15A];
+/*[0x0D6C]*/		int _items[0x15A]; //D94 == halo of flies, also used for pretty fly effect.
 /*[0x12D4]*/		char _unk12D4[0x1CC0];
 /*[0x2F94]*/		int _pocket1ID;
 /*[0x2F98]*/		BOOL _pocket1isCard;
