@@ -18,7 +18,7 @@
 #include <fstream>
 
 
-double dTrackerVersion = 1.2;
+double dTrackerVersion = 1.3;
 
 char gTrackerID[MAX_STRING] = { 0 };
 char *gIsaacUrl = "ws://ws.isaactracker.com";
@@ -95,13 +95,15 @@ struct MessageHandler
 	std::string name_;
 };
 
-void Log(string message){
-	if (trackerLogFile.is_open()){
+void Log(string message)
+{
+	if (trackerLogFile.is_open()) {
 		trackerLogFile << "LOG: " << message << endl;
 	}
 }
 
-void ParseMessages(const char* json, MessageMap& messages) {
+void ParseMessages(const char* json, MessageMap& messages)
+{
 	Reader reader;
 	MessageHandler handler;
 	StringStream ss(json);
@@ -152,7 +154,49 @@ void handle_message(const std::string & message)
 	}
 }
 
-DWORD WINAPI socketHandler(void *pThreadArgument){
+bool message_lock = false;
+void push_message(string message)
+{
+	while (message_lock == true) Sleep(100);
+	message_lock = true;
+	try
+	{
+		SendToServer.push_back(message);
+	}
+	catch (int e){}
+	message_lock = false;
+}
+
+string pop_message()
+{
+	while (message_lock == true) Sleep(100);
+	message_lock = true;
+	string message;
+	try
+	{
+		message = SendToServer.front();
+		cout << message.c_str() << endl;
+		SendToServer.pop_front();
+	}
+	catch (int e){}
+	message_lock = false;
+	return message;
+}
+
+void clear_messages()
+{
+	while (message_lock == true) Sleep(100);
+	message_lock = true;
+	try
+	{
+		SendToServer.clear();
+	}
+	catch (int e){}
+	message_lock = false;
+}
+
+DWORD WINAPI socketHandler(void *pThreadArgument)
+{
 	while (bAttached)
 	{
 #ifdef _WIN32
@@ -176,9 +220,7 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 				websocket->dispatch(handle_message);
 				if (SendToServer.size() > 0 && bSendUpdate)
 				{
-					websocket->send(SendToServer.front());
-					cout << SendToServer.front().c_str() << endl;
-					SendToServer.pop_front();
+					websocket->send(pop_message());
 					bSendUpdate = false;
 				}
 			}
@@ -193,14 +235,6 @@ DWORD WINAPI socketHandler(void *pThreadArgument){
 	}
 	Log("No Longer Attached to Isaac");
 	return 0;
-}
-
-void send_message(string message){
-	SendToServer.push_back(message);
-}
-
-void clear_messages(){
-	SendToServer.clear();
 }
 
 PAPI VOID InitPlugin()
@@ -221,6 +255,7 @@ PAPI VOID UnInitPlugin(VOID)
 	trackerLogFile.close();
 }
 
+
 PAPI VOID PostPlayer_Entity__AddCollectible(int ret)
 {
 	Player *pPlayer = GetPlayerEntity();
@@ -232,11 +267,11 @@ PAPI VOID PostPlayer_Entity__AddCollectible(int ret)
 		writer.String("updateItems");
 		writer.String("items");
 		writer.StartArray();
-			for (int i = 0; i < 0x15A; i++)
-			{
-				if (pPlayer->_items[i])
-					writer.Int(i);
-			}
+		for (int i = 0; i < 0x15A; i++)
+		{
+			if (pPlayer->_items[i])
+				writer.Int(i);
+		}
 		writer.EndArray();
 		writer.String("helditemid");
 		writer.Int(pPlayer->_helditemid);
@@ -246,24 +281,24 @@ PAPI VOID PostPlayer_Entity__AddCollectible(int ret)
 		writer.Int(pPlayer->_nGuppyItems);
 		writer.String("lof");
 		writer.Int(pPlayer->_nFlyItems);
+		writer.String("characterid");
+		writer.Int(pPlayer->_charID);
 		writer.String("luck");
-		writer.Int(pPlayer->_luck);
+		writer.Double(pPlayer->_luck);
 		writer.String("damage");
-		writer.Int(pPlayer->_damage);
+		writer.Double(pPlayer->_damage);
 		writer.String("range");
-		writer.Int(pPlayer->_range);
+		writer.Double(pPlayer->_range);
+		writer.String("shotheight");
+		writer.Double(pPlayer->_shotheight);
 		writer.String("shotspeed");
-		writer.Int(pPlayer->_shotspeed);
+		writer.Double(pPlayer->_shotspeed);
 		writer.String("tearrate");
 		writer.Int(pPlayer->_tearrate);
 		writer.String("speed");
-		writer.Int(pPlayer->_speed);
-		writer.String("character");
-		writer.String(pPlayer->_characterName);
-		writer.String("characterid");
-		writer.Int(pPlayer->_charID);
+		writer.Double(pPlayer->_speed);
 	writer.EndObject();
-	send_message(s.GetString());
+	push_message(s.GetString());
 }
 
 int curKeys = 0;
@@ -278,7 +313,7 @@ PAPI VOID PostAddKeys(int ret)
 		writer.String("keys");
 		writer.Int(ret);
 	writer.EndObject();
-	send_message(s.GetString());
+	push_message(s.GetString());
 }
 
 int curBombs = 0;
@@ -293,7 +328,7 @@ PAPI VOID PostAddBombs(int ret)
 		writer.String("bombs");
 		writer.Int(ret);
 	writer.EndObject();
-	send_message(s.GetString());
+	push_message(s.GetString());
 }
 
 int curCoins = 0;
@@ -308,7 +343,7 @@ PAPI VOID PostAddCoins(int ret)
 		writer.String("coins");
 		writer.Int(ret);
 	writer.EndObject();
-	send_message(s.GetString());
+	push_message(s.GetString());
 }
 
 int trinket1id = 0;
@@ -328,7 +363,7 @@ PAPI VOID UpdateTrinkets(int id1, int id2)
 			writer.Int(id1);
 		writer.EndArray();
 	writer.EndObject();
-	send_message(s.GetString());
+	push_message(s.GetString());
 }
 
 /* ret = boss id found in bossportraits.xml */
@@ -352,7 +387,7 @@ PAPI VOID PostLevel__Init(int ret)
 		writer.String("curse");
 		writer.Int(pPlayerManager->_curses);
 	writer.EndObject();
-	send_message(s.GetString());
+	push_message(s.GetString());
 }
 
 PAPI VOID OnGame__Start(int challenge_id, bool disable_achievements, int character_id, char *seed, bool hard_mode)
@@ -380,7 +415,20 @@ PAPI VOID OnGame__Start(int challenge_id, bool disable_achievements, int charact
 		writer.String("version");
 		writer.Double(dTrackerVersion);
 	writer.EndObject();
-	send_message(s.GetString());
+	push_message(s.GetString());
+}
+
+PAPI VOID PostGame__Start(int ret)
+{
+	Player *pPlayer = GetPlayerEntity();
+	if (curBombs != pPlayer->_numBombs)
+		PostAddBombs(pPlayer->_numBombs);
+	if (curCoins != pPlayer->_numCoins)
+		PostAddCoins(pPlayer->_numCoins);
+	if (curKeys != pPlayer->_numKeys)
+		PostAddKeys(pPlayer->_numKeys);
+	if (trinket1id != pPlayer->_trinket1ID || trinket2id != pPlayer->_trinket2ID)
+		UpdateTrinkets(pPlayer->_trinket1ID, pPlayer->_trinket2ID);
 }
 
 PAPI VOID OnGameUpdate()

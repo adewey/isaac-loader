@@ -23,9 +23,6 @@ enum Curses {
 	Blind = 64,
 };
 
-
-
-
 typedef struct PlayerManager
 {
 /*0x000000*/	int m_Stage;
