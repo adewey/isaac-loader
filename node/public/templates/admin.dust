@@ -9,13 +9,35 @@
 		There are currently [{@size key=users /}] users signed up for IsaacTracker!
 	</div>
 	<div class="UserList">
-		<ul>
+		<table style="width: 100%;">
+            <tr>
+                <td>Name</td>
+                <td>Key</td>
+                <td>Version</td>
+                <td>Updated</td>
+                <td>Admin</td>
+            </tr>
 			{#users}
-				<li><a href="/{display_name}/">{display_name}</a> {stream_key}</li>
-			{:else}
-				<li>No Users Found :(</li>
+                <tr>
+                    <td>
+                        <a href="http://twitch.tv/{display_name}/" target="_blank"><i class="glyphicon glyphicon-share-alt"></i></a>&nbsp;<a href="/{display_name}/">{display_name}</a>
+                    </td>
+                    <td>
+                        {stream_key}
+                    </td>
+                    <td>
+                        {version}
+                    </td>
+                    <td>
+                        {updated_at}
+                    </td>
+                    <td>
+                        {?admin}
+                            Yes
+                        {/admin}
+                    </td>
+                </tr>
 			{/users}
-		</ul>
+		</table>
 	</div>
-	<h1>Let's put more here and make it less ugly... :D</h1>
 {/content}

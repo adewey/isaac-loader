@@ -1,9 +1,11 @@
-ul.consumable-list, ul.trinket-list, ul.pocket-list {
+ul.consumable-list, ul.mode-list, ul.trinket-list, ul.pocket-list {
     font-size: 27px;
     font-weight: bold;
     list-style: none;
     padding: 0;
     margin: 0;
+    overflow: hidden;
+    width: 64px;
 }
 
 ul.consumable-list li, ul.trinket-list li, ul.pocket-list li {
@@ -31,4 +33,25 @@ ul.consumable-list li.bombs:before {
 
 ul.consumable-list li.keys:before {
     background: url(/gfx/ui2x/hudpickups.png) -32px 0px;
+}
+
+ul.mode-list li {
+    display: none;
+    height: 32px;
+    margin: 16px;
+    width: 32px;
+}
+
+ul.mode-list li.hard-mode {
+    background: url(/gfx/ui2x/hudpickups.png) -64px 0px;
+}
+ul.mode-list li.hard-mode.in {
+    display: inline-block;
+}
+
+ul.mode-list li.disable-achievements {
+    background: url(/gfx/ui2x/hudpickups.png) -64px -32px;
+}
+ul.mode-list li.disable-achievements.in {
+    display: inline-block;
 }
