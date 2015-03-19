@@ -91,9 +91,31 @@ int __fastcall ItemPool__GetCollectible(int itempool, int _EDX, int pool_index, 
 	do
 	{
 		ret = original_ItemPool__GetCollectible(itempool, _EDX, pool_index, always1, seed);
-	}
-	while (!PreItemPool__GetCollectible(ret));
+	} while (!PreItemPool__GetCollectible(ret));
 	PostItemPool__GetCollectible(ret);
+	return ret;
+}
+
+DWORD dwItemPool__GetCard = 0;
+int(__fastcall *original_ItemPool__GetCard)(int itempool, int _EDX, bool a2, bool get_rune);
+int __fastcall ItemPool__GetCard(int itempool, int _EDX, bool a2, bool get_rune)
+{
+	DWORD ret = 0;
+	if (get_rune)
+	{
+		do
+		{
+			ret = original_ItemPool__GetCard(itempool, _EDX, a2, get_rune);
+		} while (!PreItemPool__GetRune(ret));
+		PostItemPool__GetRune(ret);
+	}
+	else {
+		do
+		{
+			ret = original_ItemPool__GetCard(itempool, _EDX, a2, get_rune);
+		} while (!PreItemPool__GetCard(ret));
+		PostItemPool__GetCard(ret);
+	}
 	return ret;
 }
 
@@ -200,9 +222,17 @@ void InitHooks()
 		original_Level__Init = (int(__fastcall *)(int, int))DetourFunction((PBYTE)dwLevel__Init, (PBYTE)Level__Init);
 
 	dwItemPool__GetCollectible = dwFindPattern(gdwBaseAddress, gdwBaseSize,
-		(PBYTE)"\x55\x8B\xEC\x83\xEC\x28\x8B\x45\x08","xxxxxxxxx");
+		(PBYTE)"\x55\x8B\xEC\x83\xEC\x28\x8B\x45\x08", "xxxxxxxxx");
 	if (dwItemPool__GetCollectible)
 		original_ItemPool__GetCollectible = (int(__fastcall *)(int, int, int, int, int))DetourFunction((PBYTE)dwItemPool__GetCollectible, (PBYTE)ItemPool__GetCollectible);
+
+	dwItemPool__GetCard = dwFindPattern(gdwBaseAddress, gdwBaseSize,
+		(PBYTE)"\x55\x8B\xEC\x81\xEC\x00\x00\x00\x00\xA1\x00\x00"
+		"\x00\x00\x33\xC5\x89\x45\xFC\x53\x56\x57\x68\x00\x00\x00"
+		"\x00\x6A\x01",
+		"xxxxx????x????xxxxxxxxx????xx");
+	if (dwItemPool__GetCard)
+		original_ItemPool__GetCard = (int(__fastcall *)(int, int, bool, bool))DetourFunction((PBYTE)dwItemPool__GetCard, (PBYTE)ItemPool__GetCard);
 
 	/*
 	dwEntity_Pickup__Init = dwFindPattern(gdwBaseAddress, gdwBaseSize,

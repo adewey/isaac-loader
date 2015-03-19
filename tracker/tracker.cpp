@@ -18,7 +18,7 @@
 #include <fstream>
 
 
-double dTrackerVersion = 1.3;
+double dTrackerVersion = 1.31;
 
 char gTrackerID[MAX_STRING] = { 0 };
 char *gIsaacUrl = "ws://ws.isaactracker.com";
@@ -281,7 +281,7 @@ PAPI VOID PostPlayer_Entity__AddCollectible(int ret)
 		writer.Int(pPlayer->_nGuppyItems);
 		writer.String("lof");
 		writer.Int(pPlayer->_nFlyItems);
-		writer.String("characterid");
+		writer.String("player_id");
 		writer.Int(pPlayer->_charID);
 		writer.String("luck");
 		writer.Double(pPlayer->_luck);
@@ -390,7 +390,7 @@ PAPI VOID PostLevel__Init(int ret)
 	push_message(s.GetString());
 }
 
-PAPI VOID OnGame__Start(int challenge_id, bool disable_achievements, int character_id, char *seed, bool hard_mode)
+PAPI VOID OnGame__Start(int challenge_id, bool disable_achievements, int player_id, char *seed, bool hard_mode)
 {
 	intro = true;
 	bSendUpdate = true;
@@ -403,12 +403,12 @@ PAPI VOID OnGame__Start(int challenge_id, bool disable_achievements, int charact
 		writer.String("action");
 		writer.String("newGame");
 		writer.String("challenge_id");
-		writer.Int(character_id);
+		writer.Int(challenge_id);
 		writer.String("disable_achievements");
 		writer.Int(disable_achievements);
-		writer.String("characterid");
-		writer.Int(character_id);
-		writer.String("hardmode");
+		writer.String("player_id");
+		writer.Int(player_id);
+		writer.String("hard_mode");
 		writer.Bool(hard_mode);
 		writer.String("seed");
 		writer.String(seed);

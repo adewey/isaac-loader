@@ -50,7 +50,8 @@ public:
 /*[0x0B74]*/		int _numCoins;
 /*[0x0B78]*/		char _unk0B78[0xC];
 /*[0x0B84]*/		int _attackingOrMoving;
-/*[0x0B8C]*/		char _unk0B8C[0x10];
+/*[0x0B88]*/		char _unk0B88[0xC];
+/*[0x0B94]*/		int _invincibilityFrames;
 /*[0x0B98]*/		int _charID;
 /*[0x0B9C]*/		char* _characterName;
 /*[0x0BA0]*/		char _unk0BA0[0x40];

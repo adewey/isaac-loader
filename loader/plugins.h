@@ -25,6 +25,12 @@ GLOBAL typedef void(__cdecl *fPostLevel__Init)(int);
 GLOBAL typedef bool(__cdecl *fPreItemPool__GetCollectible)(int);
 GLOBAL typedef void(__cdecl *fPostItemPool__GetCollectible)(int);
 
+GLOBAL typedef bool(__cdecl *fPreItemPool__GetCard)(int);
+GLOBAL typedef void(__cdecl *fPostItemPool__GetCard)(int);
+
+GLOBAL typedef bool(__cdecl *fPreItemPool__GetRune)(int);
+GLOBAL typedef void(__cdecl *fPostItemPool__GetRune)(int);
+
 GLOBAL typedef void(__cdecl *fOnGameUpdate)();
 
 typedef struct _Plugin
@@ -50,6 +56,12 @@ typedef struct _Plugin
 
 	fPreItemPool__GetCollectible PreItemPool__GetCollectible;
 	fPostItemPool__GetCollectible PostItemPool__GetCollectible;
+
+	fPreItemPool__GetCard PreItemPool__GetCard;
+	fPostItemPool__GetCard PostItemPool__GetCard;
+
+	fPreItemPool__GetRune PreItemPool__GetRune;
+	fPostItemPool__GetRune PostItemPool__GetRune;
 
 	fOnGameUpdate OnGameUpdate;
 
@@ -79,6 +91,12 @@ GLOBAL void PostLevel__Init(int);
 
 GLOBAL bool PreItemPool__GetCollectible(int);
 GLOBAL void PostItemPool__GetCollectible(int);
+
+GLOBAL bool PreItemPool__GetCard(int);
+GLOBAL void PostItemPool__GetCard(int);
+
+GLOBAL bool PreItemPool__GetRune(int);
+GLOBAL void PostItemPool__GetRune(int);
 
 GLOBAL void OnGameUpdate();
 
