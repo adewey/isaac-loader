@@ -8,6 +8,7 @@ start.sh
 # dont include any of the isaac resource files..
 *.xml
 *.png
+*.xcf
 
 # c++ specific
 *.opensdf
