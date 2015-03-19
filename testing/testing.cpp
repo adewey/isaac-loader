@@ -127,12 +127,21 @@ void showoffsets(int argc, char *argv[])
 {
 	cout << "gdwBaseAddress\t\t[0x" << (void *)gdwBaseAddress << "]" << endl;
 	cout << "gdwBaseSize\t\t[0x" << (void *)gdwBaseSize << "]" << endl;
-	cout << "dwGameUpdate\t\t[0x" << (void *)(gdwGameUpdate - gdwBaseAddress) << "]" << endl;
-	cout << "dwAddCollectible\t[0x" << (void *)(gdwAddCollectible - gdwBaseAddress) << "]" << endl;
-	cout << "pPlayer\t\t\t[0x" << (void *)GetPlayerEntity() << "]" << endl;
+	cout << "gdwGameUpdate\t\t[0x" << (void *)(gdwGameUpdate - gdwBaseAddress) << "]" << endl;
 	cout << "gdwPlayerManager\t[0x" << (void *)(gdwPlayerManager - gdwBaseAddress) << "]" << endl;
 	cout << "pPlayerManager\t\t[0x" << (void *)GetPlayerManager() << "]" << endl;
+	cout << "pPlayer\t\t\t[0x" << (void *)GetPlayerEntity() << "]" << endl;
 
+}
+
+float __stdcall blah(float fin)
+{
+	return floor(fin);
+}
+
+void showstats(int argc, char *argv[])
+{
+	Player *pPlayer = GetPlayerEntity();
 }
 
 DWORD ItemPool__GetCollectible_Original = 0;
@@ -320,79 +329,21 @@ PAPI VOID InitPlugin()
 	AddCommand("pills", Pills);
 	AddCommand("setcurse", setCurse);
 	AddCommand("showoffsets", showoffsets);
+	AddCommand("showstats", showstats);
 	AddCommand("testcall", testcall);
-
-	/*
-	gdwPlayer0000 = gdwBaseAddress + 0xCD330;
-	original_Player0000 = (int(__fastcall *)(int self, int _EDX, int a2))DetourFunction((PBYTE)gdwPlayer0000, (PBYTE)Player0000);
-
-	gdwPlayer0004 = gdwBaseAddress + 0xCD4B0;
-	original_Player0004 = (int(__fastcall *)(int self, int _EDX, int a2, int Args, unsigned int a4, int a5))DetourFunction((PBYTE)gdwPlayer0004, (PBYTE)Player0004);
-	*/
-	//if (gdwFlashText)
-	//{
-	//original_FlashText = (DWORD)DetourFunction((PBYTE)gdwFlashText, (PBYTE)nFlashText);
-	//}
-
-	DWORD gdwPlayer0000 = gdwBaseAddress + 0x4820;
-	//original_Player0000 = (int(__fastcall *)(int self, int _EDX, int a2))DetourFunction((PBYTE)gdwPlayer0000, (PBYTE)Player0000);
-
-
-	DWORD dwsub_552D10 = gdwBaseAddress + 0x152D10;
-	//original_sub_552D10 = (int(__fastcall *)(int a1, int _EDX, int a2))DetourFunction((PBYTE)dwsub_552D10, (PBYTE)sub_552D10);
-
-	DWORD dwsub_552A10 = gdwBaseAddress + 0x152A10;
-	//original_sub_552A10 = (int(__fastcall *)(char *, int, char *, bool, bool))DetourFunction((PBYTE)dwsub_552A10, (PBYTE)sub_552A10);
-
-	DWORD dwsub_4C99D0 = gdwBaseAddress + 0xC99D0;
-	//original_sub_4C99D0 = (int(__fastcall *)(int, int, bool))DetourFunction((PBYTE)dwsub_4C99D0, (PBYTE)sub_4C99D0)
-	
-	DWORD dwsub_4ACE00 = gdwBaseAddress + 0xACE00;
-	//original_sub_4ACE00 = (int(__stdcall *)(signed int a1, char a2, unsigned int a3, int a4, int a5, int a6, int a7, unsigned int a8, int a9))DetourFunction((PBYTE)dwsub_4ACE00, (PBYTE)sub_4ACE00);
-
-	DWORD dwsub_4ACA20 = gdwBaseAddress + 0xACA20;
-	//original_sub_4ACA20 = (int(__stdcall *)(int a1))DetourFunction((PBYTE)dwsub_4ACA20, (PBYTE)sub_4ACA20);
-
-	//DWORD dwsub_52E1F0 = gdwBaseAddress + 0x12E1F0;
-	//original_sub_52E1F0 = (int(__cdecl *)())DetourFunction((PBYTE)dwsub_52E1F0, (PBYTE)sub_52E1F0);
-	DWORD dwGetCollectible = gdwBaseAddress + 0xF7EE0;
-	//ItemPool__GetCollectible_Original = (DWORD)DetourFunction((PBYTE)dwGetCollectible, (PBYTE)ItemPool__GetCollectible_Hook);
 
 }
 
 // called when the plugin is removed
 PAPI VOID UnInitPlugin(VOID)
 {
-	//DetourRemove((PBYTE)gdwPlayer0004, (PBYTE)original_Player0000);
-	DetourRemove((PBYTE)original_Player0004, (PBYTE)Player0000);
-	DetourRemove((PBYTE)original_sub_552A10, (PBYTE)sub_552A10);
 
 	//remove commands, detours, etc
 	RemoveCommand("spewvf");
 	RemoveCommand("pills");
 	RemoveCommand("setcurse");
 	RemoveCommand("showoffsets");
+	RemoveCommand("showstats"); 
 	RemoveCommand("testcall");
 	Sleep(1000);
-}
-
-PAPI VOID OnAddCollectible(Player *pPlayer, int relatedID, int itemID, int charges, int arg5)
-{
-}
-
-PAPI VOID OnChangePickup(Entity *pEntity, int id, int variant, int subtype, BOOL unknown)
-{
-}
-
-
-DWORD dwFrameCount = 0;
-PAPI VOID OnGameUpdate()
-{
-	//if you are going to do stuff in OnGameUpdate you should probably only do it once every 60 frames (1 sec at 60fps)
-	if (dwFrameCount > 60 * 60)
-	{
-		//here is an example of doing something every 60*60 frames (once per minute)
-		dwFrameCount = 0;
-	}
-	dwFrameCount++;
 }

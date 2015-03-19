@@ -5,9 +5,11 @@ var View = require('../libs/views'),
     items = require('../libs/items'),
     trinkets = require('../libs/trinkets'),
     pockets = require('../libs/pockets'),
+    players = require('../libs/players'),
+    challenges = require('../libs/challenges'),
     sockets = require('../libs/sockets'),
     websockets = require('../libs/websockets'),
-    _ = require('underscore'),
+    //_ = require('underscore'),
     zipper = require('../libs/zipper');
 
 /*
@@ -64,8 +66,9 @@ trackerView.asView = function(req, res) {
 };
 
 websockets.on('connection', function (ws) {
-    var user = ws.upgradeReq.headers.origin;
-    ws.send("{ \"action\" : \"fortune\" , \"line1\" : \"Isaac Tracker Connected!\" , \"line2\" : \"" + user + "\" , \"line3\" : \"\" }");
+    var user;
+    if (ws.upgradeReq.headers.origin != "Client")
+        user = ws.upgradeReq.headers.origin;
     ws.on('message', function (rdata, flags) {
         if (flags.binary) { return; }
         if (ws.upgradeReq.headers.origin == "Client") {
@@ -81,7 +84,7 @@ websockets.on('connection', function (ws) {
                 sockets.to(data.display_name).emit('update', trackerView.formatData(data));
             });
         } else { //So this is the new code, that no one will hit except Brett right now :D
-            console.log(rdata);
+            //console.log(rdata);
             var updateData = JSON.parse(rdata);
             if (updateData) {
                 if (updateData.action == "updateKeys") {
@@ -94,11 +97,40 @@ websockets.on('connection', function (ws) {
                         if (err || !data) return console.log('Error: ' + err, user);
                         sockets.to(data.display_name).emit('update', trackerView.formatData(data));
                     });
+                } else if (updateData.action == "updateFloor") {
+                    tracker.updateFloor(user, updateData, function (err, data) {
+                        if (err || !data) return console.log('Error: ' + err, user);
+                        sockets.to(data.display_name).emit('update', trackerView.formatData(data));
+                    });
+                } else if (updateData.action == "updateCoins") {
+                    tracker.updateCoins(user, updateData, function (err, data) {
+                        if (err || !data) return console.log('Error: ' + err, user);
+                        sockets.to(data.display_name).emit('update', trackerView.formatData(data));
+                    });
                 } else if (updateData.action == "updateItems") {
                     tracker.updateItems(user, updateData, function (err, data) {
                         if (err || !data) return console.log('ERROR: ' + err, user);
-                        console.log("THIS SHOULD WORK!\n\n")
                         sockets.to(data.display_name).emit('update', trackerView.formatData(data));
+                    });
+                } else if (updateData.action == "updateTrinkets") {
+                    tracker.updateTrinkets(user, updateData, function (err, data) {
+                        if (err || !data) return console.log('ERROR: ' + err, user);
+                        sockets.to(data.display_name).emit('update', trackerView.formatData(data));
+                    });
+                } else if (updateData.action == "newGame") {
+                    tracker.newGame(user, updateData, function (err, data) {
+                        if (err || !data) return console.log('ERROR: ' + err, user);
+                        sockets.to(data.display_name).emit('update', trackerView.formatData(data));
+                        /*
+                        setTimeout(function() {
+                            ws.send(JSON.stringify({action: "fortune",
+                                                    line1: "",
+                                                    line2: "isaactracker loaded!",
+                                                    line3: ""
+                                                  })
+                            );
+                        }, 5000);
+                        */
                     });
                 }
             }
@@ -127,137 +159,39 @@ trackerView.formatData = function (data) {
             }
         }
     }
-    if (data.guppy > 3) {
-        data.guppy = 3;
-    }
-    if (data.lof > 3) {
-        data.lof = 3;
-    }
-    if (data.floor == 11) data.floor = 10;
-    var charImgName = "playerportraitbig_01_isaac.png";
-    if (data.characterid === 0) {
-        charImgName = "playerportraitbig_01_isaac.png";
-    } else if (data.characterid === 1) {
-        charImgName = "playerportraitbig_02_magdalene.png";
-    } else if (data.characterid === 2) {
-        charImgName = "playerportraitbig_03_cain.png";
-    } else if (data.characterid === 3) {
-        charImgName = "playerportraitbig_04_judas.png";
-    } else if (data.characterid === 4) {
-        charImgName = "playerportraitbig_06_bluebaby.png";
-    } else if (data.characterid === 5) {
-        charImgName = "playerportraitbig_05_eve.png";
-    } else if (data.characterid === 6) {
-        charImgName = "playerportraitbig_07_samson.png";
-    } else if (data.characterid === 7) {
-        charImgName = "playerportraitbig_08_azazel.png";
-    } else if (data.characterid === 8) {
-        charImgName = "playerportraitbig_09_lazarus.png";
-    } else if (data.characterid === 9) {
-        charImgName = "playerportraitbig_09_eden.png";
-    } else if (data.characterid === 10) {
-        charImgName = "playerportraitbig_12_thelost.png";
-    } else if (data.characterid === 11) {
-        charImgName = "playerportraitbig_10_lazarus2.png";
-    } else if (data.characterid === 12) {
-        charImgName = "playerportraitbig_blackjudas.png";
-    }
-    var barsUsed = 0;
-    if (data.tearrate > 7){
-        barsUsed = 1;
-    }else if(data.tearrate > 5){
-        barsUsed = 2;
-    }else if(data.tearrate > 3){
-        barsUsed = 4;
-    }else{
-        barsUsed = 7;
-    }
-    data.tearrate = barsUsed;
     
-    if (data.damage < 3){
-        barsUsed = 1;
-    }else if(data.damage< 4.5){
-        barsUsed = 2;
-    }else if(data.damage < 6.0){
-        barsUsed = 3;
-    }else if(data.damage < 7.5){
-        barsUsed = 4;
-    }else if(data.damage < 9){
-        barsUsed = 5;
-    }else if(data.damage < 10.5){
-        barsUsed = 6;
-    }else{
-        barsUsed = 7;
+    if (data.guppy > 3) data.guppy = 3;
+    
+    if (data.lof > 3) data.lof = 3;  
+    
+    data.speed = Math.floor(data.speed + data.speed)
+    if (data.speed < 1) data.speed = 1;
+    if (data.speed > 7) data.speed = 7;
+    
+    data.tearrate = Math.floor(15.0 / data.tearrate)
+    if (data.tearrate < 1) data.tearrate = 1;
+    if (data.tearrate > 7) data.tearrate = 7;
+    
+    data.damage = Math.floor(data.damage / 1.5)
+    if (data.damage < 1) data.damage = 1;
+    if (data.damage > 7) data.damage = 7;
+    
+    if (data.shotheight !== undefined) {
+        data.range = Math.floor((data.shotspeed - 1.0) / 0.15 + 1.0 + data.shotheight + data.shotheight + (-data.range / 20.0))
     }
-    data.damage = barsUsed;
+    else {
+        data.range = data.range + data.range;
+    }
+    if (data.range < 1) data.range = 1;
+    if (data.range > 7) data.range = 7;
 
-    if (data.range < 0){
-        barsUsed = 1;
-    }else if(data.range < .5){
-        barsUsed = 2;
-    }else if(data.range < 1.0){
-        barsUsed = 3;
-    }else if(data.range < 1.5){
-        barsUsed = 4;
-    }else if(data.range < 2){
-        barsUsed = 5;
-    }else if(data.range < 2.5){
-        barsUsed = 6;
-    }else{
-        barsUsed = 7;
-    }
-    data.range = barsUsed;
+    data.shotspeed = Math.floor(data.shotspeed + data.shotspeed)
+    if (data.shotspeed < 1) data.shotspeed = 1;
+    if (data.shotspeed > 7) data.shotspeed = 7; 
     
-    if (data.shotspeed < 1){
-        barsUsed = 1;
-    }else if(data.shotspeed < 1.2){
-        barsUsed = 2;
-    }else if(data.shotspeed < 1.0){
-        barsUsed = 3;
-    }else if(data.shotspeed < 1.3){
-        barsUsed = 4;
-    }else if(data.shotspeed < 1.6){
-        barsUsed = 5;
-    }else if(data.shotspeed < 1.8){
-        barsUsed = 6;
-    }else{
-        barsUsed = 7;
-    }
-    data.shotspeed = barsUsed;
+    if (data.luck < 1) data.luck = 1;
+    if (data.luck > 7) data.luck = 7;
     
-    if (data.speed < 1){
-        barsUsed = 1;
-    }else if(data.speed < 1.5){
-        barsUsed = 2;
-    }else if(data.speed < 2){
-        barsUsed = 3;
-    }else if(data.speed < 2.5){
-        barsUsed = 4;
-    }else if(data.speed < 3){
-        barsUsed = 5;
-    }else if(data.speed < 3.5){
-        barsUsed = 6;
-    }else{
-        barsUsed = 7;
-    }
-    data.speed = barsUsed;
-    
-    if (data.luck < 2){
-        barsUsed = 1;
-    }else if(data.luck < 3){
-        barsUsed = 2;
-    }else if(data.luck < 4){
-        barsUsed = 3;
-    }else if(data.luck < 5){
-        barsUsed = 4;
-    }else if(data.luck < 6){
-        barsUsed = 5;
-    }else if(data.luck < 7){
-        barsUsed = 6;
-    }else{
-        barsUsed = 7;
-    }
-    data.luck = barsUsed;
     
     //number of people in this room
     try {
@@ -267,7 +201,7 @@ trackerView.formatData = function (data) {
     } catch (err) {
         //console.log('Error getting room count');
     }
-    
+    /*
     data.seen_items = _.uniq(data.seen_items);
     for (var i = 0; i < data.seen_items.length; i++) {
         console.log("Seen Item: " + data.seen_items[i]);
@@ -276,32 +210,34 @@ trackerView.formatData = function (data) {
         console.log("Seen Item: " + data.items[i]);
     }
     data.seen_items = _.difference((data.seen_items), (data.items));
+    */
     return {
-        display_name: data.display_name,
-        items: items.list(data.items),
-        seenItems: items.list(data.seen_items),
-        trinkets: trinkets.list(data.trinkets),
-        pockets: pockets.list(data.pockets),
-        character: data.character,
-        charImgName: charImgName,
-        coins: data.coins,
-        bombs: data.bombs,
-        keys: data.keys,
-        guppy: data.guppy,
-        lof: data.lof,
-        floor: data.floor,
-        altfloor: data.altfloor,
-        curses: currentCurses,
+        bombs: data.bombs || 0,
+        challenge: challenges.value(data.challenge_id || 0),
         charges: data.charges,
-        speed: data.speed,
-        range: data.range,
-        shotspeed: data.shotspeed,
-        tearrate: data.tearrate,
+        coins: data.coins || 0,
+        curses: currentCurses,
         damage: data.damage,
+        disable_achievements: data.disable_achievements || false,
+        display_name: data.display_name,
+        floor: data.floor || [],
+        guppy: data.guppy || 0,
+        items: items.list(data.items),
+        hard_mode: data.hard_mode || false,
+        keys: data.keys || 0,
+        lof: data.lof || 0,
         luck: data.luck,
+        player: players.value(data.player_id || 0),
+        pockets: pockets.list(data.pockets),
+        range: data.range,
+        room_count: data.room_count || 0,
         seed: data.seed,
+        seen_items: items.list(data.seen_items),
+        shotspeed: data.shotspeed,
+        speed: data.speed,
+        tearrate: data.tearrate,
+        trinkets: trinkets.list(data.trinkets),
         updated_at: data.updated_at,
-        room_count: data.room_count,
     };
 };
  

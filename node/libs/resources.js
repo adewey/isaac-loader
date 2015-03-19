@@ -5,8 +5,10 @@ var parser = require('xml2json'),
 
 var itemFile = parser.toJson(fs.readFileSync('resources/items.xml', 'utf-8'), {object: true});
 var pocketFile = parser.toJson(fs.readFileSync('resources/pocketitems.xml', 'utf-8'), {object: true});
+var playerFile = parser.toJson(fs.readFileSync('resources/players.xml', 'utf-8'), {object: true});
+var challengeFile = parser.toJson(fs.readFileSync('resources/challenges.xml', 'utf-8'), {object: true});
 
-var json = {items:{},trinkets:{},cards:{},pills:{}};
+var json = {items:[],trinkets:[],cards:[],pills:[],players:[],challenges:[]};
 
 var passive = itemFile.items.passive;
 for (var i = 0; i < passive.length; i++)
@@ -41,6 +43,16 @@ for (var i = 0; i < trinket.length; i++)
     json.trinkets[trinket[i].id] = trinket[i];
 }
 
+var player = playerFile.players.player;
+for (var i = 0; i < player.length; i++)
+{
+    if (player[i]['portrait'])
+        player[i]['portrait'] = player[i]['portrait'].toLowerCase()
+    if (player[i]['bigportrait'])
+        player[i]['bigportrait'] = player[i]['bigportrait'].toLowerCase()
+    json.players[player[i].id] = player[i];
+}
+
 var card = pocketFile.pocketitems.card;
 for (var i = 0; i < card.length; i++)
 {
@@ -57,6 +69,12 @@ var pilleffect = pocketFile.pocketitems.pilleffect;
 for (var i = 0; i < pilleffect.length; i++)
 {
     json.pills[pilleffect[i].id] = pilleffect[i];
+}
+
+var challenge = challengeFile.challenges.challenge;
+for (var i = 0; i < challenge.length; i++)
+{
+    json.challenges[challenge[i].id] = challenge[i];
 }
 
 

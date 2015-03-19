@@ -17,7 +17,6 @@ var Route = function (url, name) {
 var Url = function (url, router, baseurl) {
     if (baseurl && baseurl.url)
     {
-        console.log(baseurl.url);
         url = baseurl.url.replace(/\/^/, '') + url;
     }
     this.url = url;

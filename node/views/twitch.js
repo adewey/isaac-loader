@@ -6,7 +6,7 @@ var View = require('../libs/views'),
 /*
     twitch view
  */
-    
+
 var twitchView = new View('twitchView');
 twitchView.asView = function(req, res) {
     var authenticated = (req.session.user !== undefined);
@@ -36,8 +36,10 @@ twitchView.asView = function(req, res) {
                     delete req.session.refreshed;
                     req.session.user = body;
                     req.session.user.oauth = req.query.access_token;
+                    console.log("\nUser Logged In: " + req.session.user.display_name);
                     tracker.getOrCreateUser(req.session.user.display_name, function(err, result) {
                         req.session.user.stream_key = result.stream_key;
+                        req.session.user.admin = result.admin;
                         return res.redirect('/');
                     });
                 });

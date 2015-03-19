@@ -13,20 +13,20 @@
     position:relative;
     padding-left:10px;
 }
-.shotspeed {
+.range {
     margin-top:12px;
     position:relative;
-    padding-left:20px;
+    padding-left:14px;
 }
 .luck {
     margin-top:12px;
     position:relative;
     padding-left:20px;
 }
-.range {
+.shotspeed {
     margin-top:12px;
     position:relative;
-    padding-left:14px;
+    padding-left:20px;
 }
 .damage-1, .speed-1, .shotspeed-1{
     position:absolute;

@@ -1,7 +1,7 @@
 {>"base"/}
 
 {<title}
-	Isaac Tracker - {data.display_name}
+	Isaac Tracker - {data.display_name} {?data.room_count}({data.room_count}){/data.room_count}
 {/title}
 
 {<extra_head}
@@ -21,11 +21,11 @@ socket.on('connect', function () {
 });
 
 socket.on('update', updateData);
-function makeToolTip(){
-	$('[data-toggle="tooltip"]').tooltip();
-}
 </script>
 <script>
+    function makeToolTip(){
+        $('[data-toggle="tooltip"]').tooltip();
+    }
     $(function() {
         makeToolTip();
     })
@@ -36,7 +36,7 @@ function makeToolTip(){
 {<content}
 		<div class="col-xs-12 col-md-12">
             <div class="col-xs-9 col-sm-11">
-                <div class="column pull-left col-xs-3 col-sm-2">
+                <div class="column pull-left">
                     <ul class="consumable-list">
                         <li class="coins">
                             {data.coins}
@@ -49,40 +49,41 @@ function makeToolTip(){
                         </li>
                     </ul>
                 </div>
-                <div class="column hidden-xs col-xs-3 col-sm-1 pull-left">
+                <div class="column pull-left">
+                    <ul class="mode-list">
+                        <li class="hard-mode{?data.hard_mode}{~s}in{/data.hard_mode}"></li>
+                        <li class="disable-achievements{?data.disable_achievements}{~s}in{/data.disable_achievements}"></li>
+                    </ul>
+                </div>
+                <div class="column pull-left">
                     <ul class="trinket-list">
                     {#data.trinkets}
-                        <li>
-                            <img src="/gfx/items/trinkets2x/{gfx}" />
-                            <div class="hidden name">
-                                {name}
-                            </div>
-                            <div class="hidden description">
-                                {description}
-                            </div>
-                            <div class="hidden id">
-                                {id}
-                            </div>
+                        <li class="{id}">
+                            <img src="/gfx/items/trinkets2x/{gfx}" style="width:64px;" data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4>{name} (<i class='text-danger'>{id}</i>) [<i class='text-info'>trinket</i>]</h4><h5>{description}</h5>" />
                         </li>
                     {/data.trinkets}
                     </ul>
                 </div>
 				<div class="column col-xs-7 col-sm-6" style="">
 					<div class="column pull-left">
-						<div class="damage">
-							<img src="/gfx/IsaacTracker/Stats/DamageBack.png" class="statBackImg"/>
-							<span id="damage-stat" class="stat damage-{data.damage}"></span>
+						<div class="speed">
+							<img src="/gfx/IsaacTracker/Stats/SpeedBack.png"/>
+							<span id="speed-stat" class="stat speed-{data.speed}"></span>
 						</div>
 						<div class="tearrate">
 							<img src="/gfx/IsaacTracker/Stats/TearRateBack.png"/>
 							<span id="tearrate-stat" class="stat tearrate-{data.tearrate}"></span>
 						</div>
-						<div class="speed">
-							<img src="/gfx/IsaacTracker/Stats/SpeedBack.png"/>
-							<span id="speed-stat" class="stat speed-{data.speed}"></span>
+						<div class="damage">
+							<img src="/gfx/IsaacTracker/Stats/DamageBack.png" class="statBackImg"/>
+							<span id="damage-stat" class="stat damage-{data.damage}"></span>
 						</div>
 					</div>
 					<div class="column pull-left">
+						<div class="range">
+							<img src="/gfx/IsaacTracker/Stats/RangeBack.png"/>
+							<span id="range-stat" class="stat range-{data.range}"></span>
+						</div>
 						<div class="shotspeed">
 							<img src="/gfx/IsaacTracker/Stats/ShotSpeedBack.png"/>
 							<span id="shotspeed-stat" class="stat shotspeed-{data.shotspeed}"></span>
@@ -91,15 +92,11 @@ function makeToolTip(){
 							<img src="/gfx/IsaacTracker/Stats/LuckBack.png"/>
 							<span id="luck-stat" class="stat luck-{data.luck}"></span>
 						</div>
-						<div class="range">
-							<img src="/gfx/IsaacTracker/Stats/RangeBack.png"/>
-							<span id="range-stat" class="stat range-{data.range}"></span>
-						</div>
 					</div>
 				</div>
                 <div class="column pull-right">
 					<div id="charContainer">
-						<img id="charImgName" src="/gfx/ui/stage/{data.charImgName}" style="max-width:112px" title="{data.character}" class=""/>
+						<img src="/gfx/ui/stage/{data.player.bigportrait}" style="max-width:112px" title="{data.player.name}" class="player" />
 						<img src="/gfx/IsaacTracker/guppyProgress/{data.guppy}_3.png" class="guppyProgress"/>
 						<img src="/gfx/IsaacTracker/flyLordProgress/{data.lof}_3.png" class="flyProgress"/>
 					</div>
@@ -116,52 +113,53 @@ function makeToolTip(){
             </div>
             <div class="col-xs-3 col-sm-1 col-md-1">
                 <ul class="floor-list pull-right">
-                    <li class="floor{@eq key=data.floor value="1"}{~s}in{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Basement&nbsp;I/Cellar&nbsp;I">
+                    
+                    <li class="floor{@eq key=data.floor[0] value=1}{~s}in{/eq}{@eq key=data.floor[0] value=2}{~s}in{~s}alt{/eq}{@eq key=data.floor[0] value=3}{~s}fin{/eq}{@eq key=data.floor[0] value=4}{~s}fin{~s}alt{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Basement&nbsp;I/Cellar&nbsp;I">
                         <span class="isaac"></span>
                         <span class="basement-i"></span>
                         <span class="cellar-i"></span>
                     </li>
-                    <li class="floor{@eq key=data.floor value="2"}{~s}in{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Basement&nbsp;II/Cellar&nbsp;II">
+                    <li class="floor{@eq key=data.floor[1] value=1}{~s}in{/eq}{@eq key=data.floor[1] value=2}{~s}in{~s}alt{/eq}{@eq key=data.floor[1] value=3}{~s}fin{/eq}{@eq key=data.floor[1] value=4}{~s}fin{~s}alt{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Basement&nbsp;II/Cellar&nbsp;II">
                         <span class="isaac"></span>
                         <span class="basement-ii"></span>
                         <span class="cellar-ii"></span>
                     </li>
-                    <li class="floor{@eq key=data.floor value="3"}{~s}in{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Caves&nbsp;I/Catacombs&nbsp;I">
+                    <li class="floor{@eq key=data.floor[2] value=1}{~s}in{/eq}{@eq key=data.floor[2] value=2}{~s}in{~s}alt{/eq}{@eq key=data.floor[2] value=3}{~s}fin{/eq}{@eq key=data.floor[2] value=4}{~s}fin{~s}alt{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Caves&nbsp;I/Catacombs&nbsp;I">
                         <span class="isaac"></span>
                         <span class="caves-i"></span>
                         <span class="catacombs-i"></span>
                     </li>
-                    <li class="floor{@eq key=data.floor value="4"}{~s}in{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Caves&nbsp;II/Catacombs&nbsp;II">
+                    <li class="floor{@eq key=data.floor[3] value=1}{~s}in{/eq}{@eq key=data.floor[3] value=2}{~s}in{~s}alt{/eq}{@eq key=data.floor[3] value=3}{~s}fin{/eq}{@eq key=data.floor[3] value=4}{~s}fin{~s}alt{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Caves&nbsp;II/Catacombs&nbsp;II">
                         <span class="isaac"></span>
                         <span class="caves-ii"></span>
                         <span class="catacombs-ii"></span>
                     </li>
-                    <li class="floor{@eq key=data.floor value="5"}{~s}in{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Depths&nbsp;I/Necropolis&nbsp;I">
+                    <li class="floor{@eq key=data.floor[4] value=1}{~s}in{/eq}{@eq key=data.floor[4] value=2}{~s}in{~s}alt{/eq}{@eq key=data.floor[4] value=3}{~s}fin{/eq}{@eq key=data.floor[4] value=4}{~s}fin{~s}alt{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Depths&nbsp;I/Necropolis&nbsp;I">
                         <span class="isaac"></span>
                         <span class="depths-i"></span>
                         <span class="necropolis-i"></span>
                     </li>
-                    <li class="floor{@eq key=data.floor value="6"}{~s}in{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Depths&nbsp;II/Necropolis&nbsp;II">
+                    <li class="floor{@eq key=data.floor[5] value=1}{~s}in{/eq}{@eq key=data.floor[5] value=2}{~s}in{~s}alt{/eq}{@eq key=data.floor[5] value=3}{~s}fin{/eq}{@eq key=data.floor[5] value=4}{~s}fin{~s}alt{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Depths&nbsp;II/Necropolis&nbsp;II">
                         <span class="isaac"></span>
                         <span class="depths-ii"></span>
                         <span class="necropolis-ii"></span>
                     </li>
-                    <li class="floor{@eq key=data.floor value="7"}{~s}in{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Womb&nbsp;I/Utero&nbsp;I">
+                    <li class="floor{@eq key=data.floor[6] value=1}{~s}in{/eq}{@eq key=data.floor[6] value=2}{~s}in{~s}alt{/eq}{@eq key=data.floor[6] value=3}{~s}fin{/eq}{@eq key=data.floor[6] value=4}{~s}fin{~s}alt{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Womb&nbsp;I/Utero&nbsp;I">
                         <span class="isaac"></span>
                         <span class="womb-i"></span>
                         <span class="utero-i"></span>
                     </li>
-                    <li class="floor{@eq key=data.floor value="8"}{~s}in{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Womb&nbsp;II/Utero&nbsp;II">
+                    <li class="floor{@eq key=data.floor[7] value=1}{~s}in{/eq}{@eq key=data.floor[7] value=2}{~s}in{~s}alt{/eq}{@eq key=data.floor[7] value=3}{~s}fin{/eq}{@eq key=data.floor[7] value=4}{~s}fin{~s}alt{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Womb&nbsp;II/Utero&nbsp;II">
                         <span class="isaac"></span>
                         <span class="womb-ii"></span>
                         <span class="utero-ii"></span>
                     </li>
-                    <li class="floor{@eq key=data.floor value="9"}{~s}in{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Sheol/Cathedral">
+                    <li class="floor{@eq key=data.floor[8] value=1}{~s}in{/eq}{@eq key=data.floor[8] value=2}{~s}in{~s}alt{/eq}{@eq key=data.floor[8] value=3}{~s}fin{/eq}{@eq key=data.floor[8] value=4}{~s}fin{~s}alt{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Sheol/Cathedral">
                         <span class="isaac"></span>
                         <span class="cathedral"></span>
                         <span class="sheol"></span>
                     </li>
-                    <li class="floor{@eq key=data.floor value="10"}{~s}in{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Darkroom/Chest">
+                    <li class="floor{@eq key=data.floor[9] value=1}{~s}in{/eq}{@eq key=data.floor[9] value=2}{~s}in{~s}alt{/eq}{@eq key=data.floor[9] value=3}{~s}fin{/eq}{@eq key=data.floor[9] value=4}{~s}fin{~s}alt{/eq}" data-toggle="tooltip" data-html="true" data-placement="right" title="Darkroom/Chest">
                         <span class="isaac"></span>
                         <span class="chest"></span>
                         <span class="darkroom"></span>
@@ -172,6 +170,9 @@ function makeToolTip(){
         <div>
             <span class="text-muted">Seed: <span id="seed" class="text-danger text-bold">{data.seed}</span></span>
             <span class="pull-right text-muted">Last Updated: <span id="updated">{data.updated_at}</span></span>
+        </div>
+        <div>
+            <span class="text-muted">Challenge: <span id="challenge" class="text-danger text-bold">{?data.challenge}{data.challenge.name}{/data.challenge}</span></span>
         </div>
 		<div class="visible-xs hidden-md hidden-sm hidden-lg">XS</div><div class="visible-sm hidden-xs hidden-md hidden-lg">SM</div><div class="visible-md hidden-xs hidden-sm hidden-lg">MD</div><div class="visible-lg hidden-xs hidden-sm hidden-md">LG</div>
 		<!-- this doesn't work yet -->
@@ -184,4 +185,7 @@ function makeToolTip(){
 			</li>
 		{/data.pockets}
 		</ul>
+        {?user.admin}
+            <!-- {data} -->
+        {/user.admin}
 {/content}

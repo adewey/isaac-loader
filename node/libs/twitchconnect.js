@@ -126,7 +126,6 @@ TwitchConnect.prototype.getOAuth = function(code, callback) {
 	request.post(options, function(err, response, body) {
 		if (err) return callback(err, response, body);
 		body = JSON.parse(body);
-		console.log(body);
 		if (callback != undefined) callback(null, response, body);
 	});
 };

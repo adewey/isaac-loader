@@ -10,17 +10,51 @@
 			IsaacTracker was made as a way to show off your Rebirth runs in style. 
 			While other solutions for displaying what items you have exist, 
 			none are as nicely put together or as specific as IsaacTracker. 
-			Because we are modding the EXE, we have access to information such as 
-			stats that the competition does not!
+        </p>
+        </p>
+			This is because we have built a platform that reads the games memory and knows when events in game happen. 
+            IsaacTracker is the first of many mods using the Gemini Modding Platform, so do keep in touch! 
 		</p>
 		<p>
 			If you want to see a live example, go <a href="/IsaacTracker">here</a>.
 		</p>
 		<h1 class="text-center">News</h1>
 		<div class="col-lg-12">
+			<h2>Release: IsaacTracker v1.3beta<span class="text-muted pull-right">3/16/2015</span></h2>
+			<p>
+				This is a minor release but it will fix the range and shotspeed errors on the website.<br />
+                Changelog:
+                <ul>
+                    <li>
+                        Changed the way we were calculating the number of bars to show for stats. Before we guessed based on changes in the game, now we calculate it using the same formulas as the pause screen.
+                    </li>
+                    <li>
+                        Made sure the tracker sends updates for consumables and trinkets when you start a new game (if you have them)
+                    </li>
+                </ul>
+                - ditheren
+			</p>
+		</div>
+		<div class="col-lg-12">
+			<h2>Release: IsaacTracker v1.2beta<span class="text-muted pull-right">3/14/2015</span></h2>
+			<p>
+				Lots of changes in the new version of the tracker with how we collect the data from the game, and how we talk to the isaactracker webservice.<br />
+                Changelog:
+                <ul>
+                    <li>
+                        Gemini Loader changed to use Pre/On/Post events for most game events (Game::Start, Level::Init, Player_Entity::AddCollectible, ItemPool::GetCollectible)
+                    </li>
+                    <li>
+                        tracker.dll now sends smaller, more frequent event notifications to the webservice
+                    </li>
+                </ul>
+                - ditheren
+			</p>
+		</div>
+		<div class="col-lg-12">
 			<h2>Database Updates<span class="text-muted pull-right">3/9/2015</span></h2>
 			<p>
-				Today we were going about updating our server and databases, and some issues arose while we were transferring old data over so unfortunately, you'll all have to redownload the mod. 
+				Today we were going about updating our server and databases, and some issues arrose while we were transferring old data over so unfortunately, you'll all have to redownload the mod. 
 				That Said, Isaac Tracker is about to see a huge update so yeah, watch out for that :D
 			</p>
 		</div>
