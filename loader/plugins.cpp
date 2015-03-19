@@ -293,6 +293,68 @@ void PostItemPool__GetCollectible(int id)
 
 
 
+bool PreItemPool__GetCard(int id)
+{
+	PPLUGIN pPlugin = pPluginList;
+	bool ret = true;
+	while (pPlugin)
+	{
+		if (pPlugin->PreItemPool__GetCard){
+			if (!pPlugin->PreItemPool__GetCard(id))
+				ret = false;
+		}
+		pPlugin = pPlugin->pNext;
+	}
+	return ret;
+}
+
+void PostItemPool__GetCard(int id)
+{
+	PPLUGIN pPlugin = pPluginList;
+	bool ret = true;
+	while (pPlugin)
+	{
+		if (pPlugin->PostItemPool__GetCard){
+			pPlugin->PostItemPool__GetCard(id);
+		}
+		pPlugin = pPlugin->pNext;
+	}
+	return;
+}
+
+
+
+bool PreItemPool__GetRune(int id)
+{
+	PPLUGIN pPlugin = pPluginList;
+	bool ret = true;
+	while (pPlugin)
+	{
+		if (pPlugin->PreItemPool__GetRune){
+			if (!pPlugin->PreItemPool__GetRune(id))
+				ret = false;
+		}
+		pPlugin = pPlugin->pNext;
+	}
+	return ret;
+}
+
+void PostItemPool__GetRune(int id)
+{
+	PPLUGIN pPlugin = pPluginList;
+	bool ret = true;
+	while (pPlugin)
+	{
+		if (pPlugin->PostItemPool__GetRune){
+			pPlugin->PostItemPool__GetRune(id);
+		}
+		pPlugin = pPlugin->pNext;
+	}
+	return;
+}
+
+
+
 void OnGameUpdate()
 {
 	PPLUGIN pPlugin = pPluginList;
