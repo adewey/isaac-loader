@@ -3,14 +3,14 @@
 
 #include "Item.h"
 
-class SavedGame
+class GameState
 {
 public:
 /*0x000*/	char unk0x000[0x9C];
 /*0x094*/	int _character_id;
 /*0x098*/	int _challenge_id;
-/*0x09C*/	char saved_seed[0x10];
-/*0x0A0*/	int saved_seed_len;
+/*0x09C*/	char seed[0x10];
+/*0x0A0*/	int seed_len;
 /*0x0A4*/	char unk0x0A4[0x14];
 /*0x0B8*/	BOOL hard_mode;
 /*0x0BC*/	BOOL _disable_achievements;
@@ -30,7 +30,7 @@ public:
 /*0x2FA28*/ char unk0x2FA28[0x514]; //v3 = *(_DWORD *)(LODWORD(dwResourceManager) + 4 * a2 + 0x2FA2C); trinket list? 2FB78 card list?
 /*0x2FF3C*/ int unk0x2FF3C;
 /*0x2FF40*/ char unk0x2FF40[0x274];
-/*0x301B4*/ SavedGame saved_game; 
+/*0x301B4*/ GameState saved_game;
 };
 
 #endif /*_Resource_H_*/
