@@ -33,6 +33,8 @@ GLOBAL typedef void(__cdecl *fPostItemPool__GetRune)(int);
 
 GLOBAL typedef void(__cdecl *fOnGameUpdate)();
 
+GLOBAL typedef void(__cdecl *fOnReceiveMessage)(MessageMap);
+
 typedef struct _Plugin
 {
 	char szPluginName[MAX_PATH];
@@ -64,6 +66,8 @@ typedef struct _Plugin
 	fPostItemPool__GetRune PostItemPool__GetRune;
 
 	fOnGameUpdate OnGameUpdate;
+
+	fOnReceiveMessage OnReceiveMessage;
 
 	struct _Plugin* pLast;
 	struct _Plugin* pNext;
@@ -99,5 +103,7 @@ GLOBAL bool PreItemPool__GetRune(int);
 GLOBAL void PostItemPool__GetRune(int);
 
 GLOBAL void OnGameUpdate();
+
+GLOBAL void OnReceiveMessage(MessageMap);
 
 #endif

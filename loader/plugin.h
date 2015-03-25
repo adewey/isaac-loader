@@ -7,6 +7,7 @@
 #include "utilities.h"
 #include "commands.h"
 #include "plugins.h"
+#include "sockets.h"
 
 #define PAPI EXTERN_C __declspec(dllexport)
 

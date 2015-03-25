@@ -6,8 +6,11 @@
 #include <windows.h>
 #include "detours.h"
 #include <iostream>
+#include <map>
 #include "dllmain.h"
 using namespace std;
+
+typedef map<string, string> MessageMap;
 
 DWORD dwGetPidByName(TCHAR *wExeName);
 DWORD dwGetModuleSize(char *);
