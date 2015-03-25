@@ -100,6 +100,7 @@
     <ClCompile Include="commands.cpp" />
     <ClCompile Include="hooks.cpp" />
     <ClCompile Include="plugins.cpp" />
+    <ClCompile Include="sockets.cpp" />
     <ClCompile Include="statics.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
@@ -112,6 +113,7 @@
     <ClInclude Include="plugin.h" />
     <ClInclude Include="plugins.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="sockets.h" />
     <ClInclude Include="statics.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>

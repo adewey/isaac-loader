@@ -33,6 +33,9 @@
     <ClCompile Include="statics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sockets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utilities.h">
@@ -63,6 +66,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sockets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

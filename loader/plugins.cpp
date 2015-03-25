@@ -66,6 +66,10 @@ bool LoadPlugin(const char *fn)
 
 	pPlugin->OnGameUpdate = (fOnGameUpdate)GetProcAddress(hmod, "OnGameUpdate");
 
+	pPlugin->OnReceiveMessage = (fOnReceiveMessage)GetProcAddress(hmod, "OnReceiveMessage");
+
+	
+
 	if (pPlugin->InitPlugin)
 		pPlugin->InitPlugin();
 
@@ -362,6 +366,18 @@ void OnGameUpdate()
 	{
 		if (pPlugin->OnGameUpdate)
 			pPlugin->OnGameUpdate();
+		pPlugin = pPlugin->pNext;
+	}
+}
+
+
+void OnReceiveMessage(MessageMap messages)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (pPlugin->OnReceiveMessage)
+			pPlugin->OnReceiveMessage(messages);
 		pPlugin = pPlugin->pNext;
 	}
 }
