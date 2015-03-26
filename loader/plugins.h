@@ -74,7 +74,7 @@ typedef struct _Plugin
 } PLUGIN, *PPLUGIN;
 
 GLOBAL PPLUGIN pPluginList;
-
+GLOBAL PPLUGIN GetPluginByName(const char *name);
 GLOBAL bool LoadPlugin(const char *);
 GLOBAL bool UnloadPlugin(const char *);
 GLOBAL void UnInitPlugins();

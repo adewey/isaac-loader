@@ -3,7 +3,11 @@
 
 void ReceiveMessage(MessageMap messages)
 {
-
+	string plugin = messages.find("plugin")->second;
+	if (plugin != "") {
+		//send this message to a specific plugin
+		GetPluginByName(plugin.c_str())->OnReceiveMessage(messages);
+	}
 };
 
 PWEBSOCKET pInjectorSocket;
@@ -204,13 +208,11 @@ void WEBSOCKET::socket_thread()
 
 		rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
 		if (rc) {
-			cout << "!WSAStartup" << endl;
 			//Log("WSAStartup Failed.");
 		}
 #endif
 		websocket = from_url(url, false, origin);
 		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED) {
-			cout << "!websocket" << endl;
 			//Log("Websocket Could not Connect.");
 		}
 		else {

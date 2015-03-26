@@ -44,31 +44,11 @@ PAPI VOID UnInitPlugin(VOID)
 
 PAPI VOID OnReceiveMessage(MessageMap messages)
 {
-	string action;
-	for (MessageMap::const_iterator itr = messages.begin(); itr != messages.end(); ++itr){
-		if (itr->first == "action"){
-			//cout << "Action: " << itr->second << endl;
-			action = itr->second;
-		}
-	} //End initial loop to get action
-	if (action == ""){
-		Log("No action, doing nothing.");
-	}
-	else if (action == "fortune"){
+	if (messages.find("action")->second == "fortune") {
 		vector<string> lines;
-		for (MessageMap::const_iterator itr = messages.begin(); itr != messages.end(); ++itr){
-			if (itr->first == "line1"){
-				lines.push_back(itr->second);
-			}
-			else if (itr->first == "line2"){
-				lines.push_back(itr->second);
-			}
-			else if (itr->first == "line3"){
-				lines.push_back(itr->second);
-			}
-		} //End loop to get vals
-		//can't actually handle 3 lines yet.... AARON!
-
+		lines.push_back(messages.find("line1")->second);
+		lines.push_back(messages.find("line2")->second);
+		lines.push_back(messages.find("line3")->second);
 		ShowWithBanner.push_back(lines);
 	}
 }
