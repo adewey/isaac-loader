@@ -112,7 +112,7 @@ PAPI VOID PostPlayer_Entity__AddCollectible(int ret)
 		writer.String("speed");
 		writer.Double(pPlayer->_speed);
 	writer.EndObject();
-	push_message(isaactracker, s.GetString());
+	isaactracker->push_message(s.GetString());
 }
 
 int curKeys = 0;
@@ -127,7 +127,7 @@ PAPI VOID PostAddKeys(int ret)
 		writer.String("keys");
 		writer.Int(ret);
 	writer.EndObject();
-	push_message(isaactracker, s.GetString());
+	isaactracker->push_message(s.GetString());
 }
 
 int curBombs = 0;
@@ -142,7 +142,7 @@ PAPI VOID PostAddBombs(int ret)
 		writer.String("bombs");
 		writer.Int(ret);
 	writer.EndObject();
-	push_message(isaactracker, s.GetString());
+	isaactracker->push_message(s.GetString());
 }
 
 int curCoins = 0;
@@ -157,7 +157,7 @@ PAPI VOID PostAddCoins(int ret)
 		writer.String("coins");
 		writer.Int(ret);
 	writer.EndObject();
-	push_message(isaactracker, s.GetString());
+	isaactracker->push_message(s.GetString());
 }
 
 int trinket1id = 0;
@@ -177,7 +177,7 @@ PAPI VOID UpdateTrinkets(int id1, int id2)
 			writer.Int(id1);
 		writer.EndArray();
 	writer.EndObject();
-	push_message(isaactracker, s.GetString());
+	isaactracker->push_message(s.GetString());
 }
 
 /* ret = boss id found in bossportraits.xml */
@@ -201,7 +201,7 @@ PAPI VOID PostLevel__Init(int ret)
 		writer.String("curse");
 		writer.Int(pPlayerManager->_curses);
 	writer.EndObject();
-	push_message(isaactracker, s.GetString());
+	isaactracker->push_message(s.GetString());
 }
 
 PAPI VOID OnGame__Start(int challenge_id, bool disable_achievements, int player_id, char *seed, bool hard_mode)
@@ -210,7 +210,7 @@ PAPI VOID OnGame__Start(int challenge_id, bool disable_achievements, int player_
 	isaactracker->send_update = true;
 	dwFrameCount = 0;
 
-	clear_messages(isaactracker);
+	isaactracker->clear_messages();
 	StringBuffer s;
 	Writer<StringBuffer> writer(s);
 	writer.StartObject();
@@ -229,7 +229,7 @@ PAPI VOID OnGame__Start(int challenge_id, bool disable_achievements, int player_
 		writer.String("version");
 		writer.Double(dTrackerVersion);
 	writer.EndObject();
-	push_message(isaactracker, s.GetString());
+	isaactracker->push_message(s.GetString());
 }
 
 PAPI VOID PostGame__Start(int ret)

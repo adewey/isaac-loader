@@ -23,7 +23,7 @@
 using namespace rapidjson;
 using easywsclient::WebSocket;
 
-typedef struct _WebSocket
+typedef struct __declspec(dllexport) _WebSocket
 {
 	bool listen;
 	bool send_update;
@@ -52,7 +52,5 @@ void UnInitSockets();
 
 GLOBAL PWEBSOCKET AddSocket(string url, string origin);
 GLOBAL bool RemoveSocket(PWEBSOCKET pSocket);
-GLOBAL void push_message(PWEBSOCKET pSocket, string message);
-GLOBAL void clear_messages(PWEBSOCKET pSocket);
 
 #endif
