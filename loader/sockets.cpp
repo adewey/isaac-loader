@@ -6,11 +6,12 @@ void ReceiveMessage(MessageMap messages)
 	auto message = messages.find("plugin");
 	if (message != messages.end())
 	{
-		string plugin = message->second;
-		if (plugin != "") {
-			//send this message to a specific plugin
-			return GetPluginByName(plugin.c_str())->OnReceiveMessage(messages);
+		//send this message to a specific plugin
+		PPLUGIN pPlugin = GetPluginByName(message->second.c_str());
+		if (pPlugin != NULL && pPlugin->OnReceiveMessage) {
+			return pPlugin->OnReceiveMessage(messages);
 		}
+		return;
 	}
 	return OnReceiveMessage(messages);
 };
