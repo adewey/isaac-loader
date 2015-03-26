@@ -17,7 +17,7 @@ PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc);
 void ParseCommand(char *);
 void HandleCommand(char *, int, char *[]);
 void InitConsole();
-void RemoveConsole();
+void UnInitConsole();
 GLOBAL void AddCommand(char *, fCommand);
 GLOBAL bool RemoveCommand(char *);
 

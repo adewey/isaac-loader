@@ -3,6 +3,7 @@
 #include "hooks.h"
 #include "plugins.h"
 #include "statics.h"
+#include "sockets.h"
 
 HANDLE ghThread;
 bool gbAttached = false;
@@ -84,6 +85,7 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	sprintf_s(gszINIPath, MAX_PATH, "%s\\settings.ini", gszPluginPath);
 
 	InitPlugins();
+	InitSockets();
 
 #ifdef _DEBUG
 	cout << GetIsaacVersion() << endl;
@@ -105,8 +107,9 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 #endif
 	}
 	
+	UnInitSockets();
 	/* unload our plugins */
-	UnloadPlugins();
+	UnInitPlugins();
 
 #ifdef _DEBUG
 	/* remove commands*/
@@ -114,11 +117,11 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 #endif
 
 	/* remove console and unhook */
-	RemoveHooks();
+	UnInitHooks();
 
 #ifdef _DEBUG
 	cout << "DLL Detached!" << endl;
-	RemoveConsole();
+	UnInitConsole();
 #endif
 
 	Sleep(1000);

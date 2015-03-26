@@ -48,7 +48,7 @@ typedef struct _WebSocket
 } WEBSOCKET, *PWEBSOCKET;
 
 void InitSockets();
-void RemoveSockets();
+void UnInitSockets();
 
 GLOBAL PWEBSOCKET AddSocket(string url, string origin);
 GLOBAL bool RemoveSocket(PWEBSOCKET pSocket);

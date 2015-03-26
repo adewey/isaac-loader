@@ -5,6 +5,19 @@ char gszPluginPath[MAX_PATH] = { 0 };
 char gszINIPath[MAX_PATH] = { 0 };
 PPLUGIN pPluginList = 0;
 
+
+PPLUGIN GetPluginByName(const char *name)
+{
+	PPLUGIN pPlugin = pPluginList;
+	while (pPlugin)
+	{
+		if (!_stricmp(pPlugin->szPluginName, name))
+			return pPlugin;
+		pPlugin = pPlugin->pNext;
+	}
+	return NULL;
+}
+
 bool LoadPlugin(const char *fn)
 {
 	char Filename[MAX_PATH] = { 0 };
@@ -118,7 +131,7 @@ bool UnloadPlugin(const char *fn)
 	return false;
 }
 
-void UnloadPlugins()
+void UnInitPlugins()
 {
 	PPLUGIN pPlugin = pPluginList;
 	while (pPlugin)

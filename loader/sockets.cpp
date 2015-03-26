@@ -1,5 +1,32 @@
 #include "sockets.h"
 
+
+void ReceiveMessage(MessageMap messages)
+{
+	auto message = messages.find("plugin");
+	if (message != messages.end())
+	{
+		string plugin = message->second;
+		if (plugin != "") {
+			//send this message to a specific plugin
+			return GetPluginByName(plugin.c_str())->OnReceiveMessage(messages);
+		}
+	}
+	return OnReceiveMessage(messages);
+};
+
+PWEBSOCKET pInjectorSocket;
+void InitSockets()
+{
+	pInjectorSocket = AddSocket("ws://localhost:9045", "Client");
+}
+
+void UnInitSockets()
+{
+	RemoveSocket(pInjectorSocket);
+}
+
+
 PWEBSOCKET pSocketList = 0;
 PWEBSOCKET AddSocket(string url, string origin)
 {
@@ -114,7 +141,7 @@ void handle_message(const std::string & message)
 {
 	MessageMap messages;
 	ParseMessages(message.c_str(), messages);
-	OnReceiveMessage(messages);
+	ReceiveMessage(messages);
 }
 
 
@@ -185,13 +212,11 @@ void WEBSOCKET::socket_thread()
 
 		rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
 		if (rc) {
-			cout << "!WSAStartup" << endl;
 			//Log("WSAStartup Failed.");
 		}
 #endif
 		websocket = from_url(url, false, origin);
 		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED) {
-			cout << "!websocket" << endl;
 			//Log("Websocket Could not Connect.");
 		}
 		else {

@@ -9,6 +9,6 @@ GLOBAL DWORD gdwGameUpdate;
 GLOBAL DWORD gdwPlayer_Entity__AddCollectible;
 
 void InitHooks();
-void RemoveHooks();
+void UnInitHooks();
 
 #endif

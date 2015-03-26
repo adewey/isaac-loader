@@ -44,32 +44,28 @@ PAPI VOID UnInitPlugin(VOID)
 
 PAPI VOID OnReceiveMessage(MessageMap messages)
 {
-	string action;
-	for (MessageMap::const_iterator itr = messages.begin(); itr != messages.end(); ++itr){
-		if (itr->first == "action"){
-			//cout << "Action: " << itr->second << endl;
-			action = itr->second;
+	auto action = messages.find("action");
+	if (action != messages.end())
+	{
+		if (action->second == "fortune") {
+			vector<string> lines;
+			auto line1 = messages.find("line1");
+			if (line1 != messages.end())
+			{
+				lines.push_back(line1->second);
+			}
+			auto line2 = messages.find("line2");
+			if (line2 != messages.end())
+			{
+				lines.push_back(line2->second);
+			}
+			auto line3 = messages.find("line3");
+			if (line3 != messages.end())
+			{
+				lines.push_back(line3->second);
+			}
+			ShowWithBanner.push_back(lines);
 		}
-	} //End initial loop to get action
-	if (action == ""){
-		Log("No action, doing nothing.");
-	}
-	else if (action == "fortune"){
-		vector<string> lines;
-		for (MessageMap::const_iterator itr = messages.begin(); itr != messages.end(); ++itr){
-			if (itr->first == "line1"){
-				lines.push_back(itr->second);
-			}
-			else if (itr->first == "line2"){
-				lines.push_back(itr->second);
-			}
-			else if (itr->first == "line3"){
-				lines.push_back(itr->second);
-			}
-		} //End loop to get vals
-		//can't actually handle 3 lines yet.... AARON!
-
-		ShowWithBanner.push_back(lines);
 	}
 }
 
