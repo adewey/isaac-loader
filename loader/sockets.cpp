@@ -6,8 +6,9 @@ void ReceiveMessage(MessageMap messages)
 	string plugin = messages.find("plugin")->second;
 	if (plugin != "") {
 		//send this message to a specific plugin
-		GetPluginByName(plugin.c_str())->OnReceiveMessage(messages);
+		return GetPluginByName(plugin.c_str())->OnReceiveMessage(messages);
 	}
+	return OnReceiveMessage(messages);
 };
 
 PWEBSOCKET pInjectorSocket;
@@ -137,7 +138,6 @@ void handle_message(const std::string & message)
 	MessageMap messages;
 	ParseMessages(message.c_str(), messages);
 	ReceiveMessage(messages);
-	OnReceiveMessage(messages);
 }
 
 
