@@ -1,5 +1,23 @@
 #include "sockets.h"
 
+
+void ReceiveMessage(MessageMap messages)
+{
+
+};
+
+PWEBSOCKET pInjectorSocket;
+void InitSockets()
+{
+	pInjectorSocket = AddSocket("ws://localhost:9045", "Client");
+}
+
+void UnInitSockets()
+{
+	RemoveSocket(pInjectorSocket);
+}
+
+
 PWEBSOCKET pSocketList = 0;
 PWEBSOCKET AddSocket(string url, string origin)
 {
@@ -114,6 +132,7 @@ void handle_message(const std::string & message)
 {
 	MessageMap messages;
 	ParseMessages(message.c_str(), messages);
+	ReceiveMessage(messages);
 	OnReceiveMessage(messages);
 }
 
