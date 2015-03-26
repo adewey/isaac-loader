@@ -44,12 +44,28 @@ PAPI VOID UnInitPlugin(VOID)
 
 PAPI VOID OnReceiveMessage(MessageMap messages)
 {
-	if (messages.find("action")->second == "fortune") {
-		vector<string> lines;
-		lines.push_back(messages.find("line1")->second);
-		lines.push_back(messages.find("line2")->second);
-		lines.push_back(messages.find("line3")->second);
-		ShowWithBanner.push_back(lines);
+	auto action = messages.find("action");
+	if (action != messages.end())
+	{
+		if (action->second == "fortune") {
+			vector<string> lines;
+			auto line1 = messages.find("line1");
+			if (line1 != messages.end())
+			{
+				lines.push_back(line1->second);
+			}
+			auto line2 = messages.find("line2");
+			if (line2 != messages.end())
+			{
+				lines.push_back(line2->second);
+			}
+			auto line3 = messages.find("line3");
+			if (line3 != messages.end())
+			{
+				lines.push_back(line3->second);
+			}
+			ShowWithBanner.push_back(lines);
+		}
 	}
 }
 

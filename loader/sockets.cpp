@@ -3,10 +3,14 @@
 
 void ReceiveMessage(MessageMap messages)
 {
-	string plugin = messages.find("plugin")->second;
-	if (plugin != "") {
-		//send this message to a specific plugin
-		return GetPluginByName(plugin.c_str())->OnReceiveMessage(messages);
+	auto message = messages.find("plugin");
+	if (message != messages.end())
+	{
+		string plugin = message->second;
+		if (plugin != "") {
+			//send this message to a specific plugin
+			return GetPluginByName(plugin.c_str())->OnReceiveMessage(messages);
+		}
 	}
 	return OnReceiveMessage(messages);
 };
