@@ -145,9 +145,6 @@ void handle_message(const std::string & message)
 }
 
 
-void push_message(PWEBSOCKET pSocket, string message) {
-	pSocket->push_message(message);
-}
 void WEBSOCKET::push_message(string message)
 {
 	while (message_lock == true) Sleep(100);
@@ -176,9 +173,6 @@ string WEBSOCKET::pop_message()
 	return message;
 }
 
-void clear_messages(PWEBSOCKET pSocket) {
-	pSocket->clear_messages();
-}
 void WEBSOCKET::clear_messages()
 {
 	while (message_lock == true) Sleep(100);
