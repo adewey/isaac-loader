@@ -11,6 +11,7 @@ void ReceiveMessage(MessageMap messages)
 		if (pPlugin != NULL && pPlugin->OnReceiveMessage) {
 			return pPlugin->OnReceiveMessage(messages);
 		}
+		return;
 	}
 	return OnReceiveMessage(messages);
 };
