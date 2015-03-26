@@ -259,7 +259,7 @@ void InitHooks()
 
 }
 
-void RemoveHooks()
+void UnInitHooks()
 {
 	/* un-detour functions */
 	DetourRemove((PBYTE)original_gameUpdate, (PBYTE)gameUpdate);

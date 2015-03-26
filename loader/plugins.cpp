@@ -118,7 +118,7 @@ bool UnloadPlugin(const char *fn)
 	return false;
 }
 
-void UnloadPlugins()
+void UnInitPlugins()
 {
 	PPLUGIN pPlugin = pPluginList;
 	while (pPlugin)

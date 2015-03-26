@@ -119,7 +119,7 @@ void InitConsole()
 	originalStdIn = freopen("CONIN$", "r", stdin);
 }
 
-void RemoveConsole()
+void UnInitConsole()
 {
 	freopen("CONOUT$", "w", originalStdOut);
 	freopen("CONIN$", "r", originalStdIn);

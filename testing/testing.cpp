@@ -6,7 +6,8 @@
 #include <Psapi.h>
 
 #define printarg(i, arg) cout << i << ":" << "\t" << (void *)arg << "\t" << (float)arg << endl;
-
+int dwFrameCount = 0;
+bool intro = false;
 typedef struct _PDWORDSTRUCT {
 	union {
 		unsigned long DWord[0x1];
@@ -296,18 +297,11 @@ int __fastcall Player0004(int self, int _EDX, int a2, int Args, unsigned int a4,
 	return ret;
 }
 
+int(__cdecl *sub_4AFC40)(const char *Format, ...) = 0;
+
 void testcall(int argc, char *argv[])
 {
-	/*
-	char *arg1 = _strdup("test1");
-	DWORD arg2 = (DWORD)GetPlayerManager() + 0x2A5A4;
-	char *arg3 = _strdup("test2");
-	bool arg4 = false;
-	bool arg5 = false;
-	int ret = sub_552A10(arg1, arg2, arg3, arg4, arg5);
-	//original_sub_552A10(arg1, arg2, arg3, 0, 0);
-	*/
-
+	intro = true;
 	/*
 	DWORD dwResource = (*(DWORD*)(gdwBaseAddress + 0x21BCFC));
 	Resource * pResource = (Resource *)dwResource;
@@ -332,6 +326,7 @@ PAPI VOID InitPlugin()
 	AddCommand("showstats", showstats);
 	AddCommand("testcall", testcall);
 
+	sub_4AFC40 = (int(__cdecl *)(const char *Format, ...))(gdwBaseAddress + 0xAFC40);
 }
 
 // called when the plugin is removed
@@ -346,4 +341,20 @@ PAPI VOID UnInitPlugin(VOID)
 	RemoveCommand("showstats"); 
 	RemoveCommand("testcall");
 	Sleep(1000);
+}
+
+
+PAPI VOID OnGameUpdate()
+{
+	if (dwFrameCount >= 60 * 5 && intro)
+	{
+		intro = !intro;
+		sub_4AFC40("testing");
+		dwFrameCount = 0;
+	}
+	dwFrameCount++;
+}
+
+PAPI VOID PostLevel__Init(int ret)
+{
 }

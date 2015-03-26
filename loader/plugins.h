@@ -77,7 +77,7 @@ GLOBAL PPLUGIN pPluginList;
 
 GLOBAL bool LoadPlugin(const char *);
 GLOBAL bool UnloadPlugin(const char *);
-GLOBAL void UnloadPlugins();
+GLOBAL void UnInitPlugins();
 GLOBAL void InitPlugins();
 
 GLOBAL void PreGame__Start(int *, bool *, int *, char *, bool *);
