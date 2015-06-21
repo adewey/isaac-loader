@@ -1,74 +1,44 @@
 #include "..\loader\plugin.h"
-#include <fstream>
+#include "..\loader\sockets.h"
 
-using namespace rapidjson;
-using namespace std;
 PWEBSOCKET isaactracker;
 
-double dTrackerVersion = 1.31;
+double dTrackerVersion = 2.0;
 
 char gTrackerID[MAX_STRING] = { 0 };
-char *gIsaacUrl = "ws://ws.isaactracker.com";
+char *gIsaacUrl = "ws://localhost:8002";
 
-ofstream trackerLogFile;
 DWORD dwFrameCount = 0;
-int framesToNextBanner = 120;
-bool intro = false;
-
-vector<vector<string>> ShowWithBanner;
-
-void Log(string message)
-{
-	if (trackerLogFile.is_open()) {
-		trackerLogFile << "LOG: " << message << endl;
-	}
-}
 
 PAPI VOID InitPlugin()
 {
-	trackerLogFile.open("gemini/tracker_log.txt");
-	Log("Tracker Started");
-	IniReadString("tracker", "key", gTrackerID);
-	string trackerLog = "Tracker ID: ";
-	trackerLog.append(gTrackerID);
-	Log(trackerLog);
 	isaactracker = AddSocket(gIsaacUrl, gTrackerID);
 }
 
 PAPI VOID UnInitPlugin(VOID)
 {
 	RemoveSocket(isaactracker);
-	trackerLogFile.close();
 }
 
 
 PAPI VOID OnReceiveMessage(MessageMap messages)
 {
-	auto action = messages.find("action");
-	if (action != messages.end())
-	{
-		if (action->second == "fortune") {
-			vector<string> lines;
-			auto line1 = messages.find("line1");
-			if (line1 != messages.end())
-			{
-				lines.push_back(line1->second);
-			}
-			auto line2 = messages.find("line2");
-			if (line2 != messages.end())
-			{
-				lines.push_back(line2->second);
-			}
-			auto line3 = messages.find("line3");
-			if (line3 != messages.end())
-			{
-				lines.push_back(line3->second);
-			}
-			ShowWithBanner.push_back(lines);
-		}
-	}
+
 }
 
+
+PAPI VOID OnPlayer_Entity__AddCollectible(Player *pPlayer, int item_id, int charges)
+{
+	StringBuffer s;
+	Writer<StringBuffer> writer(s);
+	writer.StartObject();
+	writer.String("action");
+	writer.String("touchedItem");
+	writer.String("item_id");
+	writer.Int(item_id);
+	writer.EndObject();
+	isaactracker->push_message(s.GetString());
+}
 
 PAPI VOID PostPlayer_Entity__AddCollectible(int ret)
 {
@@ -206,7 +176,6 @@ PAPI VOID PostLevel__Init(int ret)
 
 PAPI VOID OnGame__Start(int challenge_id, bool disable_achievements, int player_id, char *seed, bool hard_mode)
 {
-	intro = true;
 	isaactracker->send_update = true;
 	dwFrameCount = 0;
 
@@ -266,16 +235,5 @@ PAPI VOID OnGameUpdate()
 			UpdateTrinkets(pPlayer->_trinket1ID, pPlayer->_trinket2ID);
 		dwFrameCount = 0;
 	}
-	if (dwFrameCount >= (60 * 3) && intro)
-	{
-		intro = false;
-		show_fortune_banner("", "isaactracker loaded!", "");
-	}
-	if (!ShowWithBanner.empty() && framesToNextBanner <= 0){
-		show_fortune_banner(ShowWithBanner.back().at(0).c_str(), ShowWithBanner.back().at(1).c_str(), ShowWithBanner.back().at(2).c_str());
-		ShowWithBanner.pop_back();
-		framesToNextBanner = 60;
-	}
 	dwFrameCount++;
-	framesToNextBanner--;
 }

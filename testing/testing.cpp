@@ -301,7 +301,9 @@ int(__cdecl *sub_4AFC40)(const char *Format, ...) = 0;
 
 void testcall(int argc, char *argv[])
 {
-	intro = true;
+
+
+	//intro = true;
 	/*
 	DWORD dwResource = (*(DWORD*)(gdwBaseAddress + 0x21BCFC));
 	Resource * pResource = (Resource *)dwResource;
@@ -326,7 +328,7 @@ PAPI VOID InitPlugin()
 	AddCommand("showstats", showstats);
 	AddCommand("testcall", testcall);
 
-	sub_4AFC40 = (int(__cdecl *)(const char *Format, ...))(gdwBaseAddress + 0xAFC40);
+	//sub_4AFC40 = (int(__cdecl *)(const char *Format, ...))(gdwBaseAddress + 0xAFC40);
 }
 
 // called when the plugin is removed
