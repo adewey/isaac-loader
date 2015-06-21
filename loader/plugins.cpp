@@ -142,8 +142,6 @@ void UnInitPlugins()
 	}
 }
 
-
-
 void LoadPlugins()
 {
 	try {
@@ -193,6 +191,30 @@ DWORD WINAPI SettingsThread(void* pThreadArgument)
 		}
 	}
 	return 0;
+}
+
+void InitManagedDll()
+{
+	LoadManagedDll();
+}
+
+void UnInitManagedDll(){
+
+}
+
+_declspec(dllexport) void ShowMessageBox(int *value);
+void LoadManagedDll(){
+	int *result;
+
+	ShowMessageBox(result);
+
+	if (*result == 1)
+		printf("Ok Was Pressed \n");
+	else
+		if (*result == 2)
+			printf("Cancel Was Pressed \n");
+		else
+			printf("Unknown result \n");
 }
 
 void InitPlugins()

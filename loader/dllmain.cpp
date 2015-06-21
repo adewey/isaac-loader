@@ -61,7 +61,6 @@ bool VerifyIsaac()
 	return true;
 }
 
-
 DWORD WINAPI DllThread(void* pThreadArgument)
 {
 	InitStatics();
@@ -87,6 +86,7 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	sprintf_s(gszJSONPath, MAX_PATH, "%s\\settings.json", gszPluginPath);
 
 	InitPlugins();
+	InitManagedDll();
 	InitSockets();
 	
 #ifdef _DEBUG
