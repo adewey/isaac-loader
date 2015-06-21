@@ -193,6 +193,9 @@ DWORD WINAPI SettingsThread(void* pThreadArgument)
 	return 0;
 }
 
+
+void LoadManagedDll(); // <----
+
 void InitManagedDll()
 {
 	LoadManagedDll();
