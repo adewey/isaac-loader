@@ -194,7 +194,7 @@ DWORD WINAPI SettingsThread(void* pThreadArgument)
 }
 
 
-void LoadManagedDll(); // <----
+void LoadManagedDll();
 
 void InitManagedDll()
 {
@@ -204,7 +204,11 @@ void InitManagedDll()
 void UnInitManagedDll(){
 
 }
-
+#include "..\ManagedDll\ManagedDll.h"
+#include "..\ManagedDll\stdafx.h"
+#include "conio.h"
+#include <iostream>
+#include <windows.h>
 _declspec(dllexport) void ShowMessageBox(int *value);
 void LoadManagedDll(){
 	int *result;
