@@ -16,15 +16,24 @@ void ReceiveMessage(MessageMap messages)
 	return OnReceiveMessage(messages);
 };
 
-PWEBSOCKET pInjectorSocket;
 void InitSockets()
 {
-	pInjectorSocket = AddSocket("ws://localhost:9045", "Client");
+#ifdef _WIN32
+	INT rc;
+	WSADATA wsaData;
+
+	rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (rc) {
+		//Log("WSAStartup Failed.");
+	}
+#endif
 }
 
 void UnInitSockets()
 {
-	RemoveSocket(pInjectorSocket);
+#ifdef _WIN32
+	WSACleanup();
+#endif
 }
 
 
@@ -199,24 +208,17 @@ void WEBSOCKET::start()
 
 void WEBSOCKET::socket_thread()
 {
-	while (gbAttached && listen)
+	while (gbAttached)
 	{
-#ifdef _WIN32
-		INT rc;
-		WSADATA wsaData;
-
-		rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
-		if (rc) {
-			//Log("WSAStartup Failed.");
-		}
-#endif
+		if (!listen) break;
 		websocket = from_url(url, false, origin);
 		if (websocket == NULL || websocket->getReadyState() == WebSocket::CLOSED) {
 			//Log("Websocket Could not Connect.");
 		}
 		else {
 			//Log("Websocket Connected.");
-			while (websocket->getReadyState() != WebSocket::CLOSED && gbAttached && listen) {
+			while (websocket->getReadyState() != WebSocket::CLOSED && gbAttached) {
+				if (!listen) break;
 				websocket->poll();
 				websocket->dispatch(handle_message);
 				if (message_list.size() > 0 && send_update)
@@ -229,9 +231,6 @@ void WEBSOCKET::socket_thread()
 
 			delete websocket;
 		}
-#ifdef _WIN32
-		WSACleanup();
-#endif
 		//Log("Web Socket Closed.");
 	}
 	//Log("No Longer Attached to Isaac");

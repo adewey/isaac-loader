@@ -50,7 +50,7 @@ public:
 /*[0x0B74]*/		int _numCoins;
 /*[0x0B78]*/		char _unk0B78[0xC];
 /*[0x0B84]*/		int _attackingOrMoving;
-/*[0x0B88]*/		char _unk0B88[0xC];
+/*[0x0B88]*/		char _unk0B88[0xC]; // B88 related to bloody lust
 /*[0x0B94]*/		int _invincibilityFrames;
 /*[0x0B98]*/		int _charID;
 /*[0x0B9C]*/		char* _characterName;
@@ -62,7 +62,7 @@ public:
 /*[0x0BF0]*/		float _damage;
 /*[0x0BF4]*/		float _range;
 /*[0x0BF8]*/		float _shotheight;
-/*[0x0BFC]*/		char _unk0BFC[0xB8];
+/*[0x0BFC]*/		char _unk0BFC[0xB8]; // cb0 possibly increased speed from taurus?
 /*[0x0CB4]*/		float _speed;
 /*[0x0CB8]*/		float _luck;
 /*[0x0CBC]*/		char _unk0CBC[0xC];

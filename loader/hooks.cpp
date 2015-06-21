@@ -2,6 +2,7 @@
 #include "utilities.h"
 #include "plugins.h"
 #include "statics.h"
+#include "..\detours\detours.h"
 #define printarg(i, arg) cout << i << ":" << "\t" << (void *)arg << "\t" << (float)arg << endl;
 
 DWORD gdwBaseAddress = (DWORD)GetModuleHandle(NULL);

@@ -5,7 +5,8 @@
 #include "utilities.h"
 
 GLOBAL char gszPluginPath[MAX_PATH];
-GLOBAL char gszINIPath[MAX_PATH];
+GLOBAL char gszJSONPath[MAX_PATH];
+
 GLOBAL typedef void(__cdecl *fInitPlugin)();
 GLOBAL typedef void(__cdecl *fUnInitPlugin)();
 
