@@ -1,10 +1,12 @@
 #include "plugins.h"
 #include "utilities.h"
 #include "commands.h"
-char gszPluginPath[MAX_PATH] = { 0 };
-char gszINIPath[MAX_PATH] = { 0 };
-PPLUGIN pPluginList = 0;
+#include <sys/stat.h>
 
+
+char gszPluginPath[MAX_PATH] = { 0 };
+char gszJSONPath[MAX_PATH] = { 0 };
+PPLUGIN pPluginList = 0;
 
 PPLUGIN GetPluginByName(const char *name)
 {
@@ -16,6 +18,13 @@ PPLUGIN GetPluginByName(const char *name)
 		pPlugin = pPlugin->pNext;
 	}
 	return NULL;
+}
+
+bool PluginLoaded(const char *name)
+{
+	if (GetPluginByName(name) != NULL)
+		return true;
+	return false;
 }
 
 bool LoadPlugin(const char *fn)
@@ -41,16 +50,11 @@ bool LoadPlugin(const char *fn)
 		return false;
 	}
 
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
+	PPLUGIN pPlugin = GetPluginByName(Filename);
+	if (pPlugin)
 	{
-		if (hmod == pPlugin->hModule)
-		{
-			/* plugin already loaded*/
-			FreeLibrary(hmod);
-			return true;
-		}
-		pPlugin = pPlugin->pNext;
+		/* we are already loaded */
+		return true;
 	}
 
 	pPlugin = new PLUGIN;
@@ -91,7 +95,8 @@ bool LoadPlugin(const char *fn)
 	if (pPluginList)
 		pPluginList->pLast = pPlugin;
 	pPluginList = pPlugin;
-	WritePrivateProfileStringA("plugins", Filename, Filename, gszINIPath);
+	// todo: fix writing to this file (json)
+	//WritePrivateProfileStringA("plugins", Filename, Filename, gszINIPath);
 	return true;
 }
 
@@ -104,28 +109,25 @@ bool UnloadPlugin(const char *fn)
 	if (Temp)
 		Temp[0] = 0;
 
-	PPLUGIN pPlugin = pPluginList;
-	while (pPlugin)
+	PPLUGIN pPlugin = GetPluginByName(Filename);
+	if (pPlugin)
 	{
-		if (!_stricmp(Filename, pPlugin->szPluginName))
-		{
-			if (pPlugin->pLast)
-				pPlugin->pLast->pNext = pPlugin->pNext;
-			else
-				pPluginList = pPlugin->pNext;
-			if (pPlugin->pNext)
-				pPlugin->pNext->pLast = pPlugin->pLast;
+		if (pPlugin->pLast)
+			pPlugin->pLast->pNext = pPlugin->pNext;
+		else
+			pPluginList = pPlugin->pNext;
+		if (pPlugin->pNext)
+			pPlugin->pNext->pLast = pPlugin->pLast;
 
-			if (pPlugin->UnInitPlugin)
-				pPlugin->UnInitPlugin();
+		if (pPlugin->UnInitPlugin)
+			pPlugin->UnInitPlugin();
 
-			FreeLibrary(pPlugin->hModule);
-			delete pPlugin;
-			/* make sure it isnt loaded by default next time */
-			WritePrivateProfileStringA("plugins", Filename, NULL, gszINIPath);
-			return true;
-		}
-		pPlugin = pPlugin->pNext;
+		FreeLibrary(pPlugin->hModule);
+		delete pPlugin;
+		/* make sure it isnt loaded by default next time */
+		// todo: fix writing to this file (json)
+		//WritePrivateProfileStringA("plugins", Filename, NULL, gszINIPath);
+		return true;
 	}
 
 	return false;
@@ -140,26 +142,85 @@ void UnInitPlugins()
 	}
 }
 
-/* NOTE(Aaron): could some or all of this function be moved to commands? i'm not 100% */
+void LoadPlugins()
+{
+	try {
+		FILE * pFile = fopen(gszJSONPath, "r");
+		char szFileBuffer[65535] = { 0 };
+		FileReadStream is(pFile, szFileBuffer, sizeof(szFileBuffer));
+		Document settingsDocument;
+		settingsDocument.ParseStream<0, UTF8<>, FileReadStream>(is);
+
+		Value& membersArray = settingsDocument;
+		for (Value::ConstMemberIterator it = membersArray.MemberBegin(); it != membersArray.MemberEnd(); it++) {
+			try {
+				if (it->value["enabled"].GetBool()) {
+					LoadPlugin(it->name.GetString());
+				}
+				else {
+					UnloadPlugin(it->name.GetString());
+				}
+			}
+			catch (exception) {};
+		}
+	}
+	catch (exception) {};
+}
+
+time_t GetLastModified(char *szFilePath)
+{
+	struct stat buffer;
+	if (szFilePath != NULL && szFilePath[0] != NULL)
+		if (stat(szFilePath, &buffer) == 0)
+			return buffer.st_mtime;
+	return 0;
+}
+
+DWORD WINAPI SettingsThread(void* pThreadArgument)
+{
+	time_t last_modified = GetLastModified(gszJSONPath);
+	cout << "initialized plugins.. last_modified: " << last_modified << endl;
+	while (gbAttached)
+	{
+		Sleep(5000);
+		time_t modified = GetLastModified(gszJSONPath);
+		if (last_modified != modified) {
+			cout << "settings have changed.. reloading plugins." << endl;
+			last_modified = modified;
+			LoadPlugins();
+		}
+	}
+	return 0;
+}
+
+void InitManagedDll()
+{
+	LoadManagedDll();
+}
+
+void UnInitManagedDll(){
+
+}
+
+_declspec(dllexport) void ShowMessageBox(int *value);
+void LoadManagedDll(){
+	int *result;
+
+	ShowMessageBox(result);
+
+	if (*result == 1)
+		printf("Ok Was Pressed \n");
+	else
+		if (*result == 2)
+			printf("Cancel Was Pressed \n");
+		else
+			printf("Unknown result \n");
+}
+
 void InitPlugins()
 {
-	char szPlugins[MAX_STRING] = { 0 };
-	/* get a null terminated string of keys in the plugin directory*/
-	DWORD dwBytes = IniReadString("plugins", NULL, szPlugins); // GetPrivateProfileStringA("plugins", NULL, NULL, szPlugins, MAX_STRING, gszINIPath);
-
-	/* convert this to something meaningful to parse */
-	for (DWORD i = 0; i < dwBytes; i++)
-		if (szPlugins[i] == '\0' && szPlugins[i + 1] != '\0')
-			szPlugins[i] = ' ';
-
-	/* get an array of plugin strings to load */
-	PCHAR *szPluginList;
-	int nPlugins;
-	szPluginList = CommandLineToArgvA(szPlugins, &nPlugins);
-	
-	/* load them */
-	for (int o = 0; o < nPlugins; o++)
-		LoadPlugin(szPluginList[o]);
+	LoadPlugins();
+	CreateThread(NULL, 0, SettingsThread, NULL, 0L, NULL);
 }
 
 

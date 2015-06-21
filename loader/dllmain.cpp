@@ -53,6 +53,7 @@ LONG WINAPI TopLevelExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
 }
 #endif
 
+
 bool VerifyIsaac()
 {
 	if (!_stricmp(GetIsaacVersion(), "Binding of Isaac: Rebirth v1.05"))
@@ -66,7 +67,7 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 	if (!VerifyIsaac())
 	{
 		gbAttached = false;
-		MessageBoxA(NULL, "Isaac has been updated and isaactracker has not. If there isn't an update posted on the website, there will be shortly.", "isaactracker unable to load", 0);
+		MessageBoxA(NULL, "Isaac has been updated and gemini modloader has not. If there isn't an update posted on the website (isaactracker.com), there will be shortly.", "gemini modloader unable to load", 0);
 		return 0;
 	}
 
@@ -82,11 +83,12 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 
 	/* set our plugin path to the directory our main dll was loaded from */
 	strcpy_s(gszPluginPath, MAX_PATH, (char *)pThreadArgument);
-	sprintf_s(gszINIPath, MAX_PATH, "%s\\settings.ini", gszPluginPath);
+	sprintf_s(gszJSONPath, MAX_PATH, "%s\\settings.json", gszPluginPath);
 
 	InitPlugins();
+	InitManagedDll();
 	InitSockets();
-
+	
 #ifdef _DEBUG
 	cout << GetIsaacVersion() << endl;
 	/* add commands */
@@ -96,7 +98,7 @@ DWORD WINAPI DllThread(void* pThreadArgument)
 #endif
 
 	/* wait to be detached */
-	while (gbAttached){
+	while (gbAttached) {
 #ifdef _DEBUG
 		/* monitor for commands */
 		char buffer[MAX_PATH] = { 0 };

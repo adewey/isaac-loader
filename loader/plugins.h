@@ -5,7 +5,8 @@
 #include "utilities.h"
 
 GLOBAL char gszPluginPath[MAX_PATH];
-GLOBAL char gszINIPath[MAX_PATH];
+GLOBAL char gszJSONPath[MAX_PATH];
+
 GLOBAL typedef void(__cdecl *fInitPlugin)();
 GLOBAL typedef void(__cdecl *fUnInitPlugin)();
 
@@ -79,6 +80,9 @@ GLOBAL bool LoadPlugin(const char *);
 GLOBAL bool UnloadPlugin(const char *);
 GLOBAL void UnInitPlugins();
 GLOBAL void InitPlugins();
+
+GLOBAL void InitManagedDll();
+GLOBAL void UnInitManagedDll();
 
 GLOBAL void PreGame__Start(int *, bool *, int *, char *, bool *);
 GLOBAL void OnGame__Start(int, bool, int, char *, bool);
